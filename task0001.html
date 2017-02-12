@@ -17,10 +17,58 @@
                 margin-top: 10px;
                 transform: translateX(-50%);
             }
+            #radius {
+                margin-top: 200px;
+                width: 100px;
+                height: 60px;
+            }
+            #radius .content {
+                border-left: 1px solid #ccc;
+                border-right: 1px solid #ccc;
+                padding: 10px 20px;
+            }
+            .t1, .t2, .t3, .t4, .b1, .b2, .b3, .b4 {
+                height: 1px;
+            }
+            .t1, .b4 {
+                margin: 0 5px;
+                background-color: #ccc;
+            }
+            .t2, .b3 {
+                margin: 0 3px;
+                border-right: 2px solid #ccc;
+                border-left: 2px solid #ccc;
+            }
+            .t3, .b2 {
+                margin: 0 2px;
+                border-right: 1px solid #ccc;
+                border-left: 1px solid #ccc;
+            }
+            .t4, .b1 {
+                margin: 0 1px;
+                border-right: 1px solid #ccc;
+                border-left: 1px solid #ccc;
+                heigth: 2px;
+            }
         </style>
     </head>
     <body>
         <div id = "first"></div>
         <div id = "second"></div>
+        <div id = "radius">
+            <div class = "top">
+                <div class="t1"></div>
+                <div class="t2"></div>
+                <div class="t3"></div>
+                <div class="t4"></div>
+            </div>
+            <div class = "content">hello world</div>
+            <div class = "bottom">
+                <div class="b1"></div>
+                <div class="b2"></div>
+                <div class="b3"></div>
+                <div class="b4"></div>
+            </div>
+        </div>
     </body>
 </html>
