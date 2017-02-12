@@ -80,6 +80,64 @@
                 margin-left: 120px;
                 background-color: blue;
             }
+            #threeColumn1 {
+                margin-top: 10px;
+            }
+            #threeColumn1 div {
+                padding: 10px 20px;
+            }
+            #threeColumn1 .left{
+                float: left;
+                width: 100px;
+                background-color: red;
+            }
+            #threeColumn1 .right{
+                float: right;
+                width: 100px;
+                background-color: red;
+            }
+            #threeColumn1 .center {
+                background-color: blue;
+            }
+            #threeColumn2 {
+                margin-top: 10px;
+            }
+            #threeColumn2 div {
+                display: inline-block;
+            }
+            #threeColumn2 .left{
+                width: 100px;
+                background-color: red;
+            }
+            #threeColumn2 .center {
+                background-color: blue;
+                width: calc(100% - 240px);
+            }
+
+            #threeColumn2 .right{
+                width: 100px;
+                background-color: red;
+            }
+            #threeColumn3 {
+                margin-top: 10px;
+            }
+            #threeColumn3 div {
+            }
+            #threeColumn3 .left{
+                position: absolute;
+                width: 100px;
+                background-color: red;
+            }
+            #threeColumn3 .right{
+                position: absolute;
+                right: 0;
+                width: 100px;
+                background-color: red;
+            }
+            #threeColumn3 .center {
+                background-color: blue;
+                margin-left: 100px;
+            }
         </style>
     </head>
     <body>
@@ -107,6 +165,21 @@
         <div id = "twoColumn2">
             <div class = "left">left content</div>
             <div class = "right">right content</div>
+        </div>
+        <div id = "threeColumn1">
+            <div class = "left">left content </div>
+            <div class = "right">right content </div>
+            <div class = "center">center content </div>
+        </div>
+        <div id="threeColumn2">
+            <div class="left">left content</div>
+            <div class="center">center content</div>
+            <div class="right">right content</div>
+        </div>
+        <div id="threeColumn3">
+            <div class="left">left content</div>
+            <div class="right">right content</div>
+            <div class="center">center content</div>
         </div>
     </body>
 </html>
