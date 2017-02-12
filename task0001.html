@@ -138,6 +138,28 @@
                 background-color: blue;
                 margin-left: 100px;
             }
+            #mutable {
+                background-color: red;
+            }
+            #mutable .item {
+                display: inline-block;
+                width: 100px;
+                height: 40px;
+                margin: 10px;
+                background-color: blue;
+            }
+            #mutable2 {
+                background-color: red;
+                overflow: hidden;
+                margin-top: 10px;
+            }
+            #mutable2 .item {
+                float: left;
+                width: 100px;
+                height: 40px;
+                margin: 10px;
+                background-color: blue;
+            }
         </style>
     </head>
     <body>
@@ -180,6 +202,30 @@
             <div class="left">left content</div>
             <div class="right">right content</div>
             <div class="center">center content</div>
+        </div>
+        <div id="mutable">
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+        </div>
+        <div id="mutable2">
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
         </div>
     </body>
 </html>
