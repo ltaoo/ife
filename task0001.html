@@ -18,7 +18,7 @@
                 transform: translateX(-50%);
             }
             #radius {
-                margin-top: 200px;
+                margin-top: 120px;
                 width: 100px;
                 height: 60px;
             }
@@ -50,6 +50,36 @@
                 border-left: 1px solid #ccc;
                 heigth: 2px;
             }
+            #twoColumn {
+                margin-top: 10px;
+            }
+            #twoColumn div {
+                padding: 10px 20px;
+            }
+            #twoColumn .left {
+                width: 100px;
+                background-color: red;
+                float: left;
+            }
+            #twoColumn .right {
+                background-color: blue;
+                margin-left: 100px;
+            }
+            #twoColumn2 {
+                margin-top: 10px;
+            }
+            #twoColumn2 div {
+                padding: 10px 20px;
+            }
+            #twoColumn2 .left {
+                width: 100px;
+                background-color: red;
+                position: absolute;
+            }
+            #twoColumn2 .right {
+                margin-left: 120px;
+                background-color: blue;
+            }
         </style>
     </head>
     <body>
@@ -69,6 +99,14 @@
                 <div class="b3"></div>
                 <div class="b4"></div>
             </div>
+        </div>
+        <div id = "twoColumn">
+            <div class = "left">left content</div>
+            <div class = "right">right content</div>
+        </div>
+        <div id = "twoColumn2">
+            <div class = "left">left content</div>
+            <div class = "right">right content</div>
         </div>
     </body>
 </html>
