@@ -153,5 +153,32 @@ var obj = {
     }
 }
 
-console.log(getObjectLength(obj))
+// console.log(getObjectLength(obj))
+console.log('--------- regexp --------- ')
+// 判断是否为邮箱
+function isEmail(str) {
+    // 首先要了解邮箱有什么特点
+    /* 1、肯定有 @
+     * 2、最后肯定是 .com 结尾 */
+    if(/^(\S+)@(\S+)\.com/.test(str)) {
+        return true
+    }
+    return false
+}
+
+/* console.log(isEmail('litaowold@aliyun.com')) */
+/* console.log(isEmail('litaowold@aliyuncom')) */
+
+// 判断是否是手机号
+function isMobilePhone(phone) {
+    // 手机号只能包含数字
+    return /\d{11}/g.test(phone) ? true : false
+}
+// console.log(isEmail('@aliyun.co'))
+
+console.log(isMobilePhone('13822136046'))
+console.log(isMobilePhone('1003822136046'))
+console.log(isMobilePhone('100382213604a6'))
+console.log(isMobilePhone('1.00382213604a6'))
+
 
