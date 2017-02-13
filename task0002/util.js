@@ -33,57 +33,6 @@ function isFunction(fn){
 // 测试 isFunction 
 // console.log(isFunction(isArray))
 
-// 实现对象的深拷贝
-function cloneObject(src) {
-    var obj = {}
-
-    for(var key in src) {
-        // 处理 null 和 undefined
-        if(src[key] === null || src[key] === undefined) {
-            obj[key] = src[key]
-        }
-        // 再处理其他类型
-        switch(src[key].constructor) {
-            case Array:
-                // 如果是数组，并且数组内也包含了数组呢？并且深拷贝是要复制的，所以不能简单的引用
-                obj[key] = src[key].map(function (item) {
-                    if(item.constructor === String 
-                        || item.constructor === Number 
-                        || item.constructor === Boolean
-                        || item === null
-                        || item === undefined
-                    ) {
-                        // 如果是字符串、数字、布尔值、null、undefined 这五种，可以直接返回，其他的调用自身处理,不对啊，但是先简单处理吧
-                        return item
-                    }
-                })
-                break
-            case String:
-                obj[key] = src[key]
-                break
-            case Boolean:
-                obj[key] = src[key]
-                break
-            case Number:
-                obj[key] = src[key]
-                break
-            case Date:
-                obj[key] = src[key]
-                break
-            case Function:
-                // 函数就报错
-                throw new Error("src cann't contain function")
-                break
-            case RegExp:
-                // 正则也报错
-                throw new Error("src cann't contain regexp")
-                break
-            default:
-                obj[key] = cloneObject(src[key])
-        }
-    }
-    return obj
-}
 var string = 'string'
 // console.log(string.constructor)
 console.log(string instanceof Object)
@@ -115,28 +64,94 @@ var object = {}
 // console.log(object.constructor)
 console.log(object instanceof Object)
 
-var number2 = new Number(10)
-console.log(number2 + 4)
-console.log(number2.constructor)
-console.log(typeof number2)
-console.log(number2 instanceof Object)
-var number3 = Number(10)
-console.log(number3)
+/* var number2 = new Number(10) */
+// console.log(number2 + 4)
+// console.log(number2.constructor)
+// console.log(typeof number2)
+// console.log(number2 instanceof Object)
+// var number3 = Number(10)
+/* console.log(number3) */
 
 // 测试用例：
-var srcObj = {
-    a: 1,
-    b: {
-        b1: ["hello", "hi"],
-        b2: "JavaScript"
-    }
-};
+/* var srcObj = { */
+//     a: 1,
+//     b: {
+//         b1: ["hello", "hi"],
+//         b2: "JavaScript"
+//         }
+//     };
 // var abObj = srcObj;
 // var tarObj = cloneObject(srcObj);
 // srcObj.a = 2;
 // srcObj.b.b1[0] = "Hello";
 // console.log(abObj.a);
 // console.log(abObj.b.b1[0]);
-// console.log(tarObj.a);      // 1
-// console.log(tarObj.b.b1[0]);    // "hello"
+// console.log(tarObj.a);
+/* console.log(tarObj.b.b1[0]);     */
+
+console.log('--------- 数组去重--------- ')
+// 数组去重，只考虑字符串和数字
+function uniqArray(arr) {
+    var uniq = []
+    arr.forEach(function (item) {
+        if(uniq.indexOf(item) === -1) {
+            // === -1 表示该元素不存在 uniq 数组中
+            uniq.push(item)
+        }
+    })
+
+    return uniq
+}
+
+var ary = ['1', 1, 2, 3, 1, '1', 100]
+console.log(uniqArray(ary))
+// console.log(ary.indexOf(1))
+
+// NaN 也是数字，如果包含该值能否去重？
+var ary = [NaN, '1', 1, 2, NaN, 3, 1, '1', 100]
+console.log(uniqArray(ary)) //无法成功去重
+
+console.log('--------- trim --------- ')
+function trim(str) {
+    return str.replace(/(^\s+|\s$)/g, '')
+}
+
+/* console.log(trim('    hello   ')) */
+// console.log(trim(`
+//
+//     包含了换行与 tab 键      `))
+/* console.log(trim('　　　    使用全角空白 ｉ　　　1１２３ａaｂｃｄｅｆｇ　　  ')) */
+
+console.log('--------- each --------- ')
+
+// 实现对数组中每一个元素调用回调函数
+function each(arr, fn) {
+    for(var i = 0, len = arr.length; i < len; i++) {
+        var item = arr[i]
+        fn.call(null, item, i)
+    }
+}
+
+/* each(['a', 'b'], function(item, index) { */
+    // console.log(item, index)
+/* }) */
+
+function getObjectLength(obj) {
+    var n = 0
+    for(var key in obj) {
+        n += 1
+    }
+    return n
+}
+
+var obj = {
+    a: 1,
+    b: 2,
+    c: {
+        c1: 3,
+        c2: 4,
+    }
+}
+
+console.log(getObjectLength(obj))
 
