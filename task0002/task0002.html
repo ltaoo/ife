@@ -3,12 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>task0002</title>
+    <style>
+        div {
+            border: 1px solid #ccc;
+        }
+        .box {
+            padding: 10px;
+        }
+        .inner {
+            margin-left: 20px;
+        }
+    </style>
 </head>
 <body>
-    <input type="text" id="number1">
-    <input type="text" id="number2">
-    <span id="result"></span>
+    <div>
+        <input type="text" id="number1">
+        <input type="text" id="number2">
+    </div>
+    <span id="result" class = "first"></span>
     <button id="addbtn">点击</button>
+    <div class="box">
+        <div class="inner">hello world</div>
+    </div>
+    <div data-log = "hello" id = "log"></div>
+    <div log = "hello"></div>
     <script src="./index.js"></script>
 </body>
 </html>

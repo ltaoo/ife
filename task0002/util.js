@@ -171,14 +171,24 @@ function isEmail(str) {
 
 // 判断是否是手机号
 function isMobilePhone(phone) {
-    // 手机号只能包含数字
+    // 手机号只能包含数字，不过很明显 99999999999 这种也符合，但是不记得到底什么可以啊，所以要查资料，查资料就有直接给出正则
+    // 所以没意义
     return /\d{11}/g.test(phone) ? true : false
 }
 // console.log(isEmail('@aliyun.co'))
 
-console.log(isMobilePhone('13822136046'))
-console.log(isMobilePhone('1003822136046'))
-console.log(isMobilePhone('100382213604a6'))
-console.log(isMobilePhone('1.00382213604a6'))
+/* console.log(isMobilePhone('13822136046')) */
+// console.log(isMobilePhone('1003822136046'))
+// console.log(isMobilePhone('100382213604a6'))
+/* console.log(isMobilePhone('1.00382213604a6')) */
+
+
+console.log('------------ dom 处理 ------------')
+function addClass (element, newClassName) {
+    // 实现增加类名
+    element.class += ' '+newClassName
+}
+
+
 
 
