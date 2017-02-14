@@ -189,6 +189,28 @@ function addClass (element, newClassName) {
     element.class += ' '+newClassName
 }
 
+console.log('------------ 实现简单的 dom 选择器-----------')
+function $(selector) {
+    var rquick = /^(?:#([\w-]+)|(\w+)|\.[\w-]+)$/
+
+    var match = rquick.exec(selector)
+
+    if(match[1]) {
+        // ID Selector
+        return document.getElementById(match[1])
+    } else if(match[2]) {
+        // Tag Selector
+        return document.getElementsByTagName(match[2])
+    } else if(match[3]) {
+        // Class Selector
+        return document.getElementsByClassName(match[3])
+    }
+
+    // 如果没有匹配到，就说明是属性选择或者多级选择器
+}
+
+console.log($('#result'))
+
 
 
 
