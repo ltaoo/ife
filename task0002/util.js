@@ -246,6 +246,50 @@ function addEnterEvent (element, listener) {
 function pressEntry(event) {
     console.log(event)
 }
-addEnterEvent($('#number1'), pressEntry)
+// addEnterEvent($('#number1'), pressEntry)
 
+// 对 $ 函数进行拓展，增加属性
+
+$.on = function (selector, event, listener) {
+    addEvent($(selector), event, listener)
+}
+$.un = function(selector, event, listener) {
+    removeEvent($(selector), event, listener)
+}
+$.click = function(selector, listener) {
+    addClickEvent($(selector), listener)
+}
+$.enter = addEnterEvent
+
+// $.enter('#number1', pressEntry)
+
+function delegateEvent(element, tag, eventName, listener) {
+    // your implement
+    // 即使增加 dom 也能够实现监听，其实就是监听 element ，因为点击 tag 也会冒泡到 element 上
+
+    element.addEventListener(eventName, listener)
+}
+
+$.delegate = function(selector, tag, event, listener) {
+    delegateEvent($(selector), tag, event, listener)
+}
+
+function clickHandle(event) {
+    // 
+    console.log(event)
+    var target = event.target
+    alert(target.innerHTML)
+}
+
+// $.delegate('#list', 'li', 'click', clickHandle)
+
+// 再增加 dom 节点仍然可以响应点击事件
+
+// var newLi = document.createElement('li')
+// newLi.innerHTML = 'five'
+// $('#list').appendChild(newLi)
+
+/* $.click('#addbtn', function (event) { */
+    // alert(event.target)
+/* }) */
 
