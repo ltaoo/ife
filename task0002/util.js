@@ -207,10 +207,45 @@ function $(selector) {
     }
 
     // 如果没有匹配到，就说明是属性选择或者多级选择器
+    throw new Error('没有匹配到')
 }
 
-console.log($('#result'))
+// console.log($('#result'))
 
+console.log('------------ 实现事件-----------')
+function addEvent(element, event, listener) {
+    element.addEventListener(event, listener)
+}
 
+function clickAlert(event) {
+    alert(event)
+}
+// addEvent($('#addbtn'), 'click', clickAlert)
+
+// 移除事件监听
+function removeEvent(element, event, listener) {
+    element.removeEventListener(event, listener)
+}
+
+// removeEvent($('#addbtn'), 'click', clickAlert)
+
+function addClickEvent (element, listener) {
+    // 添加点击事件，就是省去了写 click
+    element.addEventListener('click', listener)
+}
+function addEnterEvent (element, listener) {
+    // 首先要明确点击确定键是什么事件
+    function _temp(event) {
+        if(event.key === 'Enter') {
+            listener.call(null, event)
+        } 
+    }
+    element.addEventListener('keydown', _temp)
+}
+
+function pressEntry(event) {
+    console.log(event)
+}
+addEnterEvent($('#number1'), pressEntry)
 
 
