@@ -75,6 +75,21 @@
 
                 return false
             })
+
+            // ajax 请求数据
+            ajax('./util.js', {
+                type: "POST",
+                data: {
+                    name: 'ltaoo'
+                },
+                onsuccess: function (result) {
+                    console.log(result.length)
+                },
+                onfail: function (error) {
+                    console.log(error)
+                }
+            })
+            // ajax('http://api.juheapi.com/japi/toh?key=73bb6b3818191ab97cb2cf06e02a9e2a&v=1.0&month=11&day=1')
         }
     </script>
 </body>

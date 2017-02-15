@@ -402,7 +402,47 @@ function removeCookie(cookieName) {
     document.cookie = cookieName + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
     return true
 }
-function removeAllCookie() {
-    document.cookie = null
+
+/* 自定义 ajax 请求方法
+ * @param <String> url
+ * @param <Object> options */
+function ajax(url, options) {
+    // 必须要传入 url
+    if(!url) {
+        return
+    }
+    options = options || {}
+    // 请求成功与失败的处理函数
+    var success = options.onsuccess
+    var fail = options.onfail
+
+    // 实例化一个请求对象
+    var oReq = new XMLHttpRequest()
+
+    oReq.onload = function() {
+        // console.log(this.responseText)
+        success(this.responseText)
+    }
+    oReq.onerror = function() {
+        fail(this.responseText)
+    }
+
+    // 每一次状态改变都会调用该函数，但是本地请求不会？
+    function handler (param) {
+        // console.log(param)
+        console.log(oReq)
+    }
+    
+    var method = options.type || "GET"
+    // 第三个参数是是否 async
+    oReq.open(method, url, true)
+    var data = null
+    // oReq.onreadystatechange = handler
+    if(method.toUpperCase() === "POST") {
+        // 如果是 post 请求，就还需要发送 body
+        oReq.setRequestHeader("enctype", "application/x-www-form-urlencoded")
+        data = JSON.stringify(options.data)
+    }
+    oReq.send(data)
 }
 
