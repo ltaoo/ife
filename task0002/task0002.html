@@ -21,7 +21,8 @@
         <input type="text" id="number2">
     </div>
     <span id="result" class = "first"></span>
-    <button id="addbtn">点击</button>
+    <button id="addbtn">新增 cookie </button>
+    <button id="delbtn">删除 cookie </button>
     <div class="box">
         <div class="inner">hello world</div>
     </div>
@@ -34,5 +35,47 @@
         <li>four</li>
     </ul>
     <script src="./util.js"></script>
+    <script>
+        document.body.onload = function (){
+            // 页面加载成果，如果存在 name cookie，就弹出欢迎提示，否则就弹出框填写
+            var name = getCookie('name')
+            if(name) {
+                console.log('欢迎！ ' + name)
+            } else {
+                var response = prompt('请输入姓名')
+                response && setCookie('name', response)
+            }
+
+            var btn = document.querySelector('#addbtn')
+            var key = document.querySelector('#number1')
+            var value = document.querySelector('#number2')
+
+            btn.addEventListener('click', function (event) {
+                // 当点击按钮，就删除 cookie
+                if(key.value && value.value) {
+                    // 新增 cookie
+                    setCookie(key.value, value.value)
+                    return true
+                }
+
+                return false
+            })
+
+            var delbtn = document.querySelector('#delbtn')
+            delbtn.addEventListener('click', function (event) {
+                // 点击删除 cookie
+                if(!key.value) {
+                    return false
+                }
+
+
+                if(removeCookie(key.value)) {
+                    alert('删除成功')
+                }
+
+                return false
+            })
+        }
+    </script>
 </body>
 </html>

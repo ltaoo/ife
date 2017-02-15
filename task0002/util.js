@@ -293,3 +293,116 @@ function clickHandle(event) {
     // alert(event.target)
 /* }) */
 
+console.log('------------ cookie 处理 ----------- ')
+/** 
+ * 返回 key=value 组成的数组
+ */
+function getCookieArray () {
+    var allCookie = document.cookie
+    /* if(!allCookie.trim()) {
+     *     return []
+     * }
+     * return allCookie.split(';') */
+
+    var match = document.cookie.match(/\w+=\w+/) 
+    return match ? match : []
+}
+/** 
+ * 返回包含所有键值对 {key: value} 大对象
+ * return <Object>
+ */
+function getAllCookie() {
+    var cookieAry = getCookieArray()
+    /* console.log(cookieAry) */
+    var cookieObj = {}
+    cookieAry.forEach(function (cookie) {
+        var _temp = cookie.split('=')
+        cookieObj[_temp[0]] = _temp[1]
+    })
+
+    return cookieObj
+}
+/*
+ * 设置 cookie 键值对
+ * param: <String> cookieName
+ * param: <String> cookieValue
+ * param: <String> expiredays
+ * return: <Boolean>
+ */
+function setCookie(cookieName, cookieValue, expiredays) {
+    if(!cookieName || !cookieValue || cookieName.constructor !== String || cookieValue.constructor !== String) {
+        throw new Error('typeError')
+        return false
+    }
+    // 获取到 cookie 对象
+    var cookieObj = getAllCookie()
+    // 无论怎么样都是这么做，如果已经存在就会覆盖，不存在就新增
+    // 先使用 encodeURIComponent 进行处理
+    // cookieObj[cookieName] = cookieValue
+    // 如果传入了 expiredays 还要额外处理
+    var expires = ''
+    if(expiredays) {
+        switch(expiredays.constructor) {
+            case Number:
+                // 传入的应该是秒数
+                break
+            case String:
+                expires = new Date(expiredays).toUTCString()
+                break
+            case Date:
+                // 指定时间
+                expires = expiredays.toUTCString()
+                break
+            default:
+                // 有一个默认过期时间吗？
+        }
+    }
+    /* if(expiredays && expiredays.constructor === Number) {
+     *     // 如果传入的是数字
+     *     cookieObj.expires = expiredays
+     * } else if(expiredays && expiredays.constructor === String) {
+     *     cookieObj.expires = new Date(expiredays).toUTCString()
+     * } */
+    /* cookieObj.expires = expires */
+    /* var cookieStr = cookieObjToString(cookieObj) */
+    // console.log(cookieStr)
+
+    // document.cookie 一次只能更新或者设置一个 cookie，应该是在内部有自己处理
+    document.cookie = cookieName + "=" + cookieValue + (expires && ";expires=" + expires)
+    return true
+}
+/**
+ * 将 cookie 对象转换为字符串并返回
+ * param: <Object> cookieObj
+ * return: <String> */
+function cookieObjToString(cookieObj) {
+    // 将 obj 转成字符串
+    var _ary = []
+    for(var key in cookieObj) {
+        _ary.push(key.trim() + "=" + cookieObj[key])
+    }
+    return _ary.join(';')
+}
+/* 获取指定 cookie 的值
+ * param: <String> cookieName
+ * return: <String> */
+function getCookie(cookieName) {
+    var cookieObj = getAllCookie()
+    return cookieObj[cookieName]
+}
+/**
+ * 移除指定 cookie
+ * param: <String> cookieName
+ * return <Boolean>
+ */
+function removeCookie(cookieName) {
+    // 首先要判断该 cookie 是否存在，因为只能移除已存在的 cookie
+    console.log(cookieName)
+    if(!cookieName) {return false}
+    document.cookie = cookieName + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    return true
+}
+function removeAllCookie() {
+    document.cookie = null
+}
+
