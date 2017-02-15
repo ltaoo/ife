@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task 0002</title>
+</head>
+<body>
+    <input type="text" id="input">
+    <button id="submit">提交</button>
+    <script>
+        document.body.onload = function () {
+            var input = document.getElementById('input')
+            var btn = document.getElementById('submit')
+
+            /* 点击按钮，获取到输入框的值，进行处理后显示在页面上
+             * @return void 0
+             */
+            function submitHobbies() {
+                // 拿到值，分割处理，最后保存
+                var hobbies = input.value
+                var uniq = []
+                var hobbyAry = hobbies.split(',').filter(function (hobby) {
+                    // 
+                    if(!hobby.trim()) return false
+                    if(uniq.indexOf(hobby) === -1) {
+                        // 表示不存在
+                        uniq.push(hobby)
+                        return true
+                    } else {
+                        return false
+                    }
+                })
+
+                console.log(hobbyAry)
+                // 新增段落用以显示
+                var content = document.getElementById("content")
+                if(!content) {
+                    // 如果不存在，就创建
+                    content = document.createElement('ul')
+                    content.id = "content"
+                }
+                content.innerHTML = hobbyAry.map(function (hobby) {
+                    return  "<li>" + hobby + "</li>"
+                }).join("")
+
+                // 将新增的节点插入到 body 内
+                document.body.appendChild(content)
+            }
+            btn.addEventListener("click", submitHobbies)
+        }
+    </script>
+</body>
+</html>
