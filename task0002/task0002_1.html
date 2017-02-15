@@ -34,24 +34,54 @@
                 // 第二阶段 使用正则提取
                 return input.match(/([\w]+|[\u4e00-\u9fa50-9a-zA-Z]+)/g)
             }
+            /* 显示错误提示
+             * @param <String> info 要显示的内容
+             */
+            function renderError(text) {
+                // 在按钮上方显示
+                var btn = document.querySelector('#submit')
+                var info = document.querySelector('#error')
+                if(!info) {
+                    info = document.createElement('p')
+                    info.id = "error"
+                    info.style.position = "relative"
+                    info.style.left = "35px"
+                    info.style.bottom = "25px"
+                    info.style.display = "inline"
+                    info.style.color = 'red'
+                }
+                info.innerHTML = text 
+                var parentNode = btn.parentNode
+                parentNode.insertBefore(info, btn)
+            }
             /* 点击按钮，获取到输入框的值，进行处理后显示在页面上
              * @return void 0
              */
             function submitHobbies() {
-                // 拿到值，分割处理，最后保存
                 var hobbies = input.value
                 var hobbyAry = handleInput(hobbies)
+                // 处理异常
+                if(!hobbies.trim()) {
+                    renderError('请输入内容')
+                    return
+                } else if(hobbyAry.length > 10) {
+                    renderError('内容过多')
+                    return
+                }
+
+                // 清空错误提示
+                renderError('')
 
                 console.log(hobbyAry)
                 // 新增段落用以显示
                 var content = document.getElementById("content")
                 if(!content) {
                     // 如果不存在，就创建
-                    content = document.createElement('ul')
+                    content = document.createElement('div')
                     content.id = "content"
                 }
                 content.innerHTML = hobbyAry.map(function (hobby) {
-                    return  "<li>" + hobby + "</li>"
+                    return  "<label><input type='checkbox' >" + hobby + "</label>"
                 }).join("")
 
                 // 将新增的节点插入到 body 内
