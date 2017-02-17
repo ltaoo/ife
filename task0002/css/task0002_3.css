@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+ul, li {
+    /* 清除默认 list 样式 */
+    list-style: none;
+}
+
+.slider {
+    /* 给定 slider 宽高 */
+    width: 730px;
+    height: 336px;
+    /* 超出隐藏 */
+    overflow: hidden;
+    /* 居中 */
+    margin: 0 auto;
+}
+
+.slider__body {
+    /* 清除浮动 */
+    overflow: hidden;
+}
+
+.slider__item {
+    float: left;
+}
