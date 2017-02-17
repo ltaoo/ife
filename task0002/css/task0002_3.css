@@ -2,6 +2,9 @@
     margin: 0;
     padding: 0;
 }
+a {
+    text-decoration: none;
+}
 ul, li {
     /* 清除默认 list 样式 */
     list-style: none;
@@ -15,13 +18,36 @@ ul, li {
     overflow: hidden;
     /* 居中 */
     margin: 0 auto;
+    /* 用来给序号定位 */
+    position: relative;
 }
 
 .slider__body {
     /* 清除浮动 */
     overflow: hidden;
+    z-index: 0;
 }
 
 .slider__item {
     float: left;
+}
+
+.slider__head {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    /* 清楚浮动 */
+    overflow: hidden;
+}
+.slider__dot {
+    display: inline-block;
+    width: 20px;
+    line-height: 20px;
+    border-radius: 10px;
+    margin-right: 5px;
+    background-color: #fff;
+    text-align: center;
+    font-size: 14px;
 }

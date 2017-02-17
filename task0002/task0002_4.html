@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>搜索提示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul, li {
+            list-style: none;
+        }
+        .search {
+            width: 198px;
+            margin: 100px auto;
+        }
+        .search__input {
+            width: 100%;
+        }
+        .search__tips {
+            border: 1px solid #ccc;
+            width: 200px;
+        }
+        .search__tip {
+            cursor: pointer;
+        }
+        .search__tip:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="search">
+        <input type="text" class="search__input">
+        <ul class="search__tips"></ul>
+    </div>
+    <script src="./js/task0002_4.js"></script>
+</body>
+</html>
