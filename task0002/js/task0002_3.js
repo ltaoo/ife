@@ -26,27 +26,11 @@ document.body.onload = function () {
         var width = slider.clientWidth
         // console.log(width)
         var height = slider.clientHeight
-        // 初始化宽度
+        // 初始化宽度以及位置
         var sumWidth = imgs.length*width
         content.style.width = sumWidth + 'px'
-        // content.style.left = 0
         content.style.transform = 'translateX(0)'
-        // 通过改变 .slider__body 也就是 content 的 left 值实现轮播
-        
-        /* var timer = setInterval(function () { */
-            /* var oldLeft = content.style.left.replace(/px/, '')
-             * var newLeft = oldLeft - width + 'px'
-             * console.log(imgs.length*width)
-             * if(oldLeft < (-((imgs.length-2)*width))) {
-             *     newLeft = 0
-             * }
-             * content.style.left = newLeft */
-            // // 使用 transform 实现动画
-            // var oldLeft = content.style.transform.match(/[0-9]+/)[0]
-            // var newLeft = parseInt(oldLeft) + parseInt(width)
-            // console.log(newLeft)
-            // content.style.transform = 'translateX(-' + width + 'px)'
-        /* }, duration) */
+
         /*
          * 动画函数，调用该函数，传入开始位置、结束位置以及时间，就能够在指定时间完成动画
          * @param <String> start
@@ -60,14 +44,9 @@ document.body.onload = function () {
             var endTime = startTime + time
             // 总路程
             var length = start - end
-            // 计算出每 60 毫秒走过的路程
-            var speed = (length/time)*30
             var timer
-            var i = parseInt(-start)
+            var i = -start
             timer = setInterval(function () {
-                /* if(i > sumWidth - width) { */
-                    // i = 0
-                /* } */
                 // 检查时间
                 if(new Date() > new Date(endTime)) {
                     // 停止动画
@@ -75,26 +54,38 @@ document.body.onload = function () {
                     content.style.transform = 'translateX(' + end + 'px)'
                     clearTimeout(timer)
                 }
-                i = Math.floor(i + speed)
-                console.log('i is : ', i)
+                // 计算出每 xx 毫秒走过的路程
+                var speed = (length/time)*20
+                // i 就是位置，如何计算应该在哪个位置？传入 已消耗的时间、开始位置、结束位置以及动画时间
+                i = i + speed
                 content.style.transform = 'translateX(-' + i + 'px)'
-            }, 30)
+            }, 20)
         }
+
 
         // 每隔 duration 调用一次动画
         var start = setInterval(function () {
             // 实现动画，动画有开始位置、结束位置和动画时间
             var startPos = content.style.transform.match(/-?[0-9]+/)[0]
             var endPos = direction === 'left' ? startPos - width : startPos + width
-            // 距离/时间 得到 速度
             console.log(startPos, endPos)
-            if(-endPos > sumWidth-width) {
-                endPos = 0
+            // 什么时候返回，这里可以根据配置决定是否循环
+            /* 现在假设有三种图片，总宽度为 2800
+             * 第一次移动时开始位置为 0，结束位置为 -700
+             * 第二次移动时开始位置为 -700，结束位置为 -1400
+             * 第三次移动时开始位置为 -1400，结束位置为 -2100
+             * 第四次移动时开始位置为 -2100 重置为 0，结束位置为 -1400 */
+            if(-startPos >= sumWidth - width) {
+                console.log('掉头')
+                content.style.transform = 'translateX(0)'
+                startPos = 0
+                endPos = -730
             }
-            // animation(startPos, endPos, 4000)
-        }, 5000)
+            animation(startPos, endPos, 1000)
+        }, 3000)
     }
 
+
     // 开始轮播
-    var slider = new Slider('#slider')
+    var slider = Slider('#slider')
 }
