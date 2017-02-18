@@ -28,21 +28,24 @@
             height: 30px;
             cursor: pointer;
         }
+        .container__item--virtual {
+            border: 2px dotted #ccc;
+            padding: 10px 0;
+            height: 30px;
+        }
     </style>
 </head>
 <body>
     <div id="source" class="container">
         <ul class="container__list">
-            <li class="container__item" draggable="true"></li>
-            <li class="container__item" draggable="true"></li>
-            <li class="container__item" draggable="true"></li>
-            <li class="container__item" draggable="true"></li>
-            <li class="container__item" draggable="true"></li>
+            <li class="container__item" draggable="true">content 1</li>
+            <li class="container__item" draggable="true">content 2</li>
+            <li class="container__item" draggable="true">content 3</li>
+            <li class="container__item" draggable="true">content 4</li>
+            <li class="container__item" draggable="true">content 5</li>
         </ul>
     </div>
     <div id="target" class="container">
-        <ul class="container__list">
-        </ul>
     </div>
     <script src="./js/task0002_5.js"></script>
 </body>
