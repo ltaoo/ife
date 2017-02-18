@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>可拖拽容器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul, li {
+            list-style: none;
+        }
+        .container {
+            float: left;
+            width: 300px;
+            min-height: 600px;
+            margin-right: 80px;
+            border: 1px solid #ccc;
+        }
+        .container__list {
+        }
+        .container__item {
+            border-bottom: 1px solid #ccc;
+            background-color: green;
+            text-align: center;
+            padding: 10px 0;
+            height: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="source" class="container">
+        <ul class="container__list">
+            <li class="container__item" draggable="true"></li>
+            <li class="container__item" draggable="true"></li>
+            <li class="container__item" draggable="true"></li>
+            <li class="container__item" draggable="true"></li>
+            <li class="container__item" draggable="true"></li>
+        </ul>
+    </div>
+    <div id="target" class="container">
+        <ul class="container__list">
+        </ul>
+    </div>
+    <script src="./js/task0002_5.js"></script>
+</body>
+</html>
