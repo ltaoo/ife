@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script>
+        var variable = "global"
+
+        function echo () {
+            console.log(variable)
+        }
+
+        variable = "global2"
+
+        function change() {
+            var variable = "local"
+
+            echo()
+        }
+
+        change()
+    </script>
+</body>
+</html>

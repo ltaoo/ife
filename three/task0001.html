@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Three 学习</title>
+</head>
+<body onload="init()">
+    <canvas id="mainCanvas" width="400px" height="300px"></canvas>
+    <script src="../node_modules/three/three.js"></script>
+    <script>
+        function init() {
+            // 一个典型的 Three.js 程序至少要包括 Renderer、Scene、Camera
+            // ## 1、创建渲染器
+            var renderer = new THREE.WebGLRenderer({
+                canvas: document.querySelector('#mainCanvas')
+            })
+            /*
+             * 或者可以自己生成 Canvas 
+             * var renderer = new THREE.WebGLRenderer()
+             * renderer.setSize(400, 300)
+             * document.querySelector('body').appendChild(renderer.domElement)
+             */
+            renderer.setClearColor(0x000000)
+            // ## 2、创建场景
+            var scene = new THREE.Scene()
+            // ## 3、创建照相机
+            var camera = new THREE.PerspectiveCamera(45, 4 / 3, 1, 1000)
+            camera.position.set(0, 0, 5)
+            // 将照相机添加到场景中
+            scene.add(camera)
+            // ## 4、创建物体
+            var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 3),
+                new THREE.MeshBasicMaterial({
+                    color: 0xff0000
+                })
+            )
+            // 再将 cube 放到场景中
+            scene.add(cube)
+            // ## 5、渲染
+            renderer.render(scene, camera)
+        }
+    </script>
+</body>
+</html>
