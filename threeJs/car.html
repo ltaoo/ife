@@ -48,9 +48,10 @@
                 })
             )
             scene.add(rightHeadWheel)
-            rightHeadWheel.position.x = 1.5
-            rightHeadWheel.position.y = -1
-            rightHeadWheel.position.z = 1
+            // rightHeadWheel.position.x = 1.5
+            // rightHeadWheel.position.y = -1
+            // rightHeadWheel.position.z = 1
+            rightHeadWheel.position.set(1.5, -1, 1)
             // 左前轮
             var leftHeadWheel = new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 18, 18),
                 new THREE.MeshLambertMaterial({
@@ -59,9 +60,10 @@
                 })
             )
             scene.add(leftHeadWheel)
-            leftHeadWheel.position.x = 1.5
-            leftHeadWheel.position.y = -1
-            leftHeadWheel.position.z = -1
+            // leftHeadWheel.position.x = 1.5
+            // leftHeadWheel.position.y = -1
+            // leftHeadWheel.position.z = -1
+            leftHeadWheel.position.set(1.5, -1, -1)
             // 左后轮
             var leftAfterWheel = new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 18, 18),
                 new THREE.MeshLambertMaterial({
@@ -70,9 +72,10 @@
                 })
             )
             scene.add(leftAfterWheel)
-            leftAfterWheel.position.x = -1.5
-            leftAfterWheel.position.y = -1
-            leftAfterWheel.position.z = -1
+            // leftAfterWheel.position.x = -1.5
+            // leftAfterWheel.position.y = -1
+            // leftAfterWheel.position.z = -1
+            leftAfterWheel.position.set(-1.5, -1, -1)
             // 右后轮
             var rightAfterWheel = new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 18, 18),
                 new THREE.MeshLambertMaterial({
@@ -80,9 +83,10 @@
                     // wireframe: true
                 })
             )
-            rightAfterWheel.position.x = -1.5
-            rightAfterWheel.position.y = -1
-            rightAfterWheel.position.z = 1
+            // rightAfterWheel.position.x = -1.5
+            // rightAfterWheel.position.y = -1
+            // rightAfterWheel.position.z = 1
+            rightAfterWheel.position.set(-1.5, -1, 1)
             scene.add(rightAfterWheel)
             // 添加光源
             var light = new THREE.DirectionalLight()
