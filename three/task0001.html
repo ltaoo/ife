@@ -30,11 +30,16 @@
             // left, right, top, bottom, near, far
             // var camera = new THREE.OrthographicCamera(-2, 2, 1.5, -1.5, 1, 10)
             // var camera = new THREE.OrthographicCamera(-1, 1, 1.5, -1.5, 1, 10)
-            var camera = new THREE.OrthographicCamera(-1, 3, 1.5, -1.5, 1, 10)
+            // var camera = new THREE.OrthographicCamera(-1, 3, 1.5, -1.5, 1, 10)
             // 照相机摆放的位置
-            camera.position.set(4, -3, 5)
+            // camera.position.set(4, -3, 5)
             // 看向原点
-            camera.lookAt(new THREE.Vector3(0, 0, 0))
+            // camera.lookAt(new THREE.Vector3(0, 0, 0))
+            //
+            // 创建透视投影照相机
+            var camera = new THREE.PerspectiveCamera(45, 400 / 300, 1, 10)
+            camera.position.set(0, 0, 5)
+            scene.add(camera)
             // 将照相机向右移动了 1，所以看起来物体往左移了
             // camera.position.set(1, 0, 5)
             // 将照相机添加到场景中
