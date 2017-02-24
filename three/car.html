@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>任务1，小车</title>
+</head>
+<body>
+    <canvas id="main" width="800px" height="600px"></canvas>
+    <script src="./three.js"></script>
+    <script>
+        document.body.onload = function () {
+            // 1、创建 renderer，可以理解为一个画布
+            var renderer = new THREE.WebGLRenderer({
+                canvas: document.querySelector('#main')
+            })
+
+            // 设置画布的颜色
+            renderer.setClearColor('0x000000')
+            // 2、创建场景
+            var scene = new THREE.Scene()
+            /* 3、创建照相机，该照相机为 "透视投影照相机"
+             * THREE.PerspectiveCamera(fov, aspect, near, far)
+             * @param fov:     视景体竖直方向上的张角，张角越大物体越小
+             * @param aspect:  width/height，是照相机水平方向和竖直方向长度的比值，通常和画布的比例一致
+             * @param near:    照相机到视景体最近的具体
+             * @param far:     照相机到视景体最远的具体，且必须大于 near
+             */
+            var camera = new THREE.PerspectiveCamera(45, 4/3, 1, 1000)
+            // 4、设置照相机将要放置的位置
+            // camera.position.set(0, 0, 5)
+            camera.position.set(4, 3, 6)
+            camera.lookAt(new THREE.Vector3(0, 0, 0))
+            // 5、创建一个正方体
+            var cube = new THREE.Mesh(new THREE.CubeGeometry(6, 2, 2),
+                new THREE.MeshLambertMaterial({
+                    color: 0xffffff,
+                    // wireframe: true
+                }) 
+            )
+            // 6、将正方体放入场景中
+            scene.add(cube)
+            // 创建轮子，以 x 轴正方向为前
+            // 右前轮
+            var rightHeadWheel = new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 18, 18),
+                new THREE.MeshLambertMaterial({
+                    color: 0xffffff,
+                    // wireframe: true
+                })
+            )
+            scene.add(rightHeadWheel)
+            rightHeadWheel.position.x = 1.5
+            rightHeadWheel.position.y = -1
+            rightHeadWheel.position.z = 1
+            // 左前轮
+            var leftHeadWheel = new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 18, 18),
+                new THREE.MeshLambertMaterial({
+                    color: 0xffffff,
+                    // wireframe: true
+                })
+            )
+            scene.add(leftHeadWheel)
+            leftHeadWheel.position.x = 1.5
+            leftHeadWheel.position.y = -1
+            leftHeadWheel.position.z = -1
+            // 左后轮
+            var leftAfterWheel = new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 18, 18),
+                new THREE.MeshLambertMaterial({
+                    color: 0xffffff,
+                    // wireframe: true
+                })
+            )
+            scene.add(leftAfterWheel)
+            leftAfterWheel.position.x = -1.5
+            leftAfterWheel.position.y = -1
+            leftAfterWheel.position.z = -1
+            // 右后轮
+            var rightAfterWheel = new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 18, 18),
+                new THREE.MeshLambertMaterial({
+                    color: 0xffffff,
+                    // wireframe: true
+                })
+            )
+            rightAfterWheel.position.x = -1.5
+            rightAfterWheel.position.y = -1
+            rightAfterWheel.position.z = 1
+            scene.add(rightAfterWheel)
+            // 添加光源
+            var light = new THREE.DirectionalLight()
+            light.position.set(2, 5, 3)
+            scene.add(light)
+            // 7、最后在画布上显示
+            renderer.render(scene, camera)
+        }
+    </script>
+</body>
+</html>
