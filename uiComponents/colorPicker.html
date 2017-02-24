@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>UI 组件之 颜色选择器</title>
+</head>
+<body>
+    <!-- 预览元素 -->
+    <div class="preview"></div>
+    <!-- 选择器元素 -->
+    <div class="colorpicker">
+        <canvas id="pickerp" var="1" width="300" height="300"></canvas>
+        <div class="controls">
+            <div><label for="rVal">R<input id="rVal" type="text"></label></div>
+            <div><label for="rVal">G<input id="gVal" type="text"></label></div>
+            <div><label for="rVal">B<input id="bVal" type="text"></label></div>
+            <div><label for="rVal">RGB<input id="rgbVal" type="text"></label></div>
+            <div><label for="rVal">HEX<input id="hexVal" type="text"></label></div>
+        </div>
+    </div>
+    <script>
+        document.body.onload = function () {
+            var bCanPreview = true
+            var canvas = document.querySelector('#picker')
+            var ctx = canvas.getContext('2d')
+            var image = new Image()
+            image.onload = function () {
+                ctx.drawImage(image, 0, 0, image.width, image.height)
+            }
+
+        }
+    </script>
+</body>
+</html>
