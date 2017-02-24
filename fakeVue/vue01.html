@@ -11,26 +11,42 @@
          * @param (Object)required data
          */
         function Observer(data) {
-            var _data = {}
-            // 通过遍历 data 实现将 data 上的每一个值都拷贝到 this.data 上
-            for(var key in data) {
+            if(data.constructor !== Object) {
+                return
+            }
+            // 通过遍历 data 实现将 data 上的每一个值都拷贝到 _data 上
+            // console.log(convert(data))
+            this.data = convert(data)
+            return this
+        }
+        /* 
+         * 转换函数，用来将源对象上的值拷贝到新对象上，并设置 set 和 get 后返回该新对象
+         * @param (Object)required source
+         * @return (Object) 
+         */
+        function convert(source) {
+            var target = {}
+            for(var key in source) {
                 (function(key) {
                     // 给 this.data 添加属性
-                    Object.defineProperty(_data, key, {
+                    Object.defineProperty(target, key, {
                         get: function() {
                             console.log('读取了', key)
-                            return data[key]
+                            return source[key]
                         },
                         set: function(newValue) {
                             console.log(key,'被修改为', newValue)
                             // _data[key] = newValue
-                            data[key] = newValue
+                            source[key] = newValue
                         }
                     })
+                    // 如果值还是对象，就递归
+                    if(source[key].constructor === Object) {
+                        source[key] = convert(source[key])
+                    }
                 })(key)
             }
-            this.data = _data
-            return this
+            return target
         }
         document.body.onload = function () {
             app1 = new Observer({
@@ -38,17 +54,20 @@
                 age: 25
             })
 
-            var app2 = new Observer({
+            app2 = new Observer({
                 university: 'bupt',
-                major: 'computer'
+                major: {
+                    title: 'computer'
+                }
             })
 
             // 访问值时要求打印信息
             app1.data.name
             // 修改值时要求打印信息
             app1.data.age = 26
-            app2.data.university
-            app2.data.major = 'science'
+            app2.data.major
+            app2.data.major.title
+            app2.data.university = "hnust"
         }
     </script>
 </body>
