@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>任务1，小车</title>
+</head>
+<body>
+    <canvas id="main" width="800px" height="600px"></canvas>
+    <script src="./three.js"></script>
+    <script>
+document.body.onload = function () {
+// 1、创建 renderer
+var renderer = new THREE.WebGLRenderer({
+    canvas: document.querySelector('#main')
+})
+// 设置画布的颜色
+// renderer.setClearColor(0x000000)
+renderer.shadowMap.enabled = true
+renderer.shadowMap.soft = true
+// 2、创建场景
+var scene = new THREE.Scene()
+// 3、创建照相机
+var camera = new THREE.PerspectiveCamera(45, 4/3, 1, 1000)
+// 4、设置照相机将要放置的位置
+// camera.position.set(0, 0, 5)
+camera.position.set(4, 3, 6)
+camera.lookAt(new THREE.Vector3(0, 0, 0))
+// 5、创建一个正方体
+var cube = new THREE.Mesh(new THREE.CubeGeometry(6, 2, 2),
+    new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        // wireframe: true
+    }) 
+)
+// 6、将正方体放入场景中
+cube.castShadow = true
+cube.recevieShadow = true
+scene.add(cube)
+// 添加平面
+var plane = new THREE.Mesh(new THREE.PlaneGeometry(10, 10),
+    new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        // wireframe: true
+    }) 
+)
+plane.position.y = -1
+plane.rotation.x = -Math.PI/2
+// plane.castShadow = true
+plane.recevieShadow = true
+scene.add(plane)
+// 7、添加光源
+// 点光源
+var pointLight = new THREE.PointLight(0xffffff)
+pointLight.position.set(2, 5, 3)
+pointLight.castShadow = true
+// scene.add(pointLight)
+// 聚光灯
+var spotLight = new THREE.SpotLight(0xffffff, 1, 100, Math.PI/6, 25)
+// spotLight.position.set(-2, 5, 3)
+spotLight.target = cube
+// 产生阴影
+spotLight.castShadow = true
+
+spotLight.shadow.camera.near = 1
+spotLight.shadow.camera.far = 100
+spotLight.shadow.camera.visible = true
+
+spotLight.shadow.mapSize.Width = 1024
+spotLight.shadow.mapSize.Height = 1024
+
+scene.add(spotLight)
+// 平行光源
+var light = new THREE.DirectionalLight()
+light.position.set(2, 5, 3)
+// light.castShadow = true
+// light.receiveShadow = true
+scene.add(light)
+// 8、最后在画布上显示
+renderer.render(scene, camera)
+}
+    </script>
+</body>
+</html>
