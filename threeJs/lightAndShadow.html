@@ -14,9 +14,7 @@ var renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#main')
 })
 // 设置画布的颜色
-// renderer.setClearColor(0x000000)
-renderer.shadowMap.enabled = true
-renderer.shadowMap.soft = true
+renderer.setClearColor(0x000000)
 // 2、创建场景
 var scene = new THREE.Scene()
 // 3、创建照相机
@@ -33,9 +31,10 @@ var cube = new THREE.Mesh(new THREE.CubeGeometry(6, 2, 2),
     }) 
 )
 // 6、将正方体放入场景中
-cube.castShadow = true
-cube.recevieShadow = true
 scene.add(cube)
+// 7、添加光源
+var light = new THREE.DirectionalLight()
+light.position.set(2, 3, 5)
 // 添加平面
 var plane = new THREE.Mesh(new THREE.PlaneGeometry(10, 10),
     new THREE.MeshLambertMaterial({
@@ -45,18 +44,27 @@ var plane = new THREE.Mesh(new THREE.PlaneGeometry(10, 10),
 )
 plane.position.y = -1
 plane.rotation.x = -Math.PI/2
-// plane.castShadow = true
-plane.recevieShadow = true
 scene.add(plane)
-// 7、添加光源
-// 点光源
-var pointLight = new THREE.PointLight(0xffffff)
-pointLight.position.set(2, 5, 3)
-pointLight.castShadow = true
-// scene.add(pointLight)
-// 聚光灯
+
+light.castShadow = true
+light.shadow.camera.near = 1
+light.shadow.camera.far = 10
+light.shadow.camera.left = 10
+light.shadow.camera.right = 10
+light.shadow.camera.top = 10
+light.shadow.camera.bottom = 10
+scene.add(light)
+
+
+
+// 1、设置长方体产生阴影
+cube.castShadow = true
+// 2、设置平面接收阴影
+plane.receiveShadow = true
+// 
+// 3、增加聚光灯
 var spotLight = new THREE.SpotLight(0xffffff, 1, 100, Math.PI/6, 25)
-// spotLight.position.set(-2, 5, 3)
+spotLight.position.set(-5, 5, 3)
 spotLight.target = cube
 // 产生阴影
 spotLight.castShadow = true
@@ -69,12 +77,8 @@ spotLight.shadow.mapSize.Width = 1024
 spotLight.shadow.mapSize.Height = 1024
 
 scene.add(spotLight)
-// 平行光源
-var light = new THREE.DirectionalLight()
-light.position.set(2, 5, 3)
-// light.castShadow = true
-// light.receiveShadow = true
-scene.add(light)
+// 4、开启渲染阴影
+renderer.shadowMap.enabled = true
 // 8、最后在画布上显示
 renderer.render(scene, camera)
 }
