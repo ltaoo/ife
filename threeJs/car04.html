@@ -9,7 +9,7 @@
     <script src="./three.js"></script>
     <script src="./Detector.js"></script>
     <!-- stats 应该是实时显示帧率用的 -->
-    <script src="./stats.min.js"></script>
+    <!-- <script src="./stats.min.js"></script> -->
     <script src="./TrackballControls.js"></script>
     <script>
         document.body.onload = function () {
@@ -44,8 +44,12 @@
             camera.position.set(6, 4, 6)
 
             camera.lookAt(new THREE.Vector3(0, 0, 0))
+            /* ===========================================
+             *    任务四增加的部分
+             ===========================================*/
             // 创建好照相机后，创建控制器来控制照相机
-            var controls = new THREE.TrackballControls(camera)
+            var controls = new THREE.TrackballControls(camera, document.querySelector('#main'))
+            // 设置旋转、缩放和 ？ 的速率
             controls.rotateSpeed = 1.0
             controls.zoomSpeed = 1.2
             controls.panSpeed = 0.8
@@ -59,6 +63,9 @@
             controls.keys = [65, 83, 68]
             // 重点在这里，当触发 controls 的 change 事件时，调用 render
             controls.addEventListener('change', render)
+            /* ============================
+             * 结束
+             =============================*/
             // 5、创建一个正方体
             var carTexture = THREE.ImageUtils.loadTexture('./wood.jpg', {}, function () {
                 renderer.render(scene, camera)
@@ -160,6 +167,10 @@
             // scene.add(ambientLight)
             // 7、最后在画布上显示
             renderer.render(scene, camera)
+
+            /* ============================
+             * 任务四增加的部分
+             =============================*/
             animate()
 
             function animate() {
@@ -169,8 +180,10 @@
             // 调用该函数将重新渲染一次
             function render() {
                 renderer.render(scene, camera)
-                stats.update()
             }
+            /* ============================
+             * 结束
+             =============================*/
         }
     </script>
 </body>

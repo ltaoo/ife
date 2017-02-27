@@ -5,12 +5,17 @@
  * @author Luca Antiga 	/ http://lantiga.github.io
  */
 
+/* @param object
+ * @param domElement 配置可以交互区域
+ */
 THREE.TrackballControls = function ( object, domElement ) {
 
 	var _this = this;
+    // 设置静态配置项
 	var STATE = { NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 };
 
 	this.object = object;
+    // 是否有传入 domElement，否则就是 document
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
 	// API
@@ -19,10 +24,11 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	this.screen = { left: 0, top: 0, width: 0, height: 0 };
 
+    // 默认旋转、缩放、平移速率
 	this.rotateSpeed = 1.0;
 	this.zoomSpeed = 1.2;
 	this.panSpeed = 0.3;
-
+    // 默认旋转、缩放、平移开启
 	this.noRotate = false;
 	this.noZoom = false;
 	this.noPan = false;
