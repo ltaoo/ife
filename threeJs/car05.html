@@ -74,11 +74,33 @@ function Car(options) {
     scene.add(rightAfterWheel)
 
     scene.add(car)
+    this.body = car
     this.cube = car
     return this
 }
 // 车辆驾驶
-Car.prototype.drive = function (direction, instance) {
+Car.prototype.drive = function (instance) {
+    // 先拿到当前车头朝向的角度
+    const rotation = this.rotation
+    let xInstance = instance*Math.cos(rotation*Math.PI/180)
+    let zInstance = instance*Math.tan(rotation*Math.PI/180)*xInstance
+
+    this.body.position.x += xInstance
+    this.body.position.z += zInstance
+
+    this.leftHeadWheel.position.x += xInstance
+    this.leftHeadWheel.position.z += zInstance
+
+    this.rightHeadWheel.position.x += xInstance
+    this.rightHeadWheel.position.z += zInstance
+
+    this.leftAfterWheel.position.x += xInstance
+    this.leftAfterWheel.position.z += zInstance
+
+    this.rightAfterWheel.position.x += xInstance
+    this.rightAfterWheel.position.z += zInstance
+
+    this.renderer.render(this.scene, this.camera)
 }
 // 车辆转弯
 Car.prototype.wheel = function (rotation) {
@@ -196,7 +218,7 @@ document.body.onload = function () {
     // 重点在这里，当触发 controls 的 change 事件时，调用 render
     controls.addEventListener('change', render)
     /* ============================
-     * 结束
+     * 任务四部分结束
      =============================*/
     const car = new Car({
         length: 2,
@@ -215,7 +237,7 @@ document.body.onload = function () {
     )
     ball.position.set(0, 3, 0)
     ball.castShadow = true
-    scene.add(ball)
+    // scene.add(ball)
     // 添加平面作为地面
     var floorTexture = THREE.ImageUtils.loadTexture('./floor.jpeg', {}, function () {
         renderer.render(scene, camera)
@@ -350,25 +372,19 @@ document.body.onload = function () {
         // console.log(event)
         if(event.key === 'w') {
             // 前进
-            _move(0.1*directionX, directionZ*0.1)
-            if(car.rotation.y !== rightHeadWheel.rotation.y) {
-                car.rotation.y = rightHeadWheel.rotation.y
-            }
+            // _move(0.1*directionX, directionZ*0.1)
+            // if(car.rotation.y !== rightHeadWheel.rotation.y) {
+                // car.rotation.y = rightHeadWheel.rotation.y
+            // }
+            car.drive(1)
         } else if(event.key === 's') {
             // 后退
-            _move(-0.1*directionX, directionZ*-0.1)
+            // _move(-0.1*directionX, directionZ*-0.1)
         } else if(event.key === 'a') {
             // 表示旋转 45°
             car.wheel(-45)
         } else if(event.key === 'd') {
-            // 向右拐弯，前轮旋转
-            rightHeadWheel.rotation.y -= Math.PI/4
-            leftHeadWheel.rotation.y -= Math.PI/4
-            rightAfterWheel.rotation.y -= Math.PI/4
-            leftAfterWheel.rotation.y -= Math.PI/4
-
-            directionX -= 0.5
-            directionZ += 0.5
+            car.wheel(45)
         }
     }
     document.addEventListener('keypress', move)
