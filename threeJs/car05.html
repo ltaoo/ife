@@ -8,8 +8,7 @@
     <canvas id="main" width="800px" height="600px"></canvas>
     <script src="./three.js"></script>
     <script src="./Detector.js"></script>
-    <!-- stats 应该是实时显示帧率用的 -->
-    <!-- <script src="./stats.min.js"></script> -->
+    <script src="./stats.min.js"></script>
     <script src="./TrackballControls.js"></script>
     <script>
 /* 车辆类
@@ -38,35 +37,40 @@ function Car(options) {
     car.castShadow = true
     car.receiveShadow = true
     // 轮胎配置，比如贴图、半径、宽度
+    const wheelRadius = this.wheelRadius = 0.4
     const wheelOptions = {
         renderer,
         scene,
-        camera
+        camera,
+        radius: wheelRadius,
+        tube: 0.2,
+        radialSegments: 20,
+        tubularSegments: 20
     }
 
-    // 左前轮
-    const leftHeadWheel = this.leftHeadWheel = new Wheel(Object.assign(wheelOptions, {color: 0x000000}))
+    // 左前轮，使用 Object.assign 是为了使用相同配置的同时给不同的颜色，用以标志前后轮
+    const leftHeadWheel = this.leftHeadWheel = new Wheel(Object.assign({}, wheelOptions, {color: 0x000000}))
     leftHeadWheel.position.set(length/2, -height/2, -width/2)
     // 左前轮角度
     this.left_head_rotation = Math.atan2(-width/2, length/2)*180/Math.PI
     console.log(this.left_head_rotation, '左前轮')
     scene.add(leftHeadWheel)
     // 右前轮
-    const rightHeadWheel = this.rightHeadWheel = new Wheel(Object.assign(wheelOptions, {color: 0x000000}))
+    const rightHeadWheel = this.rightHeadWheel = new Wheel(Object.assign({}, wheelOptions, {color: 0x000000}))
     rightHeadWheel.position.set(length/2, -height/2, width/2)
     // 右前轮角度
     this.right_head_rotation = Math.atan2(width/2, length/2)*180/Math.PI
     console.log(this.right_head_rotation, '右前轮')
     scene.add(rightHeadWheel)
     // 左后轮
-    const leftAfterWheel = this.leftAfterWheel = new Wheel(Object.assign(wheelOptions, {color: 0xffffff}))
+    const leftAfterWheel = this.leftAfterWheel = new Wheel(Object.assign({}, wheelOptions, {color: 0xffffff}))
     leftAfterWheel.position.set(-length/2, -height/2, -width/2)
     // 左后轮角度
     this.left_after_rotation = Math.atan2(-width/2, -length/2)*180/Math.PI
     console.log(this.left_after_rotation, '左后轮')
     scene.add(leftAfterWheel)
     // 右后轮
-    const rightAfterWheel = this.rightAfterWheel = new Wheel(Object.assign(wheelOptions, {color: 0xffffff}))
+    const rightAfterWheel = this.rightAfterWheel = new Wheel(Object.assign({}, wheelOptions, {color: 0xffffff}))
     rightAfterWheel.position.set(-length/2, -height/2, width/2)
     // 右后轮角度
     this.right_after_rotation = Math.atan2(width/2, -length/2)*180/Math.PI
@@ -75,7 +79,6 @@ function Car(options) {
 
     scene.add(car)
     this.body = car
-    this.cube = car
     return this
 }
 // 车辆驾驶
@@ -120,14 +123,15 @@ Car.prototype.wheel = function (rotation) {
         return rotation
     }
 
-    const radius = Math.sqrt(2)
+    // 小车绕一圈形成的圆的半径
+    const radius = Math.sqrt(Math.pow(this.length/2, 2)+Math.pow(this.width/2, 2))
     this.rotation = check(this.rotation + rotation)
 
-    const jiaodu = this.rotation*Math.PI/360
-    this.cube.rotation.y += rotation*Math.PI/180
+    // 旋转小车
+    this.body.rotation.y -= rotation*Math.PI/180
 
     // 左前轮
-    this.leftHeadWheel.rotation.y += -rotation*Math.PI/180
+    this.leftHeadWheel.rotation.y -= rotation*Math.PI/180
     // 重点在轮胎的角度
     this.left_head_rotation = check(this.left_head_rotation + rotation)
     // 
@@ -135,20 +139,20 @@ Car.prototype.wheel = function (rotation) {
     this.leftHeadWheel.position.z = Math.sin(this.left_head_rotation*Math.PI/180)*radius+this.body.position.z
     console.log(this.leftHeadWheel.position, '左前轮', this.left_head_rotation)
     // 右前轮
-    this.rightHeadWheel.rotation.y += -rotation*Math.PI/180
+    this.rightHeadWheel.rotation.y -= rotation*Math.PI/180
 
     this.right_head_rotation = check(this.right_head_rotation + rotation)
     this.rightHeadWheel.position.x = Math.cos(this.right_head_rotation*Math.PI/180)*radius+this.body.position.x
     this.rightHeadWheel.position.z = Math.sin(this.right_head_rotation*Math.PI/180)*radius+this.body.position.z
     // console.log(this.rightHeadWheel.position, '右前轮', this.right_head_rotation)
     // 左后轮
-    this.leftAfterWheel.rotation.y += -rotation*Math.PI/180
+    this.leftAfterWheel.rotation.y -= rotation*Math.PI/180
     this.left_after_rotation = check(this.left_after_rotation + rotation)
     this.leftAfterWheel.position.x = Math.cos(this.left_after_rotation*Math.PI/180)*radius+this.body.position.x
     this.leftAfterWheel.position.z = Math.sin(this.left_after_rotation*Math.PI/180)*radius+this.body.position.z
     // console.log(this.leftAfterWheel.position, '左后轮', this.left_after_rotation)
     // 右后轮
-    this.rightAfterWheel.rotation.y += -rotation*Math.PI/180
+    this.rightAfterWheel.rotation.y -= rotation*Math.PI/180
     this.right_after_rotation = check(this.right_after_rotation + rotation)
     this.rightAfterWheel.position.x = Math.cos(this.right_after_rotation*Math.PI/180)*radius+this.body.position.x
     this.rightAfterWheel.position.z = Math.sin(this.right_after_rotation*Math.PI/180)*radius+this.body.position.z
@@ -162,6 +166,13 @@ function Wheel(options) {
     const renderer = options.renderer
     const scene = options.scene
     const camera = options.camera
+    // 轮胎半径，就是轮胎大小
+    const radius = options.radius
+    // 轮胎管道半径，就是轮胎粗细
+    const tube = options.tube
+    // 分段数
+    const radialSegments = options.radialSegments
+    const tubularSegments = options.tubularSegments
     // 创建材质
     const texture = THREE.ImageUtils.loadTexture('./timg.jpeg', {}, function () {
         renderer.render(scene, camera)
@@ -169,10 +180,14 @@ function Wheel(options) {
     const wheelMaterial = new THREE.MeshLambertMaterial({
         color: options.color
     })
-    return new THREE.Mesh(new THREE.TorusGeometry(.6, .3, 20, 20), wheelMaterial)
+    return new THREE.Mesh(new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments), wheelMaterial)
 }
 
 document.body.onload = function () {
+    // 增加 state.js
+    const stat = new Stats()
+    stat.domElement.style += ";position:absolute;right:0px;top:0px;"
+    document.body.appendChild(stat.domElement)
     if(!Detector.webgl) Detector.addGetWebGLMessage()
     // 1、创建 renderer，可以理解为一个画布
     var renderer = new THREE.WebGLRenderer({
@@ -226,7 +241,7 @@ document.body.onload = function () {
      * 任务四部分结束
      =============================*/
     const car = new Car({
-        length: 2,
+        length: 4,
         width: 2,
         height: 2,
         renderer,
@@ -242,7 +257,7 @@ document.body.onload = function () {
     )
     ball.position.set(0, 3, 0)
     ball.castShadow = true
-    // scene.add(ball)
+    scene.add(ball)
     // 添加平面作为地面
     var floorTexture = THREE.ImageUtils.loadTexture('./floor.jpeg', {}, function () {
         renderer.render(scene, camera)
@@ -266,7 +281,7 @@ document.body.onload = function () {
     // var light = new THREE.DirectionalLight()
     var light = new THREE.SpotLight(0xffffff, 1, 100, Math.PI/6, 25)
     light.position.set(2, 5, 3)
-    light.target = car.cube
+    light.target = car.body
     light.castShadow = true
 
     light.shadow.camera.near = 1
@@ -295,8 +310,9 @@ document.body.onload = function () {
     var nengli = 100
 
     drop()
-
+    // 小球自由落体
     function drop() {
+        stat.begin()
         if(isMoving) {
             // 如果小球仍然在运动
             ball.position.y += v
@@ -327,7 +343,8 @@ document.body.onload = function () {
         }
 
         renderer.render(scene, camera)
-        // id = requestAnimationFrame(drop)
+        id = requestAnimationFrame(drop)
+        stat.end()
     }
 
     /* ============================
@@ -350,6 +367,7 @@ document.body.onload = function () {
      * 任务五增加的部分
      =============================*/
     function move(event) {
+        stat.begin()
         if(event.key === 'w') {
             // 前进
             car.drive(1)
@@ -362,9 +380,9 @@ document.body.onload = function () {
         } else if(event.key === 'd') {
             car.wheel(45)
         }
+        stat.end()
     }
     document.addEventListener('keypress', move)
-
 }
 
     </script>
