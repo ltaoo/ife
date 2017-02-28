@@ -29,29 +29,53 @@ function Car(options) {
         camera
     }
     // 左前轮
-    const leftHeadWheel = new Wheel(wheelOptions)
+    const leftHeadWheel = this.leftHeadWheel = new Wheel(wheelOptions)
     leftHeadWheel.position.set(length/2, -height/2, -width/2)
     scene.add(leftHeadWheel)
     // 右前轮
-    const rightHeadWheel = new Wheel(wheelOptions)
+    const rightHeadWheel = this.rightHeadWheel = new Wheel(wheelOptions)
     rightHeadWheel.position.set(length/2, -height/2, width/2)
     scene.add(rightHeadWheel)
     // 左后轮
-    const leftAfterWheel = new Wheel(wheelOptions)
+    const leftAfterWheel = this.leftAfterWheel = new Wheel(wheelOptions)
     leftAfterWheel.position.set(-length/2, -height/2, -width/2)
     scene.add(leftAfterWheel)
     // 右后轮
-    const rightAfterWheel = new Wheel(wheelOptions)
+    const rightAfterWheel = this.rightAfterWheel = new Wheel(wheelOptions)
     rightAfterWheel.position.set(-length/2, -height/2, width/2)
     scene.add(rightAfterWheel)
 
-    return car
+    scene.add(car)
+    this.cube = car
+    return this
 }
 // 车辆驾驶
 Car.prototype.drive = function (direction, instance) {
 }
 // 车辆转弯
-Car.prototype.rotation = function (rotation) {
+Car.prototype.wheel = function (rotation) {
+    console.log('rotation')
+    this.cube.rotation.set(0, rotation, 0)
+    // 左前轮
+    this.leftHeadWheel.rotation.set(0, rotation, 0)
+    this.leftHeadWheel.position.x = Math.cos(rotation)*2
+    this.leftHeadWheel.position.z = Math.sin(rotation)*2
+    console.log(this.leftHeadWheel.position)
+    // 右前轮
+    this.rightHeadWheel.rotation.set(0, rotation, 0)
+    this.rightHeadWheel.position.x = Math.cos(rotation)*2
+    this.rightHeadWheel.position.z = -Math.sin(rotation)*2
+    console.log(this.rightHeadWheel.position)
+    // 左后轮
+    this.leftAfterWheel.rotation.set(0, rotation, 0)
+    this.leftAfterWheel.position.x = -Math.cos(rotation)*2
+    this.leftAfterWheel.position.z = Math.sin(rotation)*2
+    console.log(this.leftAfterWheel.position)
+    // 右后轮
+    this.rightAfterWheel.rotation.set(0, rotation, 0)
+    this.rightAfterWheel.position.x = -Math.cos(rotation)*2
+    this.rightAfterWheel.position.z = -Math.sin(rotation)*2
+    console.log(this.rightAfterWheel.position)
 }
 /* 轮胎类 */
 function Wheel(options) {
@@ -123,14 +147,13 @@ document.body.onload = function () {
      * 结束
      =============================*/
     const car = new Car({
-        length: 6,
+        length: 2,
         width: 2,
         height: 2,
         renderer,
         scene,
         camera
     })
-    scene.add(car)
     // 创建一个小球
     var ballRadius = 0.2
     var ball = new THREE.Mesh(new THREE.SphereGeometry(ballRadius, 10, 10),
@@ -164,7 +187,7 @@ document.body.onload = function () {
     // var light = new THREE.DirectionalLight()
     var light = new THREE.SpotLight(0xffffff, 1, 100, Math.PI/6, 25)
     light.position.set(2, 5, 3)
-    light.target = car
+    light.target = car.cube
     light.castShadow = true
 
     light.shadow.camera.near = 1
@@ -227,7 +250,7 @@ document.body.onload = function () {
         }
 
         renderer.render(scene, camera)
-        id = requestAnimationFrame(drop)
+        // id = requestAnimationFrame(drop)
     }
 
     /* ============================
@@ -273,6 +296,7 @@ document.body.onload = function () {
     function _rotation(y) {
     }
     function move(event) {
+        console.log('press')
         // 先实现能够往一个方向移动
         // console.log(event)
         if(event.key === 'w') {
@@ -285,14 +309,8 @@ document.body.onload = function () {
             // 后退
             _move(-0.1*directionX, directionZ*-0.1)
         } else if(event.key === 'a') {
-            // 向左拐弯，前轮旋转
-            rightHeadWheel.rotation.y += Math.PI/4
-            leftHeadWheel.rotation.y += Math.PI/4
-            rightAfterWheel.rotation.y += Math.PI/4
-            leftAfterWheel.rotation.y += Math.PI/4
-
-            directionX -= 0.5
-            directionZ -= 0.5
+            // 表示旋转 45°
+            // car.wheel(45*Math.PI/180)
         } else if(event.key === 'd') {
             // 向右拐弯，前轮旋转
             rightHeadWheel.rotation.y -= Math.PI/4
