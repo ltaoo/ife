@@ -80,8 +80,12 @@ function Car(options) {
 }
 // 车辆驾驶
 Car.prototype.drive = function (instance) {
-    // 先拿到当前车头朝向的角度
-    const rotation = this.rotation
+    // 先拿到当前车头朝向的角度，如果距离是负数表示后退
+    const rotation = this.rotation + (instance < 0 ? 180 : 0)
+
+    // 处理下要移动的距离
+    instance = Math.abs(instance)
+    // 计算出在 x 与 z 轴上要移动的距离
     let xInstance = instance*Math.cos(rotation*Math.PI/180)
     let zInstance = instance*Math.tan(rotation*Math.PI/180)*xInstance
 
@@ -104,6 +108,7 @@ Car.prototype.drive = function (instance) {
 }
 // 车辆转弯
 Car.prototype.wheel = function (rotation) {
+    // 处理角度不让角度大于 360 或者小于 -360
     function check(rotation) {
         if(rotation >= 360) {
             rotation = rotation - 360
@@ -114,8 +119,8 @@ Car.prototype.wheel = function (rotation) {
 
         return rotation
     }
-    const radius = Math.sqrt(2)
 
+    const radius = Math.sqrt(2)
     this.rotation = check(this.rotation + rotation)
 
     const jiaodu = this.rotation*Math.PI/360
@@ -126,27 +131,27 @@ Car.prototype.wheel = function (rotation) {
     // 重点在轮胎的角度
     this.left_head_rotation = check(this.left_head_rotation + rotation)
     // 
-    this.leftHeadWheel.position.x = Math.cos(this.left_head_rotation*Math.PI/180)*radius
-    this.leftHeadWheel.position.z = Math.sin(this.left_head_rotation*Math.PI/180)*radius
+    this.leftHeadWheel.position.x = Math.cos(this.left_head_rotation*Math.PI/180)*radius+this.body.position.x
+    this.leftHeadWheel.position.z = Math.sin(this.left_head_rotation*Math.PI/180)*radius+this.body.position.z
     console.log(this.leftHeadWheel.position, '左前轮', this.left_head_rotation)
     // 右前轮
     this.rightHeadWheel.rotation.y += -rotation*Math.PI/180
 
     this.right_head_rotation = check(this.right_head_rotation + rotation)
-    this.rightHeadWheel.position.x = Math.cos(this.right_head_rotation*Math.PI/180)*radius
-    this.rightHeadWheel.position.z = Math.sin(this.right_head_rotation*Math.PI/180)*radius
+    this.rightHeadWheel.position.x = Math.cos(this.right_head_rotation*Math.PI/180)*radius+this.body.position.x
+    this.rightHeadWheel.position.z = Math.sin(this.right_head_rotation*Math.PI/180)*radius+this.body.position.z
     // console.log(this.rightHeadWheel.position, '右前轮', this.right_head_rotation)
     // 左后轮
     this.leftAfterWheel.rotation.y += -rotation*Math.PI/180
     this.left_after_rotation = check(this.left_after_rotation + rotation)
-    this.leftAfterWheel.position.x = Math.cos(this.left_after_rotation*Math.PI/180)*radius
-    this.leftAfterWheel.position.z = Math.sin(this.left_after_rotation*Math.PI/180)*radius
+    this.leftAfterWheel.position.x = Math.cos(this.left_after_rotation*Math.PI/180)*radius+this.body.position.x
+    this.leftAfterWheel.position.z = Math.sin(this.left_after_rotation*Math.PI/180)*radius+this.body.position.z
     // console.log(this.leftAfterWheel.position, '左后轮', this.left_after_rotation)
     // 右后轮
     this.rightAfterWheel.rotation.y += -rotation*Math.PI/180
     this.right_after_rotation = check(this.right_after_rotation + rotation)
-    this.rightAfterWheel.position.x = Math.cos(this.right_after_rotation*Math.PI/180)*radius
-    this.rightAfterWheel.position.z = Math.sin(this.right_after_rotation*Math.PI/180)*radius
+    this.rightAfterWheel.position.x = Math.cos(this.right_after_rotation*Math.PI/180)*radius+this.body.position.x
+    this.rightAfterWheel.position.z = Math.sin(this.right_after_rotation*Math.PI/180)*radius+this.body.position.z
     // console.log(this.rightAfterWheel.position, '右后轮', this.right_after_rotation)
 
     // 重点，必须要重新渲染
@@ -344,42 +349,13 @@ document.body.onload = function () {
     /* ============================
      * 任务五增加的部分
      =============================*/
-
-    var directionX = 1
-    var directionZ = 0
-    function _move(x, z) {
-        // 根据 direction 计算移动的距离
-        car.position.x += x
-        leftHeadWheel.position.x += x
-        rightHeadWheel.position.x += x
-        leftAfterWheel.position.x += x
-        rightAfterWheel.position.x += x
-        car.position.z += z
-        leftHeadWheel.position.z += z
-        rightHeadWheel.position.z += z
-        leftAfterWheel.position.z += z
-        rightAfterWheel.position.z += z
-        rightHeadWheel.rotation.z -= 
-        leftHeadWheel.rotation.z += Math.PI/8
-        rightHeadWheel.rotation.z += Math.PI/8
-        leftAfterWheel.rotation.z += Math.PI/8
-        rightAfterWheel.rotation.z += Math.PI/8
-    }
-    function _rotation(y) {
-    }
     function move(event) {
-        // 先实现能够往一个方向移动
-        // console.log(event)
         if(event.key === 'w') {
             // 前进
-            // _move(0.1*directionX, directionZ*0.1)
-            // if(car.rotation.y !== rightHeadWheel.rotation.y) {
-                // car.rotation.y = rightHeadWheel.rotation.y
-            // }
             car.drive(1)
         } else if(event.key === 's') {
             // 后退
-            // _move(-0.1*directionX, directionZ*-0.1)
+            car.drive(-1)
         } else if(event.key === 'a') {
             // 表示旋转 45°
             car.wheel(-45)
