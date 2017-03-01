@@ -6,10 +6,10 @@
     </head>
     <body>
         <canvas id="main" width="800" height="600"></canvas>
-        <script src="./three.min.js"></script>
+        <script src="./three.js"></script>
         <script src="./TrackballControls.js"></script>
-        <script src="./OBJLoader.js"></script>
         <script src="./MTLLoader.js"></script>
+        <script src="./OBJLoader.js"></script>
         <script>
 var renderer, camera, car
 // 获取到浏览器内容宽高
@@ -28,8 +28,8 @@ camera.lookAt(new THREE.Vector3(0, 0, 0));
 scene.add(camera);
 // 灯光
 var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(0, 0, 350);
-directionalLight.lookAt(new THREE.Vector3(0, 0, 0));
+directionalLight.position.set(20, 20, 20);
+// directionalLight.lookAt(new THREE.Vector3(0, 0, 0));
 scene.add(directionalLight);
 // 创建好照相机后，创建控制器来控制照相机
 var controls = new THREE.TrackballControls(camera, document.querySelector('#main'))
@@ -48,12 +48,25 @@ controls.keys = [65, 83, 68]
 controls.addEventListener('change', render)
 
 //Manager from ThreeJs to track a loader and its status
-var manager = new THREE.LoadingManager()
-//Loader for Obj from Three.js
-var loader = new THREE.OBJLoader(manager)
+var onProgress = function (xhr) {
+    if(xhr.lengthComputable) {
+        var percentcomplete = xhr.load / xhr.total * 100
+    }
+}
+var onError = function (xhr) {
+}
 
-//Launch loading of the obj file, addBananaInScene is the callback when it's ready 
-loader.load('./car/car.obj', function(object) {
+var mtlLoader = new THREE.MTLLoader()
+// mtlLoader.setPath('./car/')
+// mtlLoader.load('car.mtl', function (materials) {
+    // materials.preload()
+// })
+// var manager = new THREE.LoadingManager()
+//Loader for Obj from Three.js
+var objLoader = new THREE.OBJLoader()
+// objLoader.setMaterials(materials)
+objLoader.setPath('car/')
+objLoader.load('car.obj', function(object) {
     car = object
     //Move the car in the scene
     // car.rotation.x = Math.PI / 2;
@@ -71,7 +84,7 @@ loader.load('./car/car.obj', function(object) {
 
     scene.add(car)
     render()
-})
+}, onProgress, onError)
 /* ============================
  * 任务四增加的部分
  =============================*/
