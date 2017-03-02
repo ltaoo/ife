@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>动态数据绑定（三）</title>
+</head>
+<body>
+    <script>
+        /*
+         * 构造函数
+         * @param (Object)required data
+         */
+        function Observer(data) {
+            if(data.constructor !== Object) {
+                return
+            }
+            // 通过遍历 data 实现将 data 上的每一个值都拷贝到 _data 上
+            // console.log(convert(data))
+            this.data = this.convert(data, 'root')
+
+            // 维护一个事件列表
+            this._watchList = {}
+            return this
+        }
+        /* 实例方法 $watch，这其实就是一个 event emitter
+         * @param <String>   key 要监听的属性
+         * @param <Function> cb 属性发生改变的回调函数
+         */
+        Observer.prototype.$watch = function (key, cb) {
+            this._watchList[key] = cb
+        }
+        /* 
+         * 转换函数，用来将源对象上的值拷贝到新对象上，并设置 set 和 get 后返回该新对象
+         * @param (Object)required source
+         * @return (Object) 
+         */
+        Observer.prototype.convert = function(source, path) {
+            var target = {}
+            var that = this
+            for(var key in source) {
+                (function(key) {
+                    // 给 this.data 添加属性
+                    Object.defineProperty(target, key, {
+                        get: function() {
+                            console.log('读取了', key)
+                            return source[key]
+                        },
+                        set: function(newValue) {
+                            console.log(key,'被修改为', newValue)
+                            var _newValue = newValue
+                            // 如果新设置的值还是对象，就再次监听
+                            if(newValue.constructor === Object) {
+                                _newValue = that.convert(newValue, key)
+                            }
+                            // 如果该属性被监听了，就调用回调函数
+                            if(that._watchList[key]) {
+                                that._watchList[key].call(that, _newValue, key)
+                            }
+                            if(that._watchList[path]) {
+                                that._watchList[path].call(that, _newValue, key)
+                            }
+                            source[key] = _newValue
+                        }
+                    })
+                    target.parent = path
+                    // 如果值还是对象，就递归
+                    if(source[key].constructor === Object) {
+                        source[key] = that.convert(source[key], key)
+                    }
+                })(key)
+            }
+            return target
+        }
+        document.body.onload = function () {
+            app1 = new Observer({
+                name: 'youngwind',
+                age: 25
+            })
+
+            app1.data.name = {
+                lastName: 'liang',
+                firstName: 'shaofeng'
+            }
+
+            app1.data.name.lastName
+            // 修改值时要求打印信息
+            app1.data.name.lastName = 'lalala'
+
+            // app1.$watch('age', function (age) {
+                // console.log(`我的年纪变了，现在已经是：${age} 岁了`)
+            // })
+            app1.$watch('root', function (age, key) {
+                console.log(`我的姓名发生了变化，是因为${key}发生了变化`)
+            })
+            app1.data.age = 100
+            app1.data.name.lastName = 'hahaha'
+        }
+    </script>
+    <script>
+        var code = document.querySelector('script')
+        var codeElement = document.createElement('code')
+        codeElement.innerText = code.innerHTML
+        document.body.appendChild(codeElement)
+    </script>
+</body>
+</html>

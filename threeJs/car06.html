@@ -8,6 +8,7 @@
         <canvas id="main" width="800" height="600"></canvas>
         <script src="./three.js"></script>
         <script src="./TrackballControls.js"></script>
+        <script src="./DDSLoader.js"></script>
         <script src="./MTLLoader.js"></script>
         <script src="./OBJLoader.js"></script>
         <script>
@@ -33,7 +34,7 @@ directionalLight.position.set(20, 20, 20);
 scene.add(directionalLight);
 // 创建好照相机后，创建控制器来控制照相机
 var controls = new THREE.TrackballControls(camera, document.querySelector('#main'))
-// 设置旋转、缩放和 ？ 的速率
+// 设置旋转、缩放和平移的速率
 controls.rotateSpeed = 1.0
 controls.zoomSpeed = 1.2
 controls.panSpeed = 0.8
@@ -47,7 +48,8 @@ controls.dynamicDampingFactor = 0.3
 controls.keys = [65, 83, 68]
 controls.addEventListener('change', render)
 
-//Manager from ThreeJs to track a loader and its status
+// 导入外部模型
+
 var onProgress = function (xhr) {
     if(xhr.lengthComputable) {
         var percentcomplete = xhr.load / xhr.total * 100
@@ -56,35 +58,27 @@ var onProgress = function (xhr) {
 var onError = function (xhr) {
 }
 
-var mtlLoader = new THREE.MTLLoader()
-// mtlLoader.setPath('./car/')
-// mtlLoader.load('car.mtl', function (materials) {
-    // materials.preload()
-// })
-// var manager = new THREE.LoadingManager()
-//Loader for Obj from Three.js
-var objLoader = new THREE.OBJLoader()
-// objLoader.setMaterials(materials)
-objLoader.setPath('car/')
-objLoader.load('car.obj', function(object) {
-    car = object
-    //Move the car in the scene
-    // car.rotation.x = Math.PI / 2;
-    car.position.y = -200
-    car.position.z = 50
-    //Go through all children of the loaded object and search for a Mesh
-    object.traverse(function(child) {
-        //This allow us to check if the children is an instance of the Mesh constructor
-        if (child instanceof THREE.Mesh) {
-            // child.material.color = new THREE.Color(0X00FF00);
-            //Sometimes there are some vertex normals missing in the .obj files, ThreeJs will compute them
-            child.geometry.computeVertexNormals()
-        }
-    })
+THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader())
 
-    scene.add(car)
-    render()
-}, onProgress, onError)
+var mtlLoader = new THREE.MTLLoader()
+mtlLoader.setPath('./car/')
+mtlLoader.load('car.mtl', function (materials) {
+    materials.preload()
+    var objLoader = new THREE.OBJLoader()
+    // objLoader.setMaterials(materials)
+    objLoader.setMaterials(materials)
+    objLoader.setPath('car/')
+    objLoader.load('car.obj', function(object) {
+        car = object
+        //Move the car in the scene
+        // car.rotation.x = Math.PI / 2;
+        car.position.y = -200
+        car.position.z = 50
+
+        scene.add(car)
+        render()
+    }, onProgress, onError)
+})
 /* ============================
  * 任务四增加的部分
  =============================*/
