@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="UTF-8">
+        <title>任务七 - 着色器</title>
+    </head>
+    <body>
+        <canvas id="main" width="800" height="600"></canvas>
+        <script src="./three.js"></script>
+        <script src="./TrackballControls.js"></script>
+        <script src="./DDSLoader.js"></script>
+        <script src="./MTLLoader.js"></script>
+        <script src="./OBJLoader.js"></script>
+        <script src="./jquery.min.js"></script>
+        <script>
+// 获取到浏览器内容宽高
+var ww = window.innerWidth,
+    wh = window.innerHeight
+// 声明渲染器
+var renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('main'),
+    antialias: true
+})
+renderer.setClearColor(0xffffff)
+renderer.setSize(ww, wh)
+
+// 导入外部模型
+var onProgress = function (xhr) {
+    if(xhr.lengthComputable) {
+        var percentcomplete = xhr.load / xhr.total * 100
+    }
+}
+var onError = function (xhr) {
+}
+
+// $.get('./shader/port.vs', function (vShader) {
+//     $.get('./shader/port.fs', function (fShader) {
+
+/* ============ 任务七 ============
+ ============================== */
+
+var pars = {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+  format: THREE.RGBFormat,
+  stencilBuffer: false
+}
+
+// 景深贴图
+var depthTexture = new THREE.WebGLRenderTarget(ww, wh, pars)
+// 法线贴图
+var normalTexture = new THREE.WebGLRenderTarget(ww, wh, pars)
+
+var depthMaterial = new THREE.MeshDepthMaterial()
+var normalMaterial = new THREE.MeshNormalMaterial()
+
+// 创建一个材质
+var composeMaterial = new THREE.ShaderMaterial({
+    attributes: {},
+    uniforms: {
+        depthtexture: {
+            type: 't',
+            value: depthTexture
+        },
+        normaltexture: {
+            type: 't',
+            value: normalTexture
+        }
+    },
+    vertexShader: 'varying vec2 vUv;\nvoid main() {\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n  vUv = uv;\n}',
+    fragmentShader: 'uniform sampler2D depthtexture;\nuniform sampler2D normaltexture;\nuniform sampler2D hatchtexture;\n\nvarying vec2 vUv;\n\nfloat planeDistance(const in vec3 positionA, const in vec3 normalA, \n                    const in vec3 positionB, const in vec3 normalB) {\n  vec3 positionDelta = positionB-positionA;\n  float planeDistanceDelta = max(abs(dot(positionDelta, normalA)), abs(dot(positionDelta, normalB)));\n  return planeDistanceDelta;\n}\n\nvoid main() {\n  float depthCenter = texture2D(depthtexture, vUv).r;\n  float px = 1.0/800.0;\n\n  vec3 leftpos = vec3(vUv.s - px, vUv.t, 1.0 - texture2D(depthtexture, vec2(vUv.s - px, vUv.t)).r);\n  vec3 rightpos = vec3(vUv.s + px, vUv.t, 1.0 - texture2D(depthtexture, vec2(vUv.s + px, vUv.t)).r);\n  vec3 uppos = vec3(vUv.s, vUv.t - px, 1.0 - texture2D(depthtexture, vec2(vUv.s, vUv.t - px)).r);\n  vec3 downpos = vec3(vUv.s, vUv.t + px, 1.0 - texture2D(depthtexture, vec2(vUv.s, vUv.t + px)).r);\n\n  vec3 leftnor = texture2D(normaltexture, vec2(vUv.s - px, vUv.t)).xyz;\n  vec3 rightnor = texture2D(normaltexture, vec2(vUv.s + px, vUv.t)).xyz;\n  vec3 upnor = texture2D(normaltexture, vec2(vUv.s, vUv.t - px)).xyz;\n  vec3 downnor = texture2D(normaltexture, vec2(vUv.s, vUv.t + px)).xyz;\n\n  vec2 planeDist = vec2(\n    planeDistance(leftpos, leftnor, rightpos, rightnor),\n    planeDistance(uppos, upnor, downpos, downnor));\n\n  float planeEdge = 2.5 * length(planeDist);\n  planeEdge = 1.0 - 0.5 * smoothstep(0.0, depthCenter, planeEdge);\n\n  float normEdge = max(length(leftnor - rightnor), length(upnor - downnor));\n  normEdge = 1.0 - 0.5 * smoothstep(0.0, 0.5, normEdge); \n\n  float edge= planeEdge * normEdge;\n  vec4 hatch = texture2D(hatchtexture, vUv);\n  gl_FragColor = vec4(vec3(hatch * edge), 1.0);\n}'
+})
+
+// 新建两个场景
+var objectScene = new THREE.Scene()
+var composeScene = new THREE.Scene()
+// 新建两个个相机
+// 物体相机
+var objectCamera = new THREE.PerspectiveCamera(45, ww / wh, 1, 30)
+var cameraCenter = new THREE.Vector3(-5, 7, 0)
+var cameraOrigin = new THREE.Vector3(0, 0, 16)
+objectCamera.position.copy(cameraCenter).add(cameraOrigin)
+// 场景相机
+var composeCamera = new THREE.OrthographicCamera(-ww / 2, ww / 2, wh / 2, -wh / 2, -10, 10)
+
+// 创建好照相机后，创建控制器来控制照相机
+var controls = new THREE.TrackballControls(objectCamera, document.querySelector('#main'))
+// 设置旋转、缩放和平移的速率
+controls.rotateSpeed = 1.0
+controls.zoomSpeed = 1.2
+controls.panSpeed = 0.8
+
+controls.noZoom = false
+controls.noPan = false
+
+controls.staticMoving = true
+controls.dynamicDampingFactor = 0.3
+
+controls.keys = [65, 83, 68]
+controls.addEventListener('change', render)
+
+// 载入模型
+var objLoader = new THREE.OBJLoader()
+objLoader.setPath('./port/')
+
+// objLoader.setMaterials(materials)
+objLoader.load('port.obj', function(object) {
+    object.traverse(function (child) {
+        if(child instanceof THREE.Mesh) {
+            child.material.side = THREE.DoubleSide
+        }
+    })
+    port = object
+    
+
+    objectScene.add(port)
+    render()
+}, onProgress, onError)
+
+// 初始化二维面并加入场景
+var composePlaneGeometry = new THREE.PlaneBufferGeometry(ww, wh)
+var composePlaneMesh = new THREE.Mesh(composePlaneGeometry, composeMaterial)
+composeScene.add(composePlaneMesh)
+
+// 重点，如何渲染
+// 调用该函数将重新渲染一次
+function render() {
+    renderDepth()
+    renderNormal()
+    compose()
+}
+function renderDepth () {
+    objectScene.overrideMaterial = depthMaterial
+    // renderer.setClearColor('#000000')
+    renderer.clearTarget(depthTexture, true, true)
+    renderer.render(objectScene, objectCamera, depthTexture)
+}
+function renderNormal () {
+    objectScene.overrideMaterial = normalMaterial
+    // renderer.setClearColor('#000000')
+    renderer.clearTarget(normalTexture, true, true)
+    renderer.render(objectScene, objectCamera, normalTexture)
+}
+function compose () {
+    renderer.render(composeScene, composeCamera)
+}
+
+function _render () {
+    requestAnimationFrame(_render)
+    render()
+}
+
+setTimeout(_render, 1000)
+
+
+// render depth
+// scene.overrideMaterial = depthMaterial;
+// renderer.setClearColor('#000000');
+// renderer.clearTarget(depthTexture, true, true);
+// renderer.render(scene, camera, depthTexture);
+
+// render normal
+// scene.overrideMaterial = normalMaterial;
+// renderer.setClearColor('#000000');
+// renderer.clearTarget(normalTexture, true, true);
+// renderer.render(scene, camera, normalTexture);
+        // var materials = new THREE.ShaderMaterial({
+        //     // vertexShader: document.getElementById('vs').textContent,
+        //     // fragmentShader: document.getElementById('fs').textContent
+        //     vertexShader: vShader,
+        //     fragmentShader: fShader,
+        //     uniforms: {
+        //         depthtexture: {
+        //             type: 't',
+        //             value: depthMaterial
+        //         },
+        //         normalTexture: {
+        //             type: 't',
+        //             value: normalTexture
+        //         }
+        //     }
+        // })
+        
+        // // 创建一个正方体
+        // var cube = new THREE.Mesh(new THREE.CubeGeometry(2, 2, 2), materials)
+        // // scene.add(cube)
+
+        // var objLoader = new THREE.OBJLoader()
+        // objLoader.setPath('./port/')
+
+        // // objLoader.setMaterials(materials)
+        // objLoader.load('port.obj', function(object) {
+        //     object.traverse(function (child) {
+        //         if(child instanceof THREE.Mesh) {
+        //             child.material.side = THREE.DoubleSide
+        //         }
+        //     })
+        //     port = object
+            
+
+        //     scene.add(port)
+        //     render()
+        // }, onProgress, onError)
+//     })
+// })
+/* ============================
+ * 任务四增加的部分
+ =============================*/
+animate()
+
+function animate() {
+    requestAnimationFrame(animate)
+    controls.update()
+}
+
+/* ============================
+ * 结束
+ =============================*/
+        </script>
+    </body>
+</html>

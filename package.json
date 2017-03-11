@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/ltaoo/front_end_study#readme",
   "dependencies": {
+    "jquery": "^3.1.1",
     "three.js": "^0.77.1"
   }
 }
