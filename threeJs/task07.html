@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WebGL No.7 着色器</title>
+</head>
+<body>
+	<canvas id = "main"></canvas>
+	<script src="./lib/three.js"></script>
+	<script type="text/javascript">
+function init () {
+	// 创建渲染器
+	const renderer = new THREE.WebGLRenderer({
+		canvas: document.getElementById('main')
+	})
+	const width = window.innerWidth
+	const height = window.innerHeight
+	renderer.setClearColor(0xffffff)			
+	renderer.setSize(width, height)
+
+	// 创建场景
+	const scene = new THREE.Scene()
+
+	// 原点
+	const origin = new THREE.Vector3(0, 0, 0)
+
+	// 创建照相机
+	const camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000)
+	camera.position.set(0, 10, 10)
+	camera.lookAt(origin)
+	scene.add(camera)
+
+	// 创建光源
+	const light = new THREE.DirectionalLight(0xffffff, 0.8)
+	light.position.set(0, 10, 10)
+	scene.add(light)
+
+	// 创建基础材质的球体
+	const baseSphere = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20),
+        new THREE.MeshBasicMaterial({
+            color: 0xff0000
+        })
+    )
+    scene.add(baseSphere)
+
+    // 创建 Lambert 材质球体
+	const lambertSphere = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20),
+        new THREE.MeshLambertMaterial({
+            color: 0xff0000
+        })
+    )
+    lambertSphere.position.set(-3, 0, 0)
+    scene.add(lambertSphere)
+
+    // 创建 Phong材质 材质球体
+	const phongSphere = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20),
+        new THREE.MeshPhongMaterial({
+            color: 0xff0000
+        })
+    )
+    phongSphere.position.set(3, 0, 0)
+    scene.add(phongSphere)
+
+    // 新建着色器材质
+    var material = new THREE.ShaderMaterial({
+    	vertexShader: `
+	    	uniform vec3 color;
+			uniform vec3 light;
+
+			varying vec3 vColor;
+			varying vec3 vNormal;
+			varying vec3 vLight;
+
+			void main()
+			{
+			    // pass to fs
+			    vColor = color;
+			    vNormal = normalize(normalMatrix * normal);
+
+			    vec4 viewLight = viewMatrix * vec4(light, 1.0);
+			    vLight = viewLight.xyz;
+
+			    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}`,
+		fragmentShader: `
+			varying vec3 vColor;
+			varying vec3 vNormal;
+			varying vec3 vLight;
+
+			void main() {
+			    float diffuse = dot(normalize(vLight), vNormal);
+			    gl_FragColor = vec4(vColor * diffuse, 1.0);
+			}`,
+		uniforms: {
+	        color: {        // 苹果的基础色
+	            type: 'v3', // 指定变量类型为三维向量
+	            value: new THREE.Color('#ff0000')
+	        },
+	        light: {        // 光源位置
+	            type: 'v3',
+	            value: light.position
+	        }
+	    }
+    })
+    // 没有材质的球体
+	const shaderSphere = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20))
+	shaderSphere.material = material
+    shaderSphere.position.set(0, 3, 0)
+    scene.add(shaderSphere)
+
+    renderer.render(scene, camera)
+}
+
+init()
+	</script>
+</body>
+</html>

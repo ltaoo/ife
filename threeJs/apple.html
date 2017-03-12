@@ -72,23 +72,24 @@ objectScene.add(directionalLight);
 
 // 声明一个材质
 var material = new THREE.ShaderMaterial({
-    vertexShader: `uniform vec3 color;
-	uniform vec3 light;
+    vertexShader: `
+uniform vec3 color;
+uniform vec3 light;
 
-	varying vec3 vColor;
-	varying vec3 vNormal;
-	varying vec3 vLight;
+varying vec3 vColor;
+varying vec3 vNormal;
+varying vec3 vLight;
 
-	void main() {
-	    // pass to fs
-	    vColor = color;
-	    vNormal = normalize(normalMatrix * normal);
+void main() {
+    // pass to fs
+    vColor = color;
+    vNormal = normalize(normalMatrix * normal);
 
-	    vec4 viewLight = viewMatrix * vec4(light, 1.0);
-	    vLight = viewLight.xyz;
+    vec4 viewLight = viewMatrix * vec4(light, 1.0);
+    vLight = viewLight.xyz;
 
-	    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-	}`,
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`,
     fragmentShader: `varying vec3 vColor;
 	varying vec3 vNormal;
 	varying vec3 vLight;
@@ -131,24 +132,24 @@ var onProgress = function (xhr) {
 var onError = function (xhr) {
 }
 // 载入模型
-var mtlLoader = new THREE.MTLLoader();
+// var mtlLoader = new THREE.MTLLoader();
 var port = null
-mtlLoader.load('./port/port.mtl', function(materials) {
-    materials.preload();
+// mtlLoader.load('./port/port.mtl', function(materials) {
+    // materials.preload();
 	var objLoader = new THREE.OBJLoader()
 	objLoader.setPath('./port/')
-	objLoader.setMaterials(materials)
+	// objLoader.setMaterials(materials)
 	objLoader.load('port.obj', function(object) {
 	    object.traverse(function (child) {
 	        if(child instanceof THREE.Mesh) {
-			    port = child
 	            child.material.side = THREE.DoubleSide
+			    port = child
 	        }
 	    })
 		port.material = material
 	    objectScene.add(port)
 	}, onProgress, onError)
-})
+// })
 
 // 调用该函数将重新渲染一次
 function render() {
