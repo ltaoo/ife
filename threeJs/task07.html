@@ -7,6 +7,7 @@
 	<canvas id = "main"></canvas>
 	<script src="./lib/three.js"></script>
 	<script src="./lib/OBJLoader.js"></script>
+	<script src="./lib/TrackballControls.js"></script>
 	<script type="text/javascript">
 		function init () {
 			// 创建渲染器
@@ -30,6 +31,22 @@
 			camera.position.set(5, 10, 10)
 			camera.lookAt(origin)
 			scene.add(camera)
+
+			// 控制器
+			const controls = new THREE.TrackballControls(camera, document.querySelector('#main'))
+			// 设置旋转、缩放和平移的速率
+			controls.rotateSpeed = 1.0
+			controls.zoomSpeed = 1.2
+			controls.panSpeed = 0.8
+
+			controls.noZoom = false
+			controls.noPan = false
+
+			controls.staticMoving = true
+			controls.dynamicDampingFactor = 0.3
+
+			controls.keys = [65, 83, 68]
+			controls.addEventListener('change', render)
 
 			// 创建光源
 			const light = new THREE.DirectionalLight(0xffffff, 0.8)
@@ -91,18 +108,29 @@
 		    })
 		    // 载入外部模型
 		    const loader = new THREE.OBJLoader()
-		    let port = null
+		    let teapot = null
 		    loader.load('./port/port.obj', (object) => {
 		    	object.traverse(function (child) {
 			        if(child instanceof THREE.Mesh) {
 			            child.material.side = THREE.DoubleSide
-			            port = child
+			            teapot = child
 			        }
 			    })
-		    	port.material = material
-		    	scene.add(port)
+		    	teapot.material = material
+		    	scene.add(teapot)
 			    renderer.render(scene, camera)
 		    })
+
+		    animate()
+
+		    function animate () {
+		    	requestAnimationFrame(animate)
+		    	controls.update()
+		    }
+
+		    function render () {
+		    	renderer.render(scene, camera)
+		    }
 		}
 
 		init()
