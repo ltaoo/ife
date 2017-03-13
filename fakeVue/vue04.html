@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>动态数据绑定（四）</title>
+</head>
+<body>
+	<div id="app">
+	    <p>姓名：{{user.name}}</p>
+	    <p>年龄：{{user.age}}</p>
+	    <p>学校：{{school}}</p>
+	</div>
+	<script>
+		/* 
+		 * @param <string> selector
+		 * @return <DOM>
+		 */
+		function $ (selector) {
+			return document.querySelector(selector)
+		}
+		function Vue (options) {
+			this.options = options || {}
+
+			var el = this.options.el || 'body'
+			// 获取到要绑定数据的节点
+			this.$root = $(el)
+			// 获取到要绑定数据的 html 内容
+			var content = this.$root.innerHTML
+			// 拿到要绑定的数据
+			var $data = this.options.data
+			
+			this.$root.innerHTML = this.replace(content, $data)
+		}
+		/* 使用正则提取出需要替换为数据的内容
+		 * @param <String> content
+		 * @return <Array>
+		 */
+		Vue.prototype.extract = function (content) {
+			// 使用正则提取出指定内容
+			var reg = /\{{1}\{{1}(.+)\}{1}\}{1}/g
+			return content.match(reg)
+		}
+		/* 用真正的数据替换掉要绑定的数据
+		 * @param <String> 要替换的内容
+		 * @param <Object> 数据
+		 * @return <String> 替换完成后的字符串
+		 */
+		Vue.prototype.replace = function (content, data) {
+			var dataArray = this.extract(content).map(fake => {
+				var path = /\{{1}\{{1}(.+)\}{1}\}{1}/.exec(fake)[1]
+				// 如果是取对象的属性就分割开来处理，如果是顶级属性就放到数组中，一样可以处理
+				var attrs = path.indexOf('.') > -1 ? path.split('.') : [path]
+
+				var _data = data
+				for(let i = 0, len = attrs.length; i < len; i++) {
+					_data = _data[attrs[i]]
+				}
+				content = content.replace(fake, _data)
+			})
+			return content
+		}
+		// example
+		let app = new Vue({
+			el: '#app',
+			data: {
+		    	user: {
+		    		name: 'youngwind',
+		    		age: 25
+		   		},
+		   		school: 'hunst'
+		 	}
+		})
+	</script>
+</body>
+</html>
