@@ -21,9 +21,11 @@ Emitter.prototype.on = function (event, fn) {
 Emitter.prototype.emit = function (event, a, b, c) {
 	var fns = this.events[event]
 
-	fns.forEach(fn => {
-		fn.call(null, a, b, c)
-	})
+	if (fns) {
+		fns.forEach(fn => {
+			fn.call(null, a, b, c)
+		})
+	}
 }
 
 /* 取消指定事件监听

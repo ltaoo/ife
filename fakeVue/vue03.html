@@ -22,12 +22,25 @@
             rootObserver.on('get', () => {
                 console.log('get $data')
             })
-            convert(this.$data, rootObserver, '$data')
+            this.cbs = {}
+            this.convert(this.$data, rootObserver, '$data')
             return this
         }
 
         Observer.prototype.$watch = function (path, fn) {
+            var fns = (this.cbs[path] || [])
+            fns.push(fn)
+            this.cbs[path] = fns
+        }
 
+        Observer.prototype.watch = function (obj) {
+            var _this = this
+            // 如果值是对象
+            if (obj.constructor === Object) {
+                for(var key in obj) {
+                    _this.convertKey(obj, key)
+                }
+            }
         }
 
         /* 
@@ -35,8 +48,9 @@
          * @param (Object)required source
          * @return (Object) 
          */
-        function convert (source, observer, path) {
+        Observer.prototype.convert = function (source, observer, path) {
             var emitter = new Emitter()
+            var _this = this
             if (!source._ob_) {
                 Object.defineProperty(source, '_ob_', {
                     enumerable: false,
@@ -44,33 +58,35 @@
                 })
             }
             if (!source._path_) {
-                Object.defineProperty(source, '_path', {
+                Object.defineProperty(source, '_path_', {
                     enumerable: false,
                     value: path
                 })
             }
 
+            var rowPath = path === '' ? '' : path + '.'
+
             emitter.on('get', key => {
                 console.log(`get ${key}`)
-                observer.emit('get', path, key)
+                observer.emit('get', rowPath + key)
             })
-            emitter.on('set', key => {
+            emitter.on('set', (key, value) => {
                 console.log(`set ${key}`)
-                observer.emit('set', path, key)
+                observer.emit('set', rowPath + key)
+                var fns = _this.cbs[key]
+                if (fns) {
+                    fns.forEach(fn => {
+                        fn.call(null, value)
+                    })
+                }
             })
 
-            watch(source)
+            this.watch(source)
             return source
         }
-        function watch (obj) {
-            // 如果值是对象
-            if (obj.constructor === Object) {
-                for(var key in obj) {
-                    convertKey(obj, key)
-                }
-            }
-        }
-        function convertKey (source, key) {
+        
+        Observer.prototype.convertKey = function (source, key) {
+            var _this = this
             var emitter = source._ob_
             var value = source[key]
             Object.defineProperty(source, key, {
@@ -79,17 +95,19 @@
                     return value
                 },
                 set: function (newValue) {
-                    // 如果新设置的值还是对象，就再次监听
-                    if(newValue.constructor === Object) {
-                        convert(newValue, emitter, key)
-                    }
-                    emitter.emit('set', key)
+                    init(newValue)
+                    emitter.emit('set', key, newValue)
                     value = newValue
                 }
             })
-            // 如果值还是对象，就递归
-            if(value.constructor === Object) {
-                convert(value, emitter, key)
+
+            init(value)
+
+            function init (value) {
+                // 如果值还是对象，就递归
+                if(value.constructor === Object) {
+                    _this.convert(value, emitter, key)
+                }
             }
         }
 
@@ -102,7 +120,7 @@
                 age: 25
             })
 
-            console.log(app1.$data.name.firstName)
+            // console.log(app1.$data.name.firstName)
 
             // app1.data.name = {
             //     lastName: 'liang',
@@ -119,7 +137,7 @@
             // app1.$watch('root', function (age, key) {
             //     console.log(`我的姓名发生了变化，是因为${key}发生了变化`)
             // })
-            // app1.data.age = 100
+            app1.$data.age = 100
             // app1.data.name.lastName = 'hahaha'
         }
     </script>
