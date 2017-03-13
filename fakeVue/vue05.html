@@ -6,12 +6,15 @@
 </head>
 <body>
 	<div id="app">
-	    <p>姓名：{{user.name}}</p>
-	    <p>年龄：{{user.age}}</p>
-	    <p>学校：{{school}}</p>
+	    <p v-model = "user.name"></p>
+	    <p v-model = "school"></p>
+	    <input type="text">
 	</div>
 	<script src="./lib/Emitter.js"></script>
 	<script>
+		var slice = function (arr) {
+			return [].slice.call(arr)
+		}
 		/* 
 		 * @param <string> selector
 		 * @return <DOM>
@@ -60,12 +63,41 @@
 			})
 			return content
 		}
+		function render (path, data) {
+			var attrs = path.indexOf('.') > -1 ? path.split('.') : [path]
+
+			var _data = data
+			for(let i = 0, len = attrs.length; i < len; i++) {
+				_data = _data[attrs[i]]
+			}
+
+			return _data
+		}
 		/* 渲染视图
 		 */
-		Vue.prototype.render = function () {
+		Vue.prototype.render = function (path) {
 			// 获取到要绑定数据的 html 内容
 			// var content = this.$root.innerHTML
-			this.$root.innerHTML = this.replace(this.$originContent, this.$data)
+			// this.$root.innerHTML = this.replace(this.$originContent, this.$data)
+
+			// 解析 dom children 不包括文本节点，childNodes 包括
+			var nodes = this.$root.childNodes
+			nodes.forEach(node => {
+				// console.dir(node)
+				if(node.nodeType === 1 && node.hasAttributes()) {
+					var attrs = node.attributes
+					Object.keys(attrs).forEach(name => {
+						var key = attrs[name].name
+						var value = attrs[name].value
+						// console.log(name, typeof attrs[name])
+						if (key === 'v-model') {
+							// 表示这是我们自定义的属性
+							node.innerText = render(value, this.$data)
+						}
+					})
+				}
+				
+			})
 		}
 		Vue.prototype.$watch = function (path, fn) {
             var fns = (this.cbs[path] || [])
@@ -158,6 +190,7 @@
                 }
             }
         }
+
 		// example
 		app = new Vue({
 			el: '#app',
@@ -169,9 +202,6 @@
 		   		school: 'hunst'
 		 	}
 		})
-		app.$data.school = 'suibian'
-		app.$data.school = 'hello'
-		// console.log(app.$data.school)
 	</script>
 </body>
 </html>
