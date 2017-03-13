@@ -19,9 +19,9 @@
             // console.log(convert(data))
             this.$data = data
             var rootObserver = new Emitter()
-            rootObserver.on('get', () => {
-                console.log('get $data')
-            })
+            // rootObserver.on('get', () => {
+            //     console.log('get $data')
+            // })
             this.cbs = {}
             this.convert(this.$data, rootObserver, '$data')
             return this
@@ -69,18 +69,23 @@
             emitter.on('get', key => {
                 console.log(`get ${key}`)
                 observer.emit('get', rowPath + key)
+                // observer.emit('get', path, key)
             })
             emitter.on('set', (key, value) => {
                 console.log(`set ${key}`)
-                observer.emit('set', rowPath + key)
+                // observer.emit('set', rowPath + key, value)
                 var fns = _this.cbs[key]
+                // console.log(fns, key)
                 if (fns) {
                     fns.forEach(fn => {
-                        fn.call(null, value)
+                        fn.call(null, key, value)
                     })
                 }
+                observer.emit('set', path, value)
+                // var paths = key.split('.')
+                // paths.forEach(path => {
+                // })
             })
-
             this.watch(source)
             return source
         }
@@ -131,14 +136,17 @@
             // // 修改值时要求打印信息
             // app1.data.name.lastName = 'lalala'
 
-            app1.$watch('age', function (age) {
-                console.log(`我的年纪变了，现在已经是：${age} 岁了`)
-            })
-            // app1.$watch('root', function (age, key) {
-            //     console.log(`我的姓名发生了变化，是因为${key}发生了变化`)
+            // app1.$watch('age', function (age) {
+            //     console.log(`我的年纪变了，现在已经是：${age} 岁了`)
             // })
-            app1.$data.age = 100
-            // app1.data.name.lastName = 'hahaha'
+            // app1.$data.age = 100
+            app1.$watch('name', function (key, value) {
+                console.log(`我的姓名发生了变化，是因为${key}发生了变化, ${value}`)
+            })
+            app1.$watch('lastName', function (key, value) {
+                console.log(`我的 lastName 发生了变化, ${key}, ${value}`)
+            })
+            app1.$data.name.lastName = 'hahaha'
         }
     </script>
     <script>
