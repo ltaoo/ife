@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>动态数据绑定（五）</title>
+</head>
+<body>
+	<div id="app">
+	    <p>姓名：{{user.name}}</p>
+	    <p>年龄：{{user.age}}</p>
+	    <p>学校：{{school}}</p>
+	</div>
+	<script src="./lib/Emitter.js"></script>
+	<script>
+		/* 
+		 * @param <string> selector
+		 * @return <DOM>
+		 */
+		function $ (selector) {
+			return document.querySelector(selector)
+		}
+		function Vue (options) {
+			this.options = options || {}
+			var el = this.options.el || 'body'
+			// 获取到要绑定数据的节点
+			this.$root = $(el)
+			// 原始内容值
+			this.$originContent = this.$root.innerHTML
+			this.$data = this.options.data
+			this.observe(this.$data)
+			// 渲染页面
+			this.render()
+		}
+		/* 使用正则提取出需要替换为数据的内容
+		 * @param <String> content
+		 * @return <Array>
+		 */
+		Vue.prototype.extract = function (content) {
+			// 使用正则提取出指定内容
+			var reg = /\{{1}\{{1}(.+)\}{1}\}{1}/g
+			return content.match(reg)
+		}
+		/* 用真正的数据替换掉要绑定的数据
+		 * @param <String> 要替换的内容
+		 * @param <Object> 数据
+		 * @return <String> 替换完成后的字符串
+		 */
+		Vue.prototype.replace = function (content, data) {
+			console.log(data.school)
+			var dataArray = this.extract(content).map(fake => {
+				var path = /\{{1}\{{1}(.+)\}{1}\}{1}/.exec(fake)[1]
+				// 如果是取对象的属性就分割开来处理，如果是顶级属性就放到数组中，一样可以处理
+				var attrs = path.indexOf('.') > -1 ? path.split('.') : [path]
+
+				var _data = data
+				for(let i = 0, len = attrs.length; i < len; i++) {
+					_data = _data[attrs[i]]
+				}
+				content = content.replace(fake, _data)
+			})
+			return content
+		}
+		/* 渲染视图
+		 */
+		Vue.prototype.render = function () {
+			// 获取到要绑定数据的 html 内容
+			// var content = this.$root.innerHTML
+			this.$root.innerHTML = this.replace(this.$originContent, this.$data)
+		}
+		Vue.prototype.$watch = function (path, fn) {
+            var fns = (this.cbs[path] || [])
+            fns.push(fn)
+            this.cbs[path] = fns
+        }
+
+        Vue.prototype.observe = function (obj) {
+            var rootObserver = new Emitter()
+            this.cbs = {}
+            this.$data = this.convert(obj, rootObserver, '$data')
+        }
+        Vue.prototype.walk = function (obj) {
+            // 如果值是对象
+            if (obj.constructor === Object) {
+                for(var key in obj) {
+                    this.convertKey(obj, key)
+                }
+            }
+        }
+        /* 
+         * 转换函数，增加 emitter
+         * @param (Object)required source
+         * @return (Object) 
+         */
+        Vue.prototype.convert = function (source, observer, path) {
+            var emitter = new Emitter()
+            if (!source._ob_) {
+                Object.defineProperty(source, '_ob_', {
+                    enumerable: false,
+                    value: emitter
+                })
+            }
+            // if (!source._path_) {
+            //     Object.defineProperty(source, '_path_', {
+            //         enumerable: false,
+            //         value: path
+            //     })
+            // }
+
+            var rowPath = path === '' ? '' : path + '.'
+
+            emitter.on('get', key => {
+                // console.log(`get ${key}`)
+                observer.emit('get', rowPath + key)
+                // observer.emit('get', path, key)
+            })
+            emitter.on('set', (key, value) => {
+                this.render()
+                // console.log(`set ${key}`)
+                // observer.emit('set', rowPath + key, value)
+                var fns = this.cbs[key]
+                // console.log(fns, key)
+                if (fns) {
+                    fns.forEach(fn => {
+                        fn.call(null, key, value)
+                    })
+                }
+                observer.emit('set', path, value)
+                // var paths = key.split('.')
+                // paths.forEach(path => {
+                // })
+            })
+            this.walk(source)
+            return source
+        }
+        
+        Vue.prototype.convertKey = function (source, key) {
+            var _this = this
+            var emitter = source._ob_
+            var value = source[key]
+            Object.defineProperty(source, key, {
+                get: function () {
+                    emitter.emit('get', key)
+                    return value
+                },
+                set: function (newValue) {
+                    init(newValue)
+                    value = newValue
+                    emitter.emit('set', key, newValue)
+                }
+            })
+
+            init(value)
+
+            function init (value) {
+                // 如果值还是对象，就递归
+                if(value.constructor === Object) {
+                    _this.convert(value, emitter, key)
+                }
+            }
+        }
+		// example
+		app = new Vue({
+			el: '#app',
+			data: {
+		    	user: {
+		    		name: 'youngwind',
+		    		age: 25
+		   		},
+		   		school: 'hunst'
+		 	}
+		})
+		app.$data.school = 'suibian'
+		app.$data.school = 'hello'
+		// console.log(app.$data.school)
+	</script>
+</body>
+</html>
