@@ -18,11 +18,11 @@ Emitter.prototype.on = function (event, fn) {
 /* 事件触发函数
  * @param <String> event 要触发的事件名
  */
-Emitter.prototype.emit = function (event) {
+Emitter.prototype.emit = function (event, a, b, c) {
 	var fns = this.events[event]
 
 	fns.forEach(fn => {
-		fn()
+		fn.call(null, a, b, c)
 	})
 }
 
