@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>ECharts NO.3 - 绘制地图</title>
+	<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/echarts/3.4.0/echarts.js"></script>
+</head>
+<body>
+	<div id="main" style = "width: 800px; height: 600px;"></div>
+	<script>
+		var myChart = echarts.init(document.getElementById('main'))
+		myChart.showLoading()
+		$.get('/geojson/countries.json', function (json) {
+		    myChart.hideLoading()
+		    echarts.registerMap('World', json)
+		    option = {
+		        title: {
+		            text: 'World',
+		            left: 'right'
+		        },
+		        series: [
+		            {
+		                name: 'World',
+		                type: 'map',
+		                roam: true,
+		                map: 'World'		            
+		            }
+		        ]
+		    };
+
+		    myChart.setOption(option)
+		})
+	</script>
+</body>
+</html>
