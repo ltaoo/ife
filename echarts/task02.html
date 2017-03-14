@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>EChart NO.1 - 零基础绘制 ECharts 图表</title>
+	<script src="//cdn.bootcss.com/echarts/3.4.0/echarts.common.min.js"></script>
+</head>
+<body>
+	<div id="main" style = "width: 600px; height: 400px;"></div>
+	<script>
+		var myChart = echarts.init(document.getElementById('main'))
+
+		var itemStyle = {
+
+		}
+
+		var option = {
+			title: {
+				text: 'What\'s my credit score?',
+				textStyle: {
+					fontSize: 24,
+					color: '#494d4b',
+					fontWeight: 'bold'
+				},
+				// 副标题
+				subtext: 'Puerto Rico, % decrease on a year earlier',
+				subtextStyle: {
+					fontSize: 16,
+					color: '#494d4b'
+				},
+				top: 20,
+				left: 40
+			},
+			legend: {
+				data: ['销量', '数量'],
+				left: 40,
+				top: 100,
+				padding: 0,
+				textStyle: {
+					fontSize: 16
+				}
+			},
+			grid: {
+				left: 40,
+				top: 140
+			},
+			xAxis: [{
+				data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子'],
+				type: 'category',
+				boundaryGap: true,
+				// 坐标轴名的样式
+				// nameTextStyle: {
+				// 	color: '#000'
+				// },
+				axisLine: {
+					// 这句能控制 x 轴到下边
+					onZero: false
+				},
+				axisTick: {
+					inside: true,
+					alignWithLable: true,
+					// 控制刻度线的长度
+					length: 5
+				}
+				// axisLable: {
+				// 	textStyle: {
+				// 		color: '#000',
+				// 		fontSize: 16
+				// 	}
+				// }
+			}, {
+				type: 'category',
+				boundaryGap: true,
+				z: 10,
+				axisLine: {
+					lineStyle: {
+						// x 轴轴线
+						color: '#e88580',
+						width: 2
+					}
+				}
+			}],
+			yAxis: {
+				type: 'value',
+				// 方向反转
+				inverse: true,
+				position: 'right',
+				axisLine: {
+					// 不显示轴线
+					show: false
+				},
+				axisTick: {
+					// 不显示"刻度"
+					show: false
+				},
+				splitLine: {
+					lineStyle: {
+						color: '#fff',
+						width: 2
+					}
+				},
+				axisLable: {
+					textStyle: {
+						color: '#000',
+						fontSize: 16
+					}
+				}
+			},
+			series: [
+				{
+					name: '销量',
+					type: 'bar',
+					barGap: 0,
+					barMaxWidth: 20,
+					data: [4, 20, 36, 10, 10, 20]
+				}, {
+					name: '数量',
+					type: 'bar',
+					barGap: 0,
+					barMaxWidth: 20,
+					data: [2, 10, 20, 30, 21, 18]
+				}
+			],
+			// 自定义颜色
+			color: ['#33b6e3', '#33758a'],
+			backgroundColor: '#d7e5ec'
+		}
+
+		myChart.setOption(option)
+	</script>
+</body>
+</html>
