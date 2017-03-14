@@ -63,6 +63,11 @@
 			})
 			return content
 		}
+		/* 根据 path 返回指定数据
+		 * @param <String> path
+		 * @param <Object> data
+		 * @return
+		 */
 		function render (path, data) {
 			var attrs = path.indexOf('.') > -1 ? path.split('.') : [path]
 

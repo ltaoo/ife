@@ -1,0 +1,1 @@
+docker run --name phantom -it -v $PWD:/app node:6.9.2-slim /bin/bash
