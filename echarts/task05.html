@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>ECharts NO.5 - 动态数据</title>
+	<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/echarts/3.4.0/echarts.js"></script>
+</head>
+<body>
+	<div id="main" style = "width: 800px; height: 600px;"></div>
+	<script>
+		/* 分割数据得到分类与值
+		 *
+		 * @return <Object>
+		 */
+		function splitData(rawData) {
+		    var categoryData = []
+		    var values = []
+		    for (var i = 0; i < rawData.length; i++) {
+		        // categoryData.push(rawData[i].slice(0, 1)[0])
+		        categoryData.push(rawData[i].splice(0, 1)[0])
+		        values.push(rawData[i])
+		    }
+
+		    return {
+		        categoryData: categoryData,
+		        values: values
+		    }
+		}
+		/* 计算 MA，有什么用？
+		 */
+		function calculateMA(dayCount, data) {
+		    var result = []
+		    for (var i = 0, len = data.values.length; i < len; i++) {
+		        if (i < dayCount) {
+		            result.push('-')
+		            continue
+		        }
+		        var sum = 0
+		        for (var j = 0; j < dayCount; j++) {
+		            sum += data.values[i - j][1]
+		        }
+		        result.push(sum / dayCount)
+		    }
+		    return result
+		}
+
+		/* 生成 select 下拉框
+		 * @param <Object> data
+		 * @return <DOM> 
+		 */
+		function createSelect (data) {
+			var select = document.createElement('select')
+			var options = ''
+			for(let key in data) {
+				options += `<option value = "${key}">${key}</option>`
+			}
+
+			select.innerHTML = options
+
+			document.body.appendChild(select)
+
+			return select
+		}
+
+		// 获取 30 天的数据
+		function monthData (data, n) {
+			var categoryData = []
+		    var values = []
+		    for (var i = n, len = n + 30; i < len; i++) {
+		        // categoryData.push(rawData[i].slice(0, 1)[0])
+		        categoryData.push(data.categoryData[i])
+		        values.push(data.values[i])
+		    }
+
+		    return {
+		        categoryData: categoryData,
+		        values: values
+		    }
+		}
+
+		var myChart = echarts.init(document.getElementById('main'))
+		myChart.showLoading()
+		// 数据意义：开盘(open)，收盘(close)，最低(lowest)，最高(highest)
+		$.get('./sp500hst.json', function (res) {
+			// 先生成下拉框
+			var select = createSelect(res)
+			// 监听下拉框改变事件，重新渲染 canvas
+			let company = 'A'
+		    let start = 0
+			select.onchange = function (event) {
+				company = event.target.value || 'A'
+				start = 0
+				render(res[company], myChart)
+			}
+
+		    myChart.hideLoading()
+		    // 渲染 A 公司
+			var data0 = splitData(res[company])
+			// 对 values 做处理
+			// console.log(data0)
+		    let timer = setInterval(() => {
+		    	// console.log(res[company])
+		    	render(monthData(data0, start), myChart)
+
+		    	// 中断定时器
+		    	if (start + 30 >= res[company].length) {
+		    		clearTimeout(timer)
+		    	}
+
+		    	start += 1
+		    }, 200)
+
+			//
+			function render (data0, echarts) {
+				option = {
+				    title: {
+				        text: '上证指数',
+				        left: 0
+				    },
+				    tooltip: {
+				        trigger: 'axis',
+				        axisPointer: {
+				            type: 'line'
+				        }
+				    },
+				    legend: {
+				        data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
+				    },
+				    grid: {
+				        left: '10%',
+				        right: '10%',
+				        bottom: '15%'
+				    },
+				    xAxis: {
+				        type: 'category',
+				        data: data0.categoryData,
+				        scale: true,
+				        boundaryGap : false,
+				        axisLine: {onZero: false},
+				        splitLine: {show: false},
+				        splitNumber: 20,
+				        min: 'dataMin',
+				        max: 'dataMax'
+				    },
+				    yAxis: {
+				        scale: true,
+				        splitArea: {
+				            show: true
+				        }
+				    },
+				    series: [
+				        {
+				            name: '日K',
+				            type: 'candlestick',
+				            data: data0.values,
+				            markPoint: {
+				                label: {
+				                    normal: {
+				                        formatter: function (param) {
+				                            return param != null ? Math.round(param.value) : ''
+				                        }
+				                    }
+				                },
+				                data: [
+				                    {
+				                        name: 'XX标点',
+				                        coord: ['2013/5/31', 2300],
+				                        value: 2300,
+				                        itemStyle: {
+				                            normal: {color: 'rgb(41,60,85)'}
+				                        }
+				                    },
+				                    {
+				                        name: 'highest value',
+				                        type: 'max',
+				                        valueDim: 'highest'
+				                    },
+				                    {
+				                        name: 'lowest value',
+				                        type: 'min',
+				                        valueDim: 'lowest'
+				                    },
+				                    {
+				                        name: 'average value on close',
+				                        type: 'average',
+				                        valueDim: 'close'
+				                    }
+				                ],
+				                tooltip: {
+				                    formatter: function (param) {
+				                        return param.name + '<br>' + (param.data.coord || '');
+				                    }
+				                }
+				            },
+				            markLine: {
+				                symbol: ['none', 'none'],
+				                data: [
+				                    [
+				                        {
+				                            name: 'from lowest to highest',
+				                            type: 'min',
+				                            valueDim: 'lowest',
+				                            symbol: 'circle',
+				                            symbolSize: 10,
+				                            label: {
+				                                normal: {show: false},
+				                                emphasis: {show: false}
+				                            }
+				                        },
+				                        {
+				                            type: 'max',
+				                            valueDim: 'highest',
+				                            symbol: 'circle',
+				                            symbolSize: 10,
+				                            label: {
+				                                normal: {show: false},
+				                                emphasis: {show: false}
+				                            }
+				                        }
+				                    ],
+				                    {
+				                        name: 'min line on close',
+				                        type: 'min',
+				                        valueDim: 'close'
+				                    },
+				                    {
+				                        name: 'max line on close',
+				                        type: 'max',
+				                        valueDim: 'close'
+				                    }
+				                ]
+				            }
+				        },
+				        {
+				            name: 'MA5',
+				            type: 'line',
+				            data: calculateMA(5, data0),
+				            smooth: true,
+				            lineStyle: {
+				                normal: {opacity: 0.5}
+				            }
+				        },
+				        {
+				            name: 'MA10',
+				            type: 'line',
+				            data: calculateMA(10, data0),
+				            smooth: true,
+				            lineStyle: {
+				                normal: {opacity: 0.5}
+				            }
+				        },
+				        {
+				            name: 'MA20',
+				            type: 'line',
+				            data: calculateMA(20, data0),
+				            smooth: true,
+				            lineStyle: {
+				                normal: {opacity: 0.5}
+				            }
+				        },
+				        {
+				            name: 'MA30',
+				            type: 'line',
+				            data: calculateMA(30, data0),
+				            smooth: true,
+				            lineStyle: {
+				                normal: {opacity: 0.5}
+				            }
+				        },
+
+				    ]
+				}
+				echarts.setOption(option)
+			}
+		})
+	</script>
+</body>
+</html>
