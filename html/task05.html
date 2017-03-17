@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>任务二：零基础 HTML 及 CSS 编码（一）</title>
+	<style>
+		body, div, p, h1, nav, header, article {
+			margin: 0;
+			padding: 0;
+		}
+		body {
+			background-color: #dedede;
+		}
+		li {
+			/*list-style: none;*/
+		}
+		.container {
+			background-color: #ffffff;
+			margin: 20px;
+			padding: 20px;
+			box-shadow: 5px 5px 5px #ccc;
+		}
+		.container__title {
+			border-left: 5px solid #ccc;
+			padding-left: 20px;
+		}
+		.header {
+			background-color: #333333;
+			overflow: hidden;
+		}
+		.web__title {
+			float: left;
+			margin-left: 20px;
+		}
+		.web__logo {
+			width: 100px;
+		}
+		.web__nav {
+			float: right;
+		}
+		.nav__item {
+			float: left;
+			margin-right: 30px;
+		}
+		.nav__link:link {
+			color: #ffffff;
+			font-size: 12px;
+			text-decoration: none;
+		}
+		.articles {
+			margin-right: 380px;
+			background-color: #dedede;
+		}
+		.article__author {
+			font-size: 12px;
+			color: #333;
+			margin-right: 10px;
+		}
+		.article__time {
+			font-size: 12px;
+			color: #333;
+		}
+		.img__item {
+			width: 100px;
+			display: block;
+			padding: 10px;
+			border: 1px solid #eee;
+			margin: 10px;
+			display: inline-block;
+		}
+		.img__item img {
+			width: 100%;
+		}
+		.img__des {
+			text-align: center;
+			margin-bottom: 10px;
+		}
+		.article__table {
+			width: 100%;
+			border-collapse: collapse;
+			border: 1px solid #eee;
+		}
+		.table__head {
+			background-color: #333333;
+		}
+		.table__th {
+			color: #ffffff;
+			text-align: left;
+		}
+		.table__td {
+			border: 1px solid #eee;
+		}
+		.table__sum {
+			background-color: #cccccc;
+		}
+		.aside {
+			width: 320px;
+			float: right;
+		}
+		.login__item {
+			display: block;
+			width: 100%;
+			margin-bottom: 10px;
+		}
+		.login__text {
+			width: 40%;
+			text-align: right;
+			display: inline-block;
+			margin-right: 10px;
+			vertical-align: top;
+		}
+		.login__tip {
+			margin-left: 20%;
+			margin-bottom: 20px;
+			font-size: 14px;
+			color: #ccc;
+		}
+		.login__des {
+			height: 80px;
+			width: 50%;
+		}
+		.login__btn {
+			width: 100%;
+			background-color: #3355d0;
+			border: 0;
+			border-radius: 5px;
+			padding: 10px 0;
+			color: #ffffff;
+			font-size: 16px;
+		}
+		.footer {
+			padding: 20px 0;
+			background-color: #000000;
+			text-align: center;
+			color: #ffffff;
+			font-size: 12px;
+		}
+	</style>
+</head>
+	<body>
+		<header class= "header">
+			<h1 class = "web__title"><img class = "web__logo" src="./img/baidu.png" alt=""></h1>
+			<nav>
+				<ul class = "web__nav">
+					<li class = "nav__item">
+						<a class = "nav__link" href="#">导航链接一</a>
+					</li>
+					<li class = "nav__item">
+						<a class = "nav__link" href="#">导航链接二</a>
+					</li>
+					<li class = "nav__item">
+						<a class = "nav__link" href="#">导航链接三</a>
+					</li>
+					<li class = "nav__item">
+						<a class = "nav__link" href="#">导航链接四</a>
+					</li>
+				</ul>
+			</nav>
+		</header>
+		<aside class = "container aside">
+			<h2 class = "container__title">这里以后是一个侧栏，这是侧栏的标题</h2>
+			<form action="" class = "login">
+				<label for="email" class = "login__item">
+					<p class = "login__text">请输入邮箱地址</p>
+					<input id="email" type="text" placeholder="这是一个文本输入框">
+				</label>
+				<p class = "login__tip">邮箱地址请按要求格式输入</p>
+				<label for="password" class = "login__item">
+					<p class = "login__text">请输入密码</p>
+					<input id="password" type="text" placeholder="这是一个文本输入框">
+				</label>
+				<label for="repassword" class = "login__item">
+					<p class = "login__text">请重复输入密码</p>
+					<input id="repassword" type="text" placeholder="这是一个文本输入框">
+				</label>
+				<p class = "login__tip">密码请为 6-16 位英文数字</p>
+				<label for="sex" class = "login__item">
+					<p class = "login__text">性别</p>
+					<input id = "sex" type="radio" checked="true">男
+					<input type="radio">女
+				</label>
+				<label for="city" class = "login__item">
+					<p class = "login__text">城市</p>
+					<select name="" id="city">
+						<option value="0">北京</option>
+						<option value="1">上海</option>
+					</select>
+				</label>
+				<label for="habby" class = "login__item">
+					<p class = "login__text">爱好</p>
+					<input id = "habby" type="checkbox">运动
+					<input type="checkbox">艺术<input type="checkbox">科学
+				</label>
+				<label for="des" class = "login__item">
+					<p class = "login__text">个人描述</p>
+					<textarea class = "login__des" id = "des" placeholder="个人描述" value = "这是一个多行输入框，请输入您的描述"></textarea>
+				</label>
+				<input class = "login__btn" type="button" value = "确认提交">
+			</form>
+		</aside>
+		<section class="articles">
+			<article class = "container">
+				<h2>文章一级标题</h2>
+				<h3>文章二级标题</h3>
+				<p><span class = "article__author">文章作者</span><span class = "article__time">文章发表时间</span></p>
+				<p>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，换行了。</p>
+				<p>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，换行了。</p>
+				<p>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，<a href="http://ife.baidu.com">这里有一个链接到 http://ife.baidu.com</a>这是一个很长的段落，<b>这里有个粗体字</b>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，换行了。</p>
+				<img src="./img/typer.jpeg" alt="">
+				<p>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，<b>这里有个粗体字</b>这是一个很长的段落，这是一个很长的段落，<a href="http://ife.baidu.com" target = "_blank">这里有一个链接点击后打开新窗口链接到 http://ife.baidu.com</a>这是一个很长的段落，这是一个很长的段落，换行了。</p>
+			</article>
+			<article class = "container">
+				<h2>文章一级标题</h2>
+				<h3>文章二级标题</h3>
+				<p><span class = "article__author">文章作者</span><span class = "article__time">文章发表时间</span></p>
+				<p>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，换行了。</p>
+				<p>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，换行了。</p>
+				<p>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，<a href="http://ife.baidu.com">这里有一个链接到 http://ife.baidu.com</a>这是一个很长的段落，<b>这里有个粗体字</b>这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，这是一个很长的段落，换行了。</p>
+				<img src="./img/typer.jpeg" alt="">
+				<ul>
+					<li>
+						<p>列表项目一</p>
+					</li>
+					<li>
+						<p>列表项目二</p>
+					</li>
+					<li>
+						<p>列表项目三</p>
+					</li>
+				</ul>
+			</article>
+			<article class="container">
+				<h2>图片</h2>
+				<div class="img__item">
+					<p class = "img__des">好看的图片</p>
+					<img src="./img/typer.jpeg" alt="">
+				</div>
+				<div class="img__item">
+					<p class = "img__des">好看的图片</p>
+					<img src="./img/typer.jpeg" alt="">
+				</div>
+				<div class="img__item">
+					<p class = "img__des">好看的图片</p>
+					<img src="./img/typer.jpeg" alt="">
+				</div>
+				<div class="img__item">
+					<p class = "img__des">好看的图片</p>
+					<img src="./img/typer.jpeg" alt="">
+				</div>
+				<div class="img__item">
+					<p class = "img__des">好看的图片</p>
+					<img src="./img/typer.jpeg" alt="">
+				</div>
+			</article>
+			<article class = "container">
+				<h2>最后一篇文章一级标题</h2>
+				<h3>文章二级标题</h3>
+				<p><span>文章作者</span><span>文章发表时间</span></p>
+				<ol>
+					<li>
+						<p>排名1</p>
+					</li>
+					<li>
+						<p>排名2</p>
+					</li>
+					<li>
+						<p>排名3</p>
+					</li>
+				</ol>
+				<p>下面是一个表格，给表格加了一个 border = "1" 好让你看出是一个表格。</p>
+				<table class = "article__table">
+					<thead>
+						<tr class = "table__head">
+							<th class = "table__th">表头</th>
+							<th class = "table__th">表头</th>
+							<th class = "table__th">表头</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td"><a href="#">操作</a></td>
+						</tr>
+						<tr>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td"><a href="#">操作</a></td>
+						</tr>
+						<tr>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td"><a href="#">操作</a></td>
+						</tr>
+						<tr>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td">表内容单元格</td>
+							<td class = "table__td"><a href="#">操作</a></td>
+						</tr>
+						<tr class = "table__sum">
+							<td class = "table__td">总计</td>
+							<td class = "table__td" colspan = "2">1000</td>
+						</tr>
+					</tbody>
+				</table>
+			</article>
+		</section>
+		<footer class = "footer" style = "clear: both;">
+			<p class = "copy">版权所有©️</p>	
+		</footer>
+	</body>
+</html>
