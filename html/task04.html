@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务四：定位和居中问题</title>
+	<style>
+		body {
+			height: 100%;
+		}
+		.container {
+			position: absolute;
+			width: 400px;
+			height: 200px;
+			background-color: #ccc;
+			overflow: hidden;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+		}
+		.circle {
+			width: 100px;
+			height: 100px;
+			border-radius: 50px;
+			background-color: #fc0;
+		}
+		.left {
+			position: absolute;
+			left: -50px;
+			top: -50px;
+		}
+		.right {
+			position: absolute;
+			right: -50px;
+			bottom: -50px;
+		}
+	</style>
+</head>
+<body>
+	<div class="demo1">
+		<div class="container">
+			<div class="circle left"></div>
+			<div class="circle right"></div>
+		</div>
+	</div>
+</body>
+</html>
