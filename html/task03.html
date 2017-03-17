@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务三：三栏式布局</title>
+	<style>
+		div {
+			box-sizing: border-box;
+		}
+		.img {
+			width: 80px;
+			height: 80px;
+			border: 1px solid #999;
+			background-color: #eee;
+			display: inline-block;
+		}
+		.team {
+			padding: 20px;
+			background-color: #eee;
+			border: 1px solid #999;
+			overflow: hidden;
+		}
+		.team__logo {
+			margin-right: 8px;
+		}
+		.team__name {
+			display: inline-block;
+			vertical-align: top;
+			margin: 0;
+		}
+		.team__des {
+			float: left;
+			width: 200px;
+			padding: 20px;
+			background-color: #fff;
+			border: 1px solid #999;
+		}
+		.team__persons {
+			float: right;
+			width: 120px;
+			padding: 20px;
+			background-color: #fff;
+			border: 1px solid #999;
+		}
+		.team__person {
+			margin-bottom: 20px;
+		}
+		.team__person:last-child {
+			margin-bottom: 0;
+		}
+		.team__introduc {
+			margin-left: 220px;
+			margin-right: 140px;
+			padding: 20px;
+			background-color: #fff;
+			border: 1px solid #999;
+		}
+	</style>
+</head>
+<body>
+	<section class="container team">
+		<div class="team__des">
+			<div class="img team__logo"></div>
+			<p class="team__name">团队名称</p>
+		</div>
+		<div class="team__persons">
+			<div class="img team__person"></div>
+			<div class="img team__person"></div>
+			<div class="img team__person"></div>
+			<div class="img team__person"></div>
+		</div>
+		<div class="team__introduc">
+			<p>关于你们团队的介绍</p>
+			<p>可以给我们解释一下团队名称的来历，或是分别介绍你们的团队成员。</p>
+			<p>（一下为实例）</p>
+			<p>百度 Web 前端技术学院（Baidu institute of Front-End Technology 简称 IFE）是一个由百度人力资源部校园招聘组、百度 EFE 团队联合出品的、面向在校大学生以及对前端技术有兴趣的前端在线学习平台，我们希望能够借助百度大量优秀的前端工程师以及丰富的前端知识积累，帮助人们更加有趣、高效、系统地学习 Web 前端技术。</p>
+			<h2>2016 春季班概述</h2>
+		</div>
+	</section>
+</body>
+</html>
