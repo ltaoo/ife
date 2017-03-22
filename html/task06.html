@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务六：通过 HTML 及 CSS 模拟报纸排版</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		p, h1, h2, h3 {
+			margin: 0;
+		}
+		body {
+			background-color: #5d5d5d;
+			font-size: 12px;
+		}
+		.clear::after, .clear::before {
+			display: block;
+			content: '';
+			height: 0;
+			clear: both;
+		}
+		.main{
+			width: 980px;
+			height: 1386px;
+			margin: 0 auto;
+			background-color: #fff;
+		}
+		.container {
+			width: 892px;
+			margin: 0 auto;
+			margin-bottom: 20px;
+			overflow: hidden;
+		}
+		.container--bottom {
+			padding-bottom: 20px;
+			margin-bottom: 0px;
+			border-bottom: 2px solid #938e8c;
+		}
+		.head {
+			position: relative;
+			border-bottom: 2px solid #938e8c;
+		}
+		.head__title {
+			width: 110px;
+			height: 61px;
+			float: left;
+			background-color: #c76460;
+		}
+		.head__title span {
+			position: absolute;
+			bottom: 0;
+			margin-left: 10px;
+			font-size: 12px;
+			color: #fff;
+		}
+		.head__time {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			vertical-align: bottom;
+			float: right;
+			color: #d45d5c;
+		}
+		.banner {
+			width: 641px;
+			height: 301px;
+			float: left;
+			overflow: hidden;
+			position: relative;
+			margin-right: 47px;
+		}
+		.banner__item {
+			width: 100%;
+		}
+		.banner__left {
+			width: 191px;
+			height: 301px;
+			background-color: rgba(255, 255, 255, .4);
+			position: absolute;
+			top: 0;
+		}
+		.banner__right {
+			width: 191px;
+			height: 301px;
+			background-color: rgba(255, 255, 255, .4);
+			position: absolute;
+			top: 0;
+			right: 0;
+		}
+		.about {
+			width: 203px;
+			height: 301px;
+			float: left;
+			border-top: 2px solid #cc8091;
+			font-family: '微软雅黑', Helvetica, sans-serif;
+		}
+		.about__title {
+			margin: 0;
+			font-size: 24px;
+			line-height: 40px;
+			text-decoration: underline;
+		}
+		.about__detail {
+			font-size: 12px;
+			color: #676767;
+			line-height: 10px;
+		}
+		.about__number {
+			font-size: 116px;
+			color: #75b86b;
+			line-height: 135px;
+			font-style: italic;
+		}
+		.about__css {
+			position: relative;
+			overflow: hidden;
+			color: #cc8091;
+			font-weight: normal;
+		}
+		.about__css_num {
+			float: left;
+			font-size: 55px;
+			line-height: 42px;
+		}
+		.about__css_title {
+			font-size: 21px;
+		}
+		.css__box {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+		.articles {
+			/*width: 641px;*/
+			margin-bottom: 60px;
+		}
+		.article {
+			width: 207px;
+			float: left;
+			margin-right: 10px;
+		}
+		.article__title {
+			font-size: 16px;
+			font-weight: bold;
+			text-decoration: underline;
+		}
+		.article--first .article__title {
+		}
+		.article--second .article__title {
+			color: #d2994f;
+		}
+		.article--third .article__title {
+			color: #cc7680;
+		}
+		.article__list {
+			list-style: none;
+			padding-left: 10px;
+		}
+		.article__item_per {
+			color: #cd4a48;
+			opacity: .7;
+		}
+		.news {
+			width: 415px;
+			float: left;
+			margin-right: 10px;
+			color: #11456b;
+			font-weight: bold;
+		}
+		.news__title {
+			font-size: 42px;
+			line-height: 48px;
+		}
+		.news__title_first {
+			font-size: 72px;
+			color: #f5e327;
+			font-style: italic;
+		}
+		.news__subtitle {
+			font-size: 33px;
+			border-bottom: 2px solid #11456b;
+			margin-bottom: 20px;
+		}
+		.news__content {
+			color: #767777;
+			font-weight: normal;
+			text-indent: 26px;
+		}
+		.news__first {
+			text-indent: 0;
+		}
+		.news__first::first-letter {
+			float: left;
+			margin-right: 10px;
+			font-size: 70px;
+			line-height: 70px;
+			color: #f5e327;
+		}
+		.news__img {
+			width: 180px;
+			height: 300px;
+			float: right;
+			margin: 10px;
+		}
+		.imgs {
+			float: left;
+		}
+		.img__item {
+			width: 458px;
+			height: 275px;
+			position: relative;
+			margin-bottom: 20px;
+		}
+		.img__source {
+			width: 458px;
+			height: 275px;
+		}
+		.img__title {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			height: 61px;
+			background-color: rgba(0, 0, 0, .5);
+		}
+		.img__text {
+			border-left: 3px solid #72b16a;
+			color: #fff;
+			line-height: 44px;
+			margin-top: 8px;
+			margin-left: 20px;
+			padding-left: 20px;
+		}
+		.img__detail {
+			width: 459px;
+			height: 318px;
+			background-color: #eeeed8;
+			position: relative;
+			overflow: hidden;
+		}
+		.img__list {
+			margin-top: 25px;
+			margin-bottom: 25px;
+			font-size: 16px;
+			color: #5a5b5b;
+			line-height: 36px;
+		}
+		.img__box {
+			width: 260px;
+			height: 160px;
+			background-color: #c76460;
+			float: left;
+		}
+		.box__num {
+			float: left;
+			margin-top: 37px;
+			margin-right: 10px;
+			padding-left: 20px;
+			padding-right: 10px;
+			line-height: 86px;
+			color: #fff;
+			font-size: 110px;
+			border-right: 2px solid #fff;
+		}
+		.box__content {
+			color: #fff;
+		}
+		.box__first {
+			font-size: 21px;
+			font-style: italic;
+		}
+		.img__content {
+			font-size: 14px;
+			font-style: italic;
+		}
+		/*.img__content::after {
+			content: "”";
+			font-size: 72px;
+			color: #d45d5c;
+			font-family: SimHei, sans-serif;
+		}
+		.img__content::before {
+			content: "“";
+			font-size: 72px;
+			color: #c76460;
+			font-family: SimHei, sans-serif;
+		}
+		*/
+		.quotation {
+			font-size: 72px;
+			color: #c76460;
+		}
+		.footer__text {
+			float: right;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<header class="head container">
+			<h1 class = "head__title"><span>ife.baidu.com</span></h1>	
+			<time class = "head__time">2016.03</time>
+		</header>
+		<section class="container">
+			<div class="banner">
+				<img class = "banner__item" src="./img/mac2.jpg" alt="">
+				<div class="banner__left"></div>
+				<div class="banner__right"></div>
+			</div>
+			<div class="about">
+				<p class="about__title">About</p>
+				<p class="about__title">Technologe</p>
+				<span class="about__detail">about technologeabout technologeabout technologeabout technologe</span>
+				<span class="about__number">700</span>
+				<div class="about__css">
+					<p class="about__css_num">3.2</p>
+					<div class="css__box">
+						<p class="about__css_title">css</p>
+						<p class="about__css_des">csscsscsscsscss</p>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="articles container clear">
+			<article class = "article article--first">
+				<h2 class = "article__title">What</h2>
+				<p class="article__content">前端前端前端前端前端前端前端前端前端前端前端前端前端前端前前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端</p>
+			</article>
+			<article class = "article article--second">
+				<h2 class = "article__title">When</h2>
+				<p class="article__content">前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端</p>
+			</article>
+			<article class = "article article--third">
+				<h2 class = "article__title">How</h2>
+				<p class="article__content">前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端</p>
+				<ul class="article__list">
+					<li class="article__list_item">What ------ <span class="article__item_per">40%</span></li>
+					<li class="article__list_item">What ------ <span class="article__item_per">30%</span></li>
+					<li class="article__list_item">What ------ <span class="article__item_per">20%</span></li>
+				</ul>
+			</article>
+		</section>
+		<section class="container container--bottom">
+			<section class="news">
+				<h2 class="news__title"><span class="news__title_first">The </span>Technologe of front</h2>
+				<h3 class="news__subtitle">前端技术领域</h3>
+				<p class="news__content news__first">前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端<img class="news__img" src="./img/macpro.jpg" alt="">前端前端前端前端前端前端前端前端前端前端</p>
+				<p class="news__content">端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端前端</p>
+			</section>
+			<section class="imgs">
+				<div class="img__item">
+					<img src="./img/mac0.jpg" alt="" class="img__source">
+					<div class="img__title">
+						<h2 class="img__text">前端技术</h2>
+					</div>
+				</div>
+				<div class="img__detail">
+					<ul class="img__list">
+						<li class="img__list_item">前端前端前端前端前端 ..... 前端</li>
+						<li class="img__list_item">前端前端前端前端前端 ..... 前端</li>
+						<li class="img__list_item">前端前端前端前端前端 ..... 前端</li>
+					</ul>
+					<div class="img__box">
+						<h3 class="box__num">0</h3>
+						<div class="box__content">
+							<p class="box__first">ONE TWO THREE FOUR FIVE</p>
+							<p class="box__second">hello world hello world hello world</p>
+						</div>
+					</div>
+					<span class="quotation">“</span><p class="img__content">hello world hello world hello world hello world hello world hello world hello world hello world hello world </p><span class="quotation">”</span>
+				</div>
+			</section>
+		</section>
+		<footer class="container">
+			<p class="footer__text">ife.baidu.com</p>
+		</footer>
+	</div>
+</body>
+</html>
