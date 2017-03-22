@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>任务五：基础 JavaScript 练习（二）</title>
+	<style>
+		.item {
+			display: inline-block;
+			width: 20px;
+			margin: 5px;
+			margin-top: 20px;
+			background-color: #fb0303;
+		}
+	</style>
+</head>
+<body>
+	<input type="text" id="content">
+	<button id="leftIn">左侧入</button>
+	<button id="rightIn">右侧入</button>
+	<button id="leftOut">左侧出</button>
+	<button id="rightOut">右侧出</button>
+	<button id="sort">冒泡排序</button>
+	<div id="container">
+		<span class="item" num = "12" style="height: 12px;"></span>
+		<span class="item" num = "22" style="height: 22px;"></span>
+		<span class="item" num = "18" style="height: 18px;"></span>
+		<span class="item" num = "32" style="height: 32px;"></span>
+		<span class="item" num = "82" style="height: 82px;"></span>
+		<span class="item" num = "50" style="height: 50px;"></span>
+	</div>
+	<script>
+		function $ (selector) {
+			return document.querySelector(selector)
+		}
+		;(function () {
+			// 获取输入框 dom
+			let input = $('#content')
+			// 获取插入的容器
+			let container = $('#container')
+			/* 创建节点
+			 * @param <String> content
+			 * @return <Element>
+			 */
+			function createItem (content) {
+				let span = document.createElement('span')
+				span.className = 'item'
+				span.setAttribute('num', content)
+				span.style.height = parseInt(content) + 'px'
+				return span
+			}
+			/* 清空输入框并聚焦
+			 * @param <Element> input
+			 * @return <Undefined>
+			 */
+			function reset (input) {
+				input.value = ''
+				input.focus()
+			}
+			/* 检查输入合法性
+			 */
+			function check (input) {
+				if (!input.value.trim()) {
+					return false
+				}
+				// 只能 10 - 100 包括 10 与 100
+				if (!/(^([1-9][0-9])$)|100/.exec(input.value)) {
+					alert('请检出输入的是否是 10 -100 内的数字')
+					return false
+				}
+				return true
+			}
+			/* 冒泡排序
+			 * @param <ElementArray> ary
+			 */
+			function sort () {
+				let ary = [].slice.call(container.children)
+				let len = ary.length - 1
+				for(let i = 0; i < len; i++) {
+					let _len = len--
+					for(let j = 0; j < _len; j++) {
+						ary = [].slice.call(container.children)
+						// setTimeout(() => {
+							let firstNum = ary[j].getAttribute('num')
+							let secondNum = ary[j + 1].getAttribute('num')
+							console.log(i, j, firstNum, secondNum)
+							// 如果左边的比右边的大，就要将左边的移动到右边
+							if (firstNum > secondNum) {
+								container.insertBefore(ary[j + 1], ary[j])
+							}
+						// }, j * 1000)
+					}
+				}
+			}
+			// 右侧入点击事件
+			$('#rightIn').onclick = function () {
+				if (check(input)) {
+					let content = input.value
+					container.appendChild(createItem(content))
+				}
+				reset(input)
+			}
+			// 左侧入点击事件
+			$('#leftIn').onclick = function () {
+				if (check(input)) {
+					let content = input.value
+					container.insertBefore(createItem(content), container.firstChild)
+				}
+				reset(input)
+			}
+			// 右侧出点击事件
+			$('#rightOut').onclick = function () {
+				if (!container.hasChildNodes()) {
+					return
+				}
+				let oldNode = container.removeChild(container.lastChild)
+				alert(oldNode.innerText)
+			}
+			// 左侧出点击事件
+			$('#leftOut').onclick = function () {
+				if (!container.hasChildNodes()) {
+					return
+				}
+				let oldNode = container.removeChild(container.firstChild)
+				alert(oldNode.innerText)
+			}
+			$('#sort').onclick = function () {
+				sort()
+			}
+		}())
+	</script>
+</body>
+</html>
