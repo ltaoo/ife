@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>任务六：基础 JavaScript 练习（三）</title>
+	<style>
+		.item {
+			display: inline-block;
+			margin: 10px;
+			padding: 10px;
+			background-color: #fb0303;
+			color: #fff;
+		}
+	</style>
+</head>
+<body>
+	<textarea type="text" id="content"></textarea>
+	<button id="rightIn">添加</button>
+	<div id="container"></div>
+	<hr>
+	<input type="text" id="search">
+	<button id="search_btn">搜索</button>
+	<script>
+		function $ (selector) {
+			return document.querySelector(selector)
+		}
+		;(function () {
+			// 获取输入框 dom
+			let input = $('#content')
+			// 获取插入的容器
+			let container = $('#container')
+			/* 创建节点
+			 * @param <String> content
+			 * @return <Element>
+			 */
+			function createItem (content) {
+				let span = document.createElement('span')
+				span.className = 'item'
+				span.innerText = content
+				return span
+			}
+			/* 清空输入框并聚焦
+			 * @param <Element> input
+			 * @return <Undefined>
+			 */
+			function reset (input) {
+				input.value = ''
+				input.focus()
+			}
+			/* 检查输入合法性
+			 */
+			function check (input) {
+				if (!input.value.trim()) {
+					return false
+				}
+				// 检测是否全是数字
+				// if (!/^([0-9]*)$/.exec(input.value)) {
+				// 	return false
+				// }
+				return true
+			}
+			/* 分割字符串
+			 * @param <String> content
+			 * @return <Array>
+			 */
+			function split (content) {
+				const regexp = /(\n)|(\t)|(\r)|(,)|(，)|(、)|( +)/g
+				// console.log(content.replace(regexp, '|'))
+				return content.replace(regexp, '|').split('|').filter(item => {
+					return !!item
+				})
+			}
+			// 右侧入点击事件
+			$('#rightIn').onclick = function () {
+				if (check(input)) {
+					let content = input.value
+					split(content).forEach(item => {
+						container.appendChild(createItem(item))
+					})
+				}
+				reset(input)
+			}
+			// // 左侧入点击事件
+			// $('#leftIn').onclick = function () {
+			// 	if (check(input)) {
+			// 		let content = input.value
+			// 		container.insertBefore(createItem(content), container.firstChild)
+			// 	}
+			// 	reset(input)
+			// }
+			// // 右侧出点击事件
+			// $('#rightOut').onclick = function () {
+			// 	if (!container.hasChildNodes()) {
+			// 		return
+			// 	}
+			// 	let oldNode = container.removeChild(container.lastChild)
+			// 	alert(oldNode.innerText)
+			// }
+			// // 左侧出点击事件
+			// $('#leftOut').onclick = function () {
+			// 	if (!container.hasChildNodes()) {
+			// 		return
+			// 	}
+			// 	let oldNode = container.removeChild(container.firstChild)
+			// 	alert(oldNode.innerText)
+			// }
+			$('#search_btn').onclick = function () {
+				if (!check($('#search'))) {
+					return
+				}
+				let query = $('#search').value
+				let children = [].slice.call(container.children)
+				children.forEach(node => {
+					node.style.backgroundColor = '#fb0303'
+					const regexp = new RegExp(query)
+					if (regexp.exec(node.innerText)) {
+						node.style.backgroundColor = '#eee'
+					}
+				})
+			}
+		}())
+	</script>
+</body>
+</html>
