@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>任务二：零基础 JavaScript 编码（二）</title>
+</head>
+<body>
+    <h3>污染城市列表</h3>
+    <ul id="aqi-list">
+        <!--   
+    	<li>第一名：福州（样例），10</li>
+    	<li>第二名：福州（样例），10</li> -->
+    </ul>
+    <script type="text/javascript">
+    	var aqiData = [
+	        ["北京", 90],
+	        ["上海", 50],
+	        ["福州", 10],
+	        ["广州", 50],
+	        ["成都", 90],
+	        ["西安", 100]
+	    ]
+
+	    ;(function() {
+	        /*
+	        在注释下方编写代码
+	        遍历读取aqiData中各个城市的数据
+	        将空气质量指数大于60的城市显示到aqi-list的列表中
+	        */
+	        /* 过滤指定条件数组
+	         * @param <Array>
+	         * @param <Number>
+	         * @return <Array>
+	         */
+	        function filterData (ary, number) {
+	        	return ary.filter(city => {
+	        		return city[1] > number
+	        	})
+	        }
+	        /* 创建 html
+	       	 * @param <Array> 
+	       	 * @return <String>
+	       	 */
+	        function createHtml (ary) {
+	        	let html = ''
+	        	for(let i = 0, len = ary.length; i < len; i++) {
+	        		html += '<li>' + ary[i][0] + '，' + ary[i][1]
+	        	}
+
+	        	return html
+	        }
+	        /* start */
+	        document.getElementById('aqi-list').innerHTML = createHtml(filterData(aqiData, 60))
+	    })()
+    </script>
+</body>
+</html>
