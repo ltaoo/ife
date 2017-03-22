@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务七：JavaScript 和树（一）</title>
+	<style>
+		#container {
+			margin-top: 20px;
+		}
+		.container {
+			display: flex;
+			padding: 10px;
+			margin-right: 10px;
+			border: 1px solid #999;
+			background-color: #fff;
+		}
+	</style>
+</head>
+<body>
+	<button id="first">前序遍历</button>
+	<div id="container" class="container"></div>
+	<script>
+		function $ (selector) {
+			return document.querySelector(selector)
+		}
+
+		function createContainer (content) {
+			const con = document.createElement('div')
+			con.className = "container"
+			con.innerText = content
+			return con
+		}
+		;(function () {
+			let globalData = {
+				data: 1,
+				left: {
+					data: 2,
+					left: {
+						data: 3
+					},
+					right: {
+						data: 4
+					}
+				},
+				right: {
+					data: 5
+				}
+			}
+			const container = $('#container')
+
+			// 初始化页面
+			function init (data, container) {
+				if (data && data.data) {
+					let newCon = createContainer(data.data)
+					console.dir(newCon)
+					container.appendChild(newCon)
+
+					init(data.left, newCon)
+					init(data.right, newCon)
+				}
+			}
+
+			init(globalData, container)
+			// 遍历动画
+			function render (container, sibling) {
+				// 如果容器存在并且有子元素，就必定是根
+				if (container) {
+					container.style.backgroundColor = '#eee'
+					// 就遍历这个
+					let children = [].slice.call(container.children)
+
+					if (children.length !== 0) {
+
+						let node = container
+						node.left = children[0]
+						node.right = children[1]
+
+						setTimeout(() => {
+							container.style.backgroundColor = '#fff'
+							render(node.left, node.right)
+						}, 1000)
+					} else {
+						// 子元素为 0
+						if (sibling) {
+							setTimeout(() => {
+								container.style.backgroundColor = '#fff'
+								render(sibling)
+							}, 1000)
+						} else {
+							// 如果没有兄弟元素，就是到某个分支的终点了
+							setTimeout(() => {
+								container.style.backgroundColor = '#fff'
+								render(container.parentElement.nextSibling)
+							}, 1000)
+						}
+					}
+				}
+			}
+
+			// 前序遍历
+			$('#first').onclick = function () {
+				// 如果根上有元素
+				render(container)
+			}
+		}())
+	</script>
+</body>
+</html>
