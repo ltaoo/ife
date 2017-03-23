@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务一：表单（一）单个表单项的校验</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		.login {
+			width: 300px;
+			margin: 0 auto;
+		}
+		.item {
+		}
+		.item__field {
+			margin-right: 20px;
+			line-height: 28px;
+			font-size: 14px;
+		}
+		.item__input {
+			display: inline-block;
+			position: relative;
+		}
+		.input {
+			width: 160px;
+			padding: 2px 10px;
+			margin-right: 10px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			line-height: 24px;
+			font-size: 14px;
+		}
+		.input--error {
+			border-color: red;
+		}
+		.input--success {
+			border-color: green;
+		}
+		.tip {
+			position: absolute;
+			top: 38px;
+			left: 0;
+			font-size: 12px;
+			color: #666;
+		}
+		.tip--error {
+			color: red;
+		}
+		.tip--success {
+			color: green;
+		}
+		.item__btn {
+			padding: 0 10px;
+			line-height: 28px;
+			border: 1px solid #6a8fb9;
+			border-radius: 5px;
+			color: #fff;
+			background-color: #4379b5;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<div id="login" class="login">
+		<label for="name_input" class="item">
+			<span class="item__field">名称</span>
+			<div class="item__input">
+				<input id="name_input" type="text" class="input">
+				<span id="name_tip" class="tip">必填，长度为 4 ~ 10 个字符</span>
+			</div>
+		</label>
+		<button id="check" class="item__btn">验证</button>
+	</div>
+	<script>
+		function $ (s) {
+			return document.querySelector(s)
+		}
+		/* 添加类名
+		 * @param <String> className
+		 */
+		function addClass (node, className) {
+			node.className += ' ' + className
+		}
+		/* 移除类名
+		 */
+		function removeClass (node, className) {
+			let classList = node.className.split(' ').filter(_className => {
+				return _className !== className
+			})
+			node.className = classList.join(' ')
+		}
+
+		/* 验证是否为空
+		 * @param <Element> input
+		 * @param <Element> tip
+		 * @return <Boolean> true: empty false: not empty
+		 */
+		function isEmpty (input, tip) {
+			const value = input.value
+			// 如果输入框为空
+			if (!value.trim()) {
+				return true
+			}
+			return false
+		}
+		/* 获取一个字符串的长度
+		 * @param <String> string
+		 */
+		function getLength (value) {
+			let len = 0
+			// 遍历字符串
+			for (let s of value) {
+				if (s.charCodeAt(0) <= 0xFF) {
+					len += 1
+				} else {
+					// 该字符是中文
+					len += 2
+				}
+			}
+			// console.log(len)
+			return len
+		}
+		/* 验证长度是否在规定范围内
+		 * @param <Number> min
+		 * @param <Number> max
+		 * @param <Stirng> value
+		 * @return <Boolean>
+		 */
+		function validateLong (min, max, value) {
+			let len = getLength(value)
+			if (len >= min && len <= max) {
+				return true
+			}
+			return false
+		}
+		/* 渲染提示内容以及输入框边框颜色
+		 * @param <Element> input
+		 * @param <Element> tip
+		 * @param <String> content
+		 * @param <String> color
+		 */
+		function renderTip (input, tip, content, state) {
+			addClass(input, 'input--' + state)
+			addClass(tip, 'tip--' + state)
+			tip.innerText = content
+		}
+		/* 重置表单
+		 */
+		function reset (input, tip) {
+			removeClass(input, 'input--error')
+			removeClass(tip, 'tip--error')
+			removeClass(input, 'input--success')
+			removeClass(tip, 'tip--success')
+			// tip.innerText = '必填，长度为 4 ~ 10 个字符'
+		}
+
+		document.body.onload = function () {
+			// 校验按钮
+			const checkBtn = $('#check')
+			// 姓名输入框
+			const nameInput = $('#name_input')
+			// 姓名输入提示
+			const nameTip = $('#name_tip')
+			// 校验事件
+			checkBtn.onclick = function () {
+				reset(nameInput, nameTip)
+				// 校验是否为空
+				if (isEmpty(nameInput, name_tip)) {
+					renderTip(nameInput, nameTip, '姓名不能为空', 'error')
+					return
+				}
+				// 校验长度
+				if (!validateLong(4, 16, nameInput.value)) {
+					renderTip(nameInput, nameTip, '请检查输入字符长度', 'error')
+					return
+				}
+				renderTip(nameInput, nameTip, '校验成功', 'success')
+			}
+		}
+	</script>
+</body>
+</html>
