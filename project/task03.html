@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务三：表单（三）联动</title>
+	<style>
+		.company {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<label for="student">在校生</label><input type="radio" name="type" value = "0" checked="true">
+		<label for="worker">非在校生</label><input type="radio" name="type" value = "1">
+		<div class="school">
+			<span class="school__field">学校</span>
+			<select name="city" id="city">
+			</select>
+			<select name="school" id="school">
+			</select>
+		</div>
+		<div class="company">
+			<span class="company__field">就业单位</span>
+			<input type="text">
+		</div>
+	</div>
+	<script>
+		function $ (s) {
+			return document.querySelector(s)
+		}
+		/* 添加类名
+		 * @param <String> className
+		 */
+		function addClass (node, className) {
+			node.className += ' ' + className
+			return node
+		}
+		/* 移除类名
+		 */
+		function removeClass (node, className) {
+			let classList = node.className.split(' ').filter(_className => {
+				return _className !== className
+			})
+			node.className = classList.join(' ')
+			return node
+		}
+		/* 替换类名，就是删除并增加
+		 */
+		function replaceClass (node, oldClass, newClass) {
+			addClass(removeClass(oldClass), newClass)
+			return node
+		}
+		function createOption (value, text) {
+			let option = document.createElement('option')
+			option.value = value
+			option.innerText = text
+
+			return option
+		}
+		/* 初始化下拉框
+		 */
+		function init (data) {
+			const citySelect = $('#city')
+			const schoolSelect = $('#school')
+
+			let city = ''
+			for (let city in data) {
+				citySelect.appendChild(createOption(city, city))
+			}
+			// 默认选中第一个
+			renderSchool(data)
+		}
+		function renderSchool (data) {
+			const city = $('#city').value
+			const schoolSelect = $('#school')
+			// 清空所有选项
+			schoolSelect.options.length = 0
+			// 拿到地区对应的学校
+			let schoolAry = data[city]
+			schoolAry.forEach((school, index) => {
+				schoolSelect.appendChild(createOption(index, school))
+			})
+		}
+		//
+		(function () {
+			// 地区与学校
+			const schools = {
+				'北京': ['北京大学', '清华大学'],
+				'湘潭': ['湖南科技大学', '湘潭大学'],
+				'长沙': ['湖南大学']
+			}
+			// 全局变量
+			const table = {
+				0: '.school',
+				1: '.company'
+			}
+			// 全局变量，标志当前是在校生还是非在校生
+			let currentState = 0
+			Array.from(document.querySelectorAll('input[type=radio]')).forEach(input => {
+				input.onclick = function (event) {
+					let value = event.target.value
+					// 如果点击的是已选择的，就不做处理
+					if (parseInt(value) === currentState) {
+						return
+					}
+					// 将上一个设置为隐藏
+					$(table[currentState]).style.display = 'none'
+					// 改变当前选中的
+					currentState = parseInt(event.target.value)
+					$(table[currentState]).style.display = 'block'
+				}
+			})
+			// 初始化下拉框
+			init(schools)
+			// 下拉框选择事件
+			$('#city').onchange = function (event) {
+				renderSchool(schools)
+			}
+		}())
+	</script>
+</body>
+</html>
