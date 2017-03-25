@@ -60,20 +60,19 @@
 		 * @param <Element> lastPos
 		 */
 		function moveItem (pos, lastPos) {
-			if (lastPos) {
-				// 不是第一次
-				lastPos.innerHTML = ''
-			}
+			console.log('moveItem', pos, lastPos)
 			let rows = Array.from(document.querySelectorAll('tr'))
 			let currentRow = rows[pos.y - 1]
 			let columns = Array.from(currentRow.querySelectorAll('td'))
 			// addClass(columns[pos.y - 1], 'item')
 			let piecePos = columns[pos.x - 1]
-			piecePos.appendChild(createPiece())
+			let piece = lastPos ? lastPos.piece : createPiece()
+			piecePos.appendChild(piece)
 			return {
 				container: piecePos,
 				pos: pos,
-				direction: 1
+				piece: piece,
+				direction: lastPos ? lastPos.direction : 1
 			}
 		}
 
@@ -98,14 +97,14 @@
 				y--
 			} else if (direction === 1) {
 				x++
-			} else if (direction === 2) {
+			} else if (direction === 3) {
 				x--
 			} else {
 				y++
 			}
 
 			// 判断是否超出棋盘范围
-			if (x > size.width || x < 0 || y > size.height || y < 0) {
+			if (x > size.width || x < 1 || y > size.height || y < 1) {
 				alert('超出范围')
 				return currentPos
 			}
@@ -113,20 +112,37 @@
 			return moveItem({
 				x,
 				y
-			}, currentPos.container)
+			}, currentPos)
 		}
 
 		function rotate (currentPos, direction) {
 			const table = {
-				0: '-90deg',
-				1: '90deg',
-				2: '180deg'
+				'-1': -90,
+				'1': 90,
+				'2': 180
 			}
-			
+
+			const directionTable = window.directionTable
 			// 获取到棋子
 			let piece = currentPos.container.firstElementChild
-			// // 使用 css3 改变方向
-			piece.style.transform = `rotate(${table[direction]})`
+			// 使用 css3 改变方向
+			// 拿到旧的值
+			const regexp = /rotate\((.+)deg\)/
+			let oldDeg = regexp.exec(piece.style.transform || 'rotate(0deg)')[1]
+			const deg = table[direction] + parseInt(oldDeg)
+
+			piece.style.transform = `rotate(${deg}deg)`
+			// 获取到当前方向
+			let oldDirection = currentPos.direction
+			let currentDirection = oldDirection + direction
+
+			// 处理超出的情况
+			if (currentDirection < 0) {
+				currentDirection = 3
+			} else if (currentDirection > 3) {
+				currentDirection = 0
+			}
+			currentPos.direction = currentDirection
 			return currentPos
 		}
 
@@ -138,6 +154,7 @@
 				2: 'bottom',
 				3: 'left'
 			}
+			window.directionTable = directionTable
 			// 棋盘大小为 10x10
 			let boardSize = {
 				width: 10,
@@ -169,19 +186,24 @@
 				// currentPos = operationTable[value].call(this, currentPos, boardSize)
 				if (value === 'GO') {
 					currentPos = go(currentPos, boardSize)
+					console.log(currentPos)
 					return
 				} else if (value === 'TUN LEF') {
 					currentPos = rotate(currentPos, -1)
+					console.log(currentPos)
 					return
 				} else if (value === 'TUN RIG') {
 					currentPos = rotate(currentPos, 1)
+					console.log(currentPos)
 					return
 				} else if (value === 'TUN BAC') {
 					currentPos = rotate(currentPos, 2)
+					console.log(currentPos)
 					return
 				} else {
 					alert('请输入有效操作')
 				}
+				console.log(currentPos)
 			}
 		}
 	</script>
