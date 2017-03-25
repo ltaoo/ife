@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务四：听指令的小方块（一）</title>
+	<style>
+		table {
+			border-collapse: collapse;
+		}	
+		td {
+			width: 50px;
+			height: 50px;
+		}
+		.item {
+			background-color: red;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<input type="text" id="operation">
+	<button id="btn">执行</button>
+	<script>
+		/* 添加类名
+		 * @param <String> className
+		 */
+		function addClass (node, className) {
+			node.className += ' ' + className
+			return node
+		}
+		/* 生成指定大小棋盘
+		 * @param <Number> width
+		 * @param <Number> height
+		 */
+		function createChessboard (width, height) {
+			let table = document.createElement('table')
+			table.border = 1
+			let html = ''
+
+			for (let i = 0; i < width; i++) {
+				html += `<tr>`
+				for (let j = 0; j < height; j++) {
+					html += `<td></td>`
+				}
+				html += `</tr>`
+			}
+
+			table.innerHTML = html
+			document.querySelector('#container').appendChild(table)
+		}
+		/* 创建棋子
+		 */
+		function createPiece () {
+			let piece = document.createElement('div')
+			piece.style += ';width: 40px;height: 50px;border-right: 10px solid blue;background-color: red;'
+			return piece
+		}
+		/* 移动棋子
+		 * @param <Object> pos
+		 * @param <Element> lastPos
+		 */
+		function moveItem (pos, lastPos) {
+			if (lastPos) {
+				// 不是第一次
+				lastPos.innerHTML = ''
+			}
+			let rows = Array.from(document.querySelectorAll('tr'))
+			let currentRow = rows[pos.y - 1]
+			let columns = Array.from(currentRow.querySelectorAll('td'))
+			// addClass(columns[pos.y - 1], 'item')
+			let piecePos = columns[pos.x - 1]
+			piecePos.appendChild(createPiece())
+			return {
+				container: piecePos,
+				pos: pos,
+				direction: 1
+			}
+		}
+
+		function init (boardSize) {
+			// 生成一个 10x10 的棋盘
+			createChessboard(boardSize.width, boardSize.height)
+			// 生成一个位置在 1，1 的棋子放到棋盘上
+			const initPos = {
+				x: 1,
+				y: 1
+			}
+			return moveItem(initPos)
+		}
+
+		function go (currentPos, size) {
+			// 先拿到方向
+			let direction = currentPos.direction
+			let x = currentPos.pos.x
+			let y = currentPos.pos.y
+
+			if (direction === 0) {
+				y--
+			} else if (direction === 1) {
+				x++
+			} else if (direction === 2) {
+				x--
+			} else {
+				y++
+			}
+
+			// 判断是否超出棋盘范围
+			if (x > size.width || x < 0 || y > size.height || y < 0) {
+				alert('超出范围')
+				return currentPos
+			}
+
+			return moveItem({
+				x,
+				y
+			}, currentPos.container)
+		}
+
+		function rotate (currentPos, direction) {
+			const table = {
+				0: '-90deg',
+				1: '90deg',
+				2: '180deg'
+			}
+			
+			// 获取到棋子
+			let piece = currentPos.container.firstElementChild
+			// // 使用 css3 改变方向
+			piece.style.transform = `rotate(${table[direction]})`
+			return currentPos
+		}
+
+		document.body.onload = function () {
+			// 全局的方向标志
+			const directionTable = {
+				0: 'top',
+				1: 'right',
+				2: 'bottom',
+				3: 'left'
+			}
+			// 棋盘大小为 10x10
+			let boardSize = {
+				width: 10,
+				height: 10
+			}
+			// 初始化页面并返回棋子的初始位置
+			let currentPos = init(boardSize)
+			// 点击事件
+			let input = document.querySelector('#operation')
+			let btn = document.querySelector('#btn')
+
+			//
+			// const operationTable = {
+			// 	'GO': go,
+			// 	// 向左转 逆时针旋转 90
+			// 	'TUN LEF': rotate
+			// 	// 向右转 顺时针旋转 90
+			// 	'TUN RIG': rotate
+			// 	// 向右转 旋转 180
+			// 	'TUN BAC': rotate
+			// }
+
+			btn.onclick = function (event) {
+				let value = input.value
+				if (!value) {
+					alert('请输入操作')
+					return
+				}
+				// currentPos = operationTable[value].call(this, currentPos, boardSize)
+				if (value === 'GO') {
+					currentPos = go(currentPos, boardSize)
+					return
+				} else if (value === 'TUN LEF') {
+					currentPos = rotate(currentPos, -1)
+					return
+				} else if (value === 'TUN RIG') {
+					currentPos = rotate(currentPos, 1)
+					return
+				} else if (value === 'TUN BAC') {
+					currentPos = rotate(currentPos, 2)
+					return
+				} else {
+					alert('请输入有效操作')
+				}
+			}
+		}
+	</script>
+</body>
+</html>
