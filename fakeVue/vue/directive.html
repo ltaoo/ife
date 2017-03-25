@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>Vue 自定义指令</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		body {
+			background-color: #eee;
+		}
+		#app {
+			display: flex;
+			-webkit-flex-direction: column;
+			-moz-flex-direction: column;
+			-ms-flex-direction: column;
+			-o-flex-direction: column;
+			flex-direction: column;
+		}
+		.book {
+			display: flex;
+			margin-bottom: 20px;
+			padding: 20px;
+			border-radius: 5px;
+			overflow: hidden;
+			background-color: #fff;
+		}
+		.book__img {
+			margin-right: 20px;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<div class="books" v-scroll = "loadMore">
+			<div class="book" v-for = "book in books" :key = "book.id">
+				<img class="book__img" :src="book.image" alt="">
+				<div class="book__detail">
+					<h3 class="book__title">{{book.title}}</h3>
+					<p class="book__summary">{{book.summary}}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="./vue.min.js"></script>	
+	<script src="./jquery.min.js"></script>	
+	<script>
+		new Vue({
+			el: '#app',
+			data () {
+				return {
+					books: [],
+					page: 1,
+					scrollDisable: false
+				}
+			},
+			mounted () {
+				const _this = this
+				$.ajax({
+					type: 'get',
+					url: 'https://api.douban.com/v2/book/search?q=%E5%B0%8F%E7%8E%8B%E5%AD%90&count=5&start=' + _this.page,
+					dataType: 'jsonp',
+					jsonpCallback: 'cb',
+					success (data) {
+						_this.books = data.books
+						_this.page += 1
+					},
+					error (err) {
+						console.log(err)
+					}
+				})
+			},
+			methods: {
+				loadMore () {
+					const _this = this
+					if (!this.scrollDisable) {
+						// 一开始加载，就将 scrollDisable 设置为 true，即使触发了多次 loadMore，都只会执行一次下面的代码
+						this.scrollDisable = true
+						$.ajax({
+							type: 'get',
+							url: 'https://api.douban.com/v2/book/search?q=%E5%B0%8F%E7%8E%8B%E5%AD%90&count=5&start=' + _this.page,
+							dataType: 'jsonp',
+							jsonpCallback: 'cb',
+							success (data) {
+								_this.books.push(...data.books)
+								_this.page += 1
+								// 请求成功后将 scrollDisable 设置为 false，表示又可以加载数据了
+								_this.scrollDisable = false
+							},
+							error (err) {
+								console.log(err)
+							}
+						})
+					}
+				}
+			},
+			directives: {
+				scroll: {
+					bind: function (el, binding){
+						window.addEventListener('scroll', ()=> {
+							if(document.body.scrollTop + window.innerHeight >= el.clientHeight) {
+								binding.value.call(this)
+							}
+						})
+					}
+				}
+			}
+		})
+	</script>
+</body>
+</html>
