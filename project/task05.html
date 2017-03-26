@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>任务五：听指令的小方块（二）</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		table {
+			position: relative;
+			border-collapse: collapse;
+		}	
+		td {
+			width: 50px;
+			height: 50px;
+		}
+		.piece {
+			transition: transform .5s;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<input type="text" id="operation">
+	<button id="btn">执行</button>
+	<script>
+		/* 添加类名
+		 * @param <String> className
+		 */
+		function addClass (node, className) {
+			node.className += ' ' + className
+			return node
+		}
+		/* 生成指定大小棋盘
+		 * @param <Number> width
+		 * @param <Number> height
+		 */
+		function createChessboard (width, height) {
+			let table = document.createElement('table')
+			table.border = 1
+			let html = ''
+
+			for (let i = 0; i < width; i++) {
+				html += `<tr>`
+				for (let j = 0; j < height; j++) {
+					html += `<td></td>`
+				}
+				html += `</tr>`
+			}
+
+			table.innerHTML = html
+			document.querySelector('#container').appendChild(table)
+		}
+		/* 生成棋子
+		 * @param <Object> pos
+		 */
+		function createPiece (pos) {
+			// 创建棋子 element
+			let piece = document.createElement('div')
+			piece.style += ';position: absolute;top: 0;left: 0;width: 50px;height: 50px;border-right: 10px solid blue;background-color: red;'
+			piece.className = 'piece'
+			let rows = Array.from(document.querySelectorAll('tr'))
+			let currentRow = rows[pos.y - 1]
+			let columns = Array.from(currentRow.querySelectorAll('td'))
+			// addClass(columns[pos.y - 1], 'item')
+			let piecePos = columns[pos.x - 1]
+			piecePos.appendChild(piece)
+			return {
+				pos: pos,
+				piece: piece,
+				direction: 1
+			}
+		}
+		/* 移动棋子
+		 * @param <Object> pos
+		 */
+		function moveItem (pos, lastPos) {
+			let piece = lastPos.piece
+			const size = window.boardSize.size
+
+			let style = ''
+			// 如果存在旋转属性
+			const rotateStyle = /rotate\(.+\)/.exec(piece.style.transform)
+			if (rotateStyle) {
+				style += rotateStyle[0]
+			}
+
+			// 根据 x y 计算出移动的距离
+			piece.style.transform = `translate(${(pos.x - 1) * size}px, ${(pos.y - 1) * size}px) ${style}`
+			lastPos.pos = pos
+			return Object.assign(lastPos, {
+				pos
+			})
+		}
+
+		function init (boardSize) {
+			// 生成一个 10x10 的棋盘
+			createChessboard(boardSize.width, boardSize.height)
+			// 生成一个位置在 1，1 的棋子放到棋盘上
+			const initPos = {
+				x: 1,
+				y: 1
+			}
+			return createPiece(initPos)
+		}
+		/* 是否超出棋盘
+		 */
+		function outBorad (size, x, y) {
+			if (x > size.width || x < 1 || y > size.height || y < 1) {
+				return true
+			}
+			return false
+		}
+		// 向前方移动
+		function go (currentPos) {
+			// 先拿到方向
+			let direction = currentPos.direction
+			let x = currentPos.pos.x
+			let y = currentPos.pos.y
+
+			if (direction === 0) {
+				y--
+			} else if (direction === 1) {
+				x++
+			} else if (direction === 3) {
+				x--
+			} else if (direction === 2) {
+				y++
+			}
+
+			// 判断是否超出棋盘范围
+			const size = window.boardSize
+			if (outBorad(size, x, y)) {
+				alert('超出范围')
+				return currentPos
+			}
+
+			return moveItem({
+				x,
+				y
+			}, currentPos)
+		}
+		// 旋转
+		function rotate (currentPos, direction) {
+			const table = {
+				'-1': -90,
+				'1': 90,
+				'2': 180
+			}
+
+			const directionTable = window.directionTable
+			// 获取到棋子
+			let piece = currentPos.piece
+			// 使用 css3 改变方向
+			// 拿到旧的值
+			const regexp = /rotate\((.+)deg\)/
+			// let oldDeg = regexp.exec(piece.style.transform || 'rotate(0deg)')[1]
+			let oldDeg = regexp.exec(piece.style.transform) ? regexp.exec(piece.style.transform)[1] : 0
+			// 计算出旋转后真正的角度
+			const deg = table[direction] + parseInt(oldDeg)
+
+			// 如果存在 translate 属性值
+			let translateStyle = /translate\(.+px\)/.exec(piece.style.transform)
+			piece.style.transform = translateStyle ? `${translateStyle[0]} rotate(${deg}deg)` : `rotate(${deg}deg)`
+			// 获取到当前方向
+			let oldDirection = currentPos.direction
+			let currentDirection = oldDirection + direction
+
+			// 处理超出的情况
+			if (currentDirection < 0) {
+				currentDirection = 3
+			} else if (currentDirection > 3) {
+				currentDirection = 0
+			}
+			currentPos.direction = currentDirection
+			return currentPos
+		}
+		// 向指定位置移动
+		function move (currentPos, direction) {
+			const {piece, pos} = currentPos
+			// 先获取到当前位置
+			// let posAry = /translate\(([0-9]+)px, ([0-9]+)px\)/.exec(piece.style.transform)
+			// let x, y
+			// if (posAry) {
+			// 	x = parseInt(posAry[1])
+			// 	y = parseInt(posAry[2])
+			// }
+
+			let {x ,y} = pos
+
+			if (direction === 'left') {
+				x += -1
+			} else if (direction === 'right') {
+				x += 1
+			} else if (direction === 'top') {
+				y += -1
+			} else if (direction === 'bottom') {
+				y += 1
+			}
+			// 判断是否超出棋盘范围
+			const size = window.boardSize
+			if (outBorad(size, x, y)) {
+				alert('超出范围')
+				return currentPos
+			}
+
+			return moveItem({
+				x,
+				y
+			}, currentPos)
+		}
+
+		// 移动并旋转
+		function turn (pos, direction) {
+			pos = move(pos, direction)
+			const piece = pos.piece
+
+			const table = {
+				left: 3,
+				right: 1,
+				top: 0,
+				bottom: 2
+			}
+			const _table = {
+				left: 180,
+				right: 0,
+				top: -90,
+				bottom: 90
+			}
+
+			let newDirection = table[direction]
+			let deg = _table[direction]
+			// 如果存在 translate 属性值
+			let translateStyle = /translate\(.+px\)/.exec(piece.style.transform)
+			piece.style.transform = translateStyle ? `${translateStyle[0]} rotate(${deg}deg)` : `rotate(${deg}deg)`
+
+			return Object.assign(pos, {
+				direction: newDirection
+			})
+		}
+
+		document.body.onload = function () {
+			// 全局的方向标志
+			const directionTable = {
+				0: 'top',
+				1: 'right',
+				2: 'bottom',
+				3: 'left'
+			}
+			window.directionTable = directionTable
+			// 棋盘大小为 10x10
+			let boardSize = {
+				width: 10,
+				height: 10,
+				size: 50
+			}
+			window.boardSize = boardSize
+			// 初始化页面并返回棋子的初始位置
+			let currentPos = init(boardSize)
+			// 点击事件
+			let input = document.querySelector('#operation')
+			let btn = document.querySelector('#btn')
+
+			//
+			const operationTable = {
+				'GO': go,
+				// 向左转 逆时针旋转 90
+				'TUN LEF': rotate,
+				// 向右转 顺时针旋转 90
+				'TUN RIG': rotate,
+				// 向右转 旋转 180
+				'TUN BAC': rotate,
+				// 向屏幕的左侧移动一格
+				'TRA LEF': move,
+				// // 向屏幕的上侧移动一格
+				'TRA TOP': move,
+				// // 向屏幕的右侧移动一格
+				'TRA RIG': move,
+				// // 向屏幕的下侧移动一格
+				'TRA BOT': move,
+				// // 方向转向屏幕左侧，并向屏幕左侧移动一格
+				'MOV LEF': turn,
+				'MOV TOOP': turn,
+				'MOV RIG': turn,
+				'MOV BOT': turn
+			}
+			// 参数
+			const paramTable = {
+				'TUN LEF': -1,
+				'TUN RIG': 1,
+				'TUN BAC': 2,
+				'TRA LEF': 'left',
+				'TRA TOP': 'top',
+				'TRA RIG': 'right',
+				'TRA BOT': 'bottom',
+				'MOV LEF': 'left',
+				'MOV TOOP': 'top',
+				'MOV RIG': 'right',
+				'MOV BOT': 'bottom'
+			}
+
+			btn.onclick = function (event) {
+				let value = input.value
+				if (!value) {
+					alert('请输入操作')
+					return
+				}
+				if (operationTable[value]) {
+					currentPos = operationTable[value].call(this, currentPos, paramTable[value])
+				} else {
+					alert('请输入有效操作')
+				}
+				// if (value === 'GO') {
+				// 	currentPos = go(currentPos)
+				// 	console.log(currentPos)
+				// 	return
+				// } else if (value === 'TUN LEF') {
+				// 	currentPos = rotate(currentPos, -1)
+				// 	console.log(currentPos)
+				// 	return
+				// } else if (value === 'TUN RIG') {
+				// 	currentPos = rotate(currentPos, 1)
+				// 	console.log(currentPos)
+				// 	return
+				// } else if (value === 'TUN BAC') {
+				// 	currentPos = rotate(currentPos, 2)
+				// 	console.log(currentPos)
+				// 	return
+				// } else {
+				// 	alert('请输入有效操作')
+				// }
+			}
+		}
+	</script>
+</body>
+</html>
