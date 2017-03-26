@@ -118,10 +118,8 @@
 				if (node.className === 'sort' || node.parentElement.className === 'sort') {
 					// 获取到是点击了哪个
 					// this.options.sorts[titleNode.innerText].call(this)
-					// 尝试排序，本质上来说是交换 tr 的顺序？
-					this.renderBody(this.data.sort((a, b) => {
-						return a[titleNode.innerText] - b[titleNode.innerText]
-					}))
+					// 将原始数组 this.data 重新排序后生成 html 并替换之前的
+					this.renderBody(this.data.sort(sorts[titleNode.innerText]))
 				}
 			})
 		}
@@ -168,16 +166,16 @@
 			// 排序函数
 			sorts: {
 				语文: function (a, b) {
-					alert('语文')
+					return a['语文'] - b['语文']
 				},
 				数学: function (a, b) {
-					alert('数学')
+					return a['数学'] - b['数学']
 				},
 				英语: function (a, b) {
-					alert('英语')
+					return a['英语'] - b['英语']
 				},
 				总分: function (a, b) {
-					alert('总分')
+					return a['总分'] - b['总分']
 				}
 			}
 		})
