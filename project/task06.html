@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>任务六：UI 组件之浮出层</title>
+    <style>
+	    h2, p {
+	    	margin: 0;
+	    }
+	    .modal__layer {
+	        position: fixed;
+	        top: 0;
+	        bottom: 0;
+	        left: 0;
+	        right: 0;
+	        background-color: rgba(0, 0, 0, .5);
+	        z-index: 1000;
+	    }
+	    .modal__container {
+	        position: absolute;
+	        top: 100px;
+	        left: 50%;
+	        min-width: 600px;
+	        min-height: 300px;
+	        border: 1px solid #000;
+	        border-radius: 5px;
+	        transform: translateX(-50%);
+	        background-color: #fff;
+	        overflow: hidden;
+	        z-index: 1001;
+	    }
+	    .modal__header {
+	    	border-bottom: 1px solid #000;
+	    	background-color: #858585;
+	    	color: #fff;
+	    	padding: 10px 20px;
+	    	cursor: move;
+	    }
+	    .modal__body {
+	    	padding: 10px 20px;
+	    	min-height: 200px;
+	    }
+	    .modal__footer {
+	    	padding: 10px 20px;
+	    	overflow: hidden;
+	    }
+	    .modal__btngroup {
+	    	float: right;
+	    }
+	    .modal__btn {
+	    	padding: 10px 20px;
+	    	margin-right: 10px;
+	    	border: 1px solid #000;
+	    	background-color: #858585;
+	    	font-size: 18px;
+	    	color: #fff;
+	    	cursor: pointer;
+	    }
+    </style>
+</head>
+
+<body>
+    <button id="btn">点击显示模态框</button>
+    <p>
+        <div class="show-content">
+            <p>总结来说很简单：</p>
+            <ul>
+                <li>函数运行在定义时的作用域中</li>
+                <li>变量查找会从当前作用域开始查找，找不到则到下一层作用域查找，直到找到并返回或者返回 undefined</li>
+            </ul>
+            <h2>实际例子</h2>
+            <pre><code class="javascript">
+            	var name = "global"
+				function echo() {
+				  console.log(name)
+				}
+			echo()</code></pre>
+            <p>打印<code>global</code>毫无疑问，因为在<code>echo()</code>函数作用域没有找到，就到外层作用域中寻找，找到了值为<code>global</code>的<code>name</code>变量。</p>
+            <h2>如何查找</h2>
+            <p>在调用某个函数时，会从函数这个对象上拿到<code>[[scope]]</code>属性对应的<strong>作用域链</strong>，并且将函数的变量对象也放入到这个作用域链中，而该作用域链是在函数定义时就确定了的。</p>
+            <p>同样是上面的例子，作用域链的变化是这样的：</p>
+            <pre><code class="javascript">
+            // 调用 echo() 函数前
+			scopes = {
+			  0: {
+			    name: 'global',
+			    echo: {
+			      name: 'echo',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    console,
+			    parseInt: function () {...}
+			    // 等一些全局变量与方法
+			  }
+			}</code></pre>
+            <p>重点在<code>echo</code>对象上有<code>[[scope]]</code>属性，指向的就是最外面的这个<code>scopes</code>，即作用域链。</p>
+            <p>在调用<code>echo()</code>后，会将该函数的变量对象：</p>
+            <pre><code class="javascript">{
+			  this: Window
+			}</code></pre>
+            <p>放到<code>echo</code>对象的<code>[[scope]]</code>属性对应的<code>scopes</code>上，那就变成了这样：</p>
+            <pre><code class="javascript">
+            // 调用 echo() 时
+			scopes = {
+			  1: {
+			    this: Window
+			  },
+			  0: {
+			    name: 'global',
+			    echo: {
+			      name: 'echo',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    console,
+			    parseInt: function () {...}
+			    // 等一些全局变量与方法
+			  }
+			}</code></pre>
+            <p>在<code>echo</code>函数内寻找<code>name</code>就是指会先在</p>
+            <pre><code class="javascript">{
+			  this: Window
+			}</code></pre>
+            <p>这个变量对象上寻找名为<code>name</code>的键，如果没有找到就向下(将 0 视为下)寻找，所以就会在：</p>
+            <pre><code class="javascript">
+            {
+		    name: 'global',
+		    echo: {
+		      name: 'echo',
+		      function: function () {console.log(name)},
+		      [[scope]]: scopes
+		    },
+		    console,
+		    parseInt: function () {...}
+		    // 等一些全局变量与方法
+			}</code></pre>
+            <p>这个变量对象上寻找，然后找到了值为<code>global</code>的<code>name</code>并返回。</p>
+            <h2>进阶问题</h2>
+            <p>尝试解答下面代码会打印出什么？</p>
+            <pre><code class="javascript">
+            var name = "global"
+
+			function echo () {
+			  console.log(name) // 打印什么？
+			}  
+
+			function change() {
+			  var name = "local"
+			  echo()
+			}
+
+			change()</code></pre>
+            <h3>具体分析</h3>
+            <p>按照上面的分析过程，在调用<code>change()</code>之前，作用域链应该是这样的：</p>
+            <pre><code class="javascript">
+            // 调用 change() 前
+			scopes = {
+			  0: {
+			    name: 'global',
+			    echo: {
+			      name: 'echo',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    change: {
+			      name: 'change',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    console,
+			    parseInt: function () {...}
+			    // 等一些全局变量与方法
+			  }
+			}</code></pre>
+            <p>多了<code>change</code>这个键值对，其他没什么，然后调用<code>change</code>函数：</p>
+            <pre><code class="javascript">
+            // 调用 change 函数时
+			scopes = {
+			  1: {
+			    name: 'local',
+			    this: Window
+			  },
+			  0: {
+			    name: 'global',
+			    echo: {
+			      name: 'echo',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    change: {
+			      name: 'change',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    console,
+			    parseInt: function () {...}
+			    // 等一些全局变量与方法
+			  }
+			}</code></pre>
+            <p>如果在<code>change</code>函数内寻找<code>name</code>变量，找到的肯定是<code>local</code>毫无疑问。最后是<code>echo</code>函数的调用，也是这段代码的意义所在，调用时是这样的：</p>
+            <pre><code class="javascript">
+            // 调用 echo 函数时
+			scopes = {
+			  1: {
+			    this: Window
+			  },
+			  0: {
+			    name: 'global',
+			    echo: {
+			      name: 'echo',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    change: {
+			      name: 'change',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    console,
+			    parseInt: function () {...}
+			    // 等一些全局变量与方法
+			  }
+			}</code></pre>
+            <p>所以在<code>echo</code>函数内寻找不到<code>name</code>，就到下层变量对象找，找到了<code>global</code>。所以这段代码最终是打印出了<code>global</code>。</p>
+            <p>图片可能更为直观，灰色块为作用域链，即<code>scopes</code>，绿色块为变量对象，如下所示 ↓</p>
+            <div class="image-package">
+                <img src="http://upload-images.jianshu.io/upload_images/3531509-e366cf6f9cac6e13.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" data-original-src="http://upload-images.jianshu.io/upload_images/3531509-e366cf6f9cac6e13.png?imageMogr2/auto-orient/strip%7CimageView2/2">
+                <br>
+                <div class="image-caption">模拟流程</div>
+            </div>
+            <h2>浅拷贝？</h2>
+            <p>虽然到目前为止能够解释绝大部分的作用域问题，但还存在疑问：</p>
+            <pre><code class="javascript">[[scope]]: scopes</code></pre>
+            <p>这里是指</p>
+            <blockquote>
+                <p>在一个函数被定义的时候, 会将它定义时刻的scope chain链接到这个函数对象的[[scope]]属性。</p>
+            </blockquote>
+            <p>我们都知道，对象是引用类型，那从 2 -&gt; 3 的过程中，尤其是<code>echo</code>函数执行时，先从<code>echo</code>函数上拿到<code>[[scope]]</code>属性，这时候不应该是：</p>
+            <pre><code class="javascript">
+            scopes = {
+			  1: {
+			    name: 'local',
+			    this: Window
+			  },
+			  0: {
+			    name: 'global',
+			    echo: {
+			      name: 'echo',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    change: {
+			      name: 'change',
+			      function: function () {console.log(name)},
+			      [[scope]]: scopes
+			    },
+			    console,
+			    parseInt: function () {...}
+			    // 等一些全局变量与方法
+			  }
+			}</code></pre>
+            <p>这样的吗，因为<code>[[scope]]</code>保存的是<code>scopes</code>的内存地址啊，所以我能够自己解释为</p>
+            <blockquote>
+                <p>在函数定义时，将<code>scopes</code>进行浅拷贝并保存到<code>[[scope]]</code>属性上。</p>
+            </blockquote>
+            <p>所以上面的例子，作用域链严格来说应该是这样的：</p>
+            <pre><code class="javascript">
+            scopes = {
+			  0: {
+			    name: 'global',
+			    echo: {
+			      name: 'echo',
+			      function: function () {console.log(name)},
+			      [[scope]]: {
+			        0: {...}
+			      }
+			    },
+			    change: {
+			      name: 'change',
+			      function: function () {console.log(name)},
+			      [[scope]]: {
+			         0: {...}
+			      }
+			    },
+			    console,
+			    parseInt: function () {...}
+			    // 等一些全局变量与方法
+			  }
+			}</code></pre>
+            <p>但是真的是这样吗？</p>
+            <h2>参考</h2>
+            <ul>
+                <li><a href="http://www.laruence.com/2009/05/28/863.html" target="_blank">Javascript作用域原理</a></li>
+            </ul>
+        </div>
+        <!--  -->
+        <div class="show-foot">
+            <a class="notebook" href="/nb/7317690">
+                <i class="iconfont ic-search-notebook"></i> <span>前端学习</span>
+            </a>
+            <div class="copyright" data-toggle="tooltip" data-html="true" data-original-title="转载请联系作者获得授权，并标注“简书作者”。">
+                © 著作权归作者所有
+            </div>
+            <div class="modal-wrap" data-report-note>
+                <a id="report-modal">举报文章</a>
+            </div>
+        </div>
+        </div>
+    </p>
+    <script>
+    (function() {
+        /* 
+         * 创建模态框 DOM
+         * @param <Object> options
+         */
+        function createModal(options) {
+            // 创建模态框容器
+            let modal = document.createElement('div')
+            // 创建遮罩层
+            let layer = document.createElement('div')
+            layer.className = "modal__layer"
+            // 给遮罩层添加点击事件，点击隐藏模态框
+            // layer.addEventListener('click', hiddenModal.bind(null, modal))
+            layer.onclick = function(event) {
+                event.stopPropagation()
+                if (event.target !== layer) {
+                    return
+                }
+                hiddenModal(modal)
+            }
+            // 创建内容区域
+            let container = document.createElement('div')
+            container.className = "modal__container"
+            // 创建 header
+            let header = document.createElement('header')
+            header.className = "modal__header"
+            // 创建 body
+            let body = document.createElement('div')
+            body.className = "modal__body"
+            // 创建 footer
+            let footer = document.createElement('footer')
+            footer.className = "modal__footer"
+
+            container.appendChild(header)
+            container.appendChild(body)
+            container.appendChild(footer)
+            layer.appendChild(container)
+            modal.appendChild(layer)
+            return modal
+        }
+        /* 
+         * 设置模态框内容
+         */
+        function setModalContent(modal, header, body, footer) {
+        	let children = Array.from(modal.firstElementChild.firstElementChild.children)
+            // header
+            let headerElement = children[0]
+            headerElement.innerHTML = `<h2>${header}</h2>`
+            // body
+            let bodyElement = children[1]
+            bodyElement.innerHTML = `<p>${body}</p>`
+            // footer
+            let footerElement = children[2]
+            footerElement.innerHTML = `<div class="modal__btngroup"><button class="modal__btn modal__btn--active">确定</button><button class="modal__btn">取消</button>`
+            return modal
+        }
+        /* 展示模态框
+         * @options (Object)options
+         */
+        function showModal(modal, options) {
+            document.body.style.overflow = 'hidden'
+            document.body.appendChild(modal)
+        }
+        /* 隐藏模态框
+         * @param (DOM) modal 要隐藏的模态框
+         */
+        function hiddenModal(modal) {
+            // console.log(Array.prototype.slice.call(document.body.children).indexOf(modal) === -1)
+            // 只有当模态框存在并且是 body 的子元素的时候才移除
+            if (!modal || Array.prototype.slice.call(document.body.children).indexOf(modal) === -1) {
+                return
+            }
+            document.body.removeChild(modal)
+            document.body.style.overflow = 'auto'
+        }
+        const btn = document.getElementById('btn')
+        btn.onclick = function (event) {
+        	const modal = createModal()
+        	showModal(setModalContent(modal, '这是标题', '正文内容'))
+        }
+    })()
+    </script>
+</body>
+
+</html>
