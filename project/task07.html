@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>任务七：UI 组件之排序表格</title>
+	<style type="text/css">
+		#app {
+			border-collapse: collapse;
+		}
+		th, td {
+			min-width: 120px;
+			min-height: 60px;
+			padding: 10px 0;
+			border: 1px solid #ccc;
+			font-size: 16px;
+			text-align: center;
+		}
+		th {
+			padding: 10px 0 6px 0;
+			background-color: #858585;
+			color: #fff;
+			font-weight: normal;
+		}
+		.th__title {
+			display: inline-block;
+			height: 25px;
+			margin-right: 5px;
+			margin-top: 1px;
+			vertical-align: top;
+		}
+		.sort {
+			display: inline-block;
+			cursor: pointer;
+		}
+		.arrow {
+			width: 10px;
+			height: 10px;
+			border: 5px solid #fff;
+			display: block;
+			box-sizing: border-box;
+		}
+		.arrow--bottom {
+			border-left-color: transparent;
+			border-right-color: transparent;
+			border-bottom-color: transparent;
+		}
+		.arrow--top {
+			border-left-color: transparent;
+			border-right-color: transparent;
+			border-top-color: transparent;
+			margin-bottom: 5px;
+		}
+	</style>
+</head>
+<body>
+	<table id="app"></table>
+
+	<script type="text/javascript">
+		/* 根据数组返回对应的 html
+		 * @param <Array> data
+		 * @return <String>
+		 */
+		function createBodyHtml (data) {
+			let innerHtml = ''
+			for(let i = 0, len = data.length; i < len; i++) {
+				innerHtml += '<tr>'
+				const item = data[i]
+				for(let key in item) {
+					innerHtml += `<td>${item[key]}</td>`
+				}
+				innerHtml += '</tr>'
+			}
+			return innerHtml
+		}
+		// 表格构造函数
+		function Table (options) {
+			this.options = options
+			// 获取要展示的数据
+			this.data = options.data
+			this.container = document.querySelector(options.el)
+			// 渲染表头
+			this.renderHead(this.container, this.options.titles)
+			this.renderBody(this.data)
+		}
+		Table.prototype.renderBody = function () {
+			data = this.data
+			// 根据数据返回 html
+			let innerHtml = createBodyHtml(data)
+			// 渲染表格
+			let body = document.querySelector(this.options.el).querySelector('tbody') || document.createElement('tbody')
+			body.innerHTML = innerHtml
+			this.container.appendChild(body)
+		}
+		Table.prototype.renderHead = function (table, titles) {
+			table = this.container
+			const sorts = this.options.sorts
+			let head = document.createElement('thead')
+			let innerHtml = '<tr>'
+			titles.forEach(title => {
+				// 排序按钮
+				let iconHtml = ''
+				let sortFun = sorts[title]
+				if (sortFun) {
+					let btn = document.createElement('div')
+					btn.className = "sort"
+					btn.innerHTML = `<span class="arrow arrow--top"></span> <span class="arrow arrow--bottom"></span>`
+					iconHtml = btn.outerHTML
+				}
+				innerHtml += `<th><span class="th__title">${title}</span>${iconHtml}</th>`
+			})
+			innerHtml += '</tr>'
+
+			head.innerHTML = innerHtml
+			table.appendChild(head)
+			// 将节点插入页面后，注册点击事件
+			head.addEventListener('click', (event) => {
+				const node = event.target
+				let titleNode = node.className === 'sort' ? node.parentElement.firstElementChild : node.parentElement.parentElement.firstElementChild
+				if (node.className === 'sort' || node.parentElement.className === 'sort') {
+					// 获取到是点击了哪个
+					// this.options.sorts[titleNode.innerText].call(this)
+					// 尝试排序，本质上来说是交换 tr 的顺序？
+					this.renderBody(this.data.sort((a, b) => {
+						return a[titleNode.innerText] - b[titleNode.innerText]
+					}))
+				}
+			})
+		}
+
+		let tableData = [
+			{
+				'姓名': '小明',
+				'语文': 80,
+				'数学': 90,
+				'英语': 70
+			},
+			{
+				'姓名': '小红',
+				'语文': 90,
+				'数学': 60,
+				'英语': 90
+			},
+			{
+				'姓名': '小亮',
+				'语文': 60,
+				'数学': 100,
+				'英语': 70
+			}
+		]
+
+		// 计算总分
+		tableData = tableData.map(item => {
+			let count = 0
+			for(let key in item) {
+				if (item[key].constructor === Number) {
+					count += item[key]
+				}
+			}
+
+			return Object.assign(item, {
+				'总分': count
+			})
+		})
+		// 渲染表格
+		let table = new Table({
+			el: '#app',
+			data: tableData,
+			titles: ['姓名', '语文', '数学', '英语', '总分'],
+			// 排序函数
+			sorts: {
+				语文: function (a, b) {
+					alert('语文')
+				},
+				数学: function (a, b) {
+					alert('数学')
+				},
+				英语: function (a, b) {
+					alert('英语')
+				},
+				总分: function (a, b) {
+					alert('总分')
+				}
+			}
+		})
+	</script>
+</body>
+</html>
