@@ -58,6 +58,8 @@
 <body>
     <div id="picker"></div>
     <button id="btn">获取当前颜色</button>
+    <input id="input_color" type="text">
+    <button id="set_color">设置颜色(rgb值)</button>
     <script>
         
         /* Picker 构造函数
@@ -80,19 +82,21 @@
             // // 保存绘图
             // const ctx = this.ctx = canvas.getContext('2d')
             this.colorRgba = handleColor(options.color)
+            this.colorHsl = rgbToHsl(options.color)
             // 初始化渐变背景
             this.renderBackground(options.color)
             // 绘制色相条
             this.renderHub()
-            // 渲染 rgb 输入框
+            // 渲染输入框
             const inputTable = ['R', 'G', 'B', 'H', 'S', 'L']
-            const inputs = this.colorRgba.map((c, i) => {
+            const colors = [...this.colorRgba, ...this.colorHsl]
+            const inputs = colors.map((c, i) => {
                 return {
                     name: inputTable[i],
                     value: c
                 }
             })
-            // 初始化一个空数组，用来保存 r、g、b、h、s、l、rgb 七个输入框
+            // 初始化一个空数组，用来保存 r、g、b、h、s、l 七个输入框
             this.inputs = []
             this.createRgb(inputs)
             // 创建当前颜色面板
@@ -234,6 +238,7 @@
             this.colorRgba = ctx.getImageData(mouseX, mouseY, 1, 1).data
             // const rgba = 'rgba(' + this.colorRgba.join(', ') + ')'
             // console.log(rgba)
+            this.colorHsl = rgbToHsl(getRgb(this.colorRgba))
             // 更新输入框
             this.updateRgb()
         }
@@ -259,6 +264,9 @@
             const colorLeft = this.colorSelectorPos.x
             const colorTop = this.colorSelectorPos.y
             this.colorRgba = this.colorCtx.getImageData(colorLeft, colorTop, 1, 1).data
+            // 计算 hsl
+            this.colorHsl = rgbToHsl(getRgb(this.colorRgba))
+            // 更新 rgb 表单
             this.updateRgb()
         }
         /* 改变颜色选择区域的色相
@@ -296,13 +304,18 @@
                 const input = document.createElement('input')
                 input.type = 'number'
                 input.className = `picker__input`
+                // 最大值
+                input.max = 255
                 // 最大长度
                 input.maxLength = 3
                 input.size = 3
                 // 默认值
                 input.value = value
-                // 处理输入
-                // input.onchange = handleInput
+                input.step = 0.1
+                // 校验输入
+                input.oninput = (event) => {
+                    handleInput(event, name)
+                }
                 // console.dir(input)
                 // 渲染至页面
                 this.inputs.push(input)
@@ -314,19 +327,18 @@
         /* 更新 rgb 输入框的值以及当前颜色面板
          */
         Picker.prototype.updateRgb = function () {
-            const rgba = this.colorRgba
+            const rgba = [...this.colorRgba.slice(0, 3), ...this.colorHsl]
             this.inputs.forEach((input, index) => {
                 input.value = rgba[index]
             })
 
             const color = 'rgb(' + rgba.slice(0, 3).join(',') + ')'
             this.currentColor.style.backgroundColor = color
-            console.log(rgbToHsl(color))
         }
         /* 返回当前颜色值
          * @param <String> type (css | rgb | hsl)
          */
-        Picker.prototype.getCurrentColor = function (type) {
+        Picker.prototype.getColor = function (type) {
             const rgba = this.colorRgba
             const r = rgba[0]
             const g = rgba[1]
@@ -343,6 +355,20 @@
             } else {
                 alert('请输入合法的 type 值')
             }
+        }
+        /* 设置当前颜色
+         * @param <String> color
+         */
+        Picker.prototype.setColor = function (color) {
+            // 假设传入的肯定是 rgb 值
+            this.colorRgba = handleColor(color)
+            if (!this.colorRgba) {
+                alert('请输入合法的 rgb 值')
+                return
+            }
+            this.colorHsl = rgbToHsl(getRgb(this.colorRgba))
+            // 更新输入框
+            this.updateRgb()
         }
         /* 创建当前颜色面板
          */
@@ -373,20 +399,35 @@
         }
         /* 处理 rgb 值的输入，主要是长度和类型的校验
          */
-        function handleInput (event) {
+        function handleInput (event, type) {
+            // console.log(event, type)
             const value = event.target.value
-            // if (!value.trim()) {
-            //     event.target.value = 0
-            //     return
-            // }
-            // 如果不是纯数字
-            if (!/^[0-9]+$/.exec(value)) {
-                console.log('不是纯数字')
+            if (!value.trim()) {
+                // event.target.value = 1
+                // event.target.select()
                 return
             }
-            if (value.length > 3) {
-                console.log('长度超出')
-                return
+            if (type === 'R' || type === 'G' || type === 'B') {
+                // 如果不是纯数字
+                // if (!/^[0-9]+$/.exec(value)) {
+                //     console.log('不是数字')
+                //     return
+                // }
+                if (parseInt(value) > 255 || parseInt(value) <= 0) {
+                    event.target.value = 255
+                    // event.target.select()
+                    return
+                }
+            } else if (type === 'H') {
+                if (parseInt(value) > 360 || parseInt(value) < 0) {
+                    event.target.value = 255
+                    // event.target.select()
+                    return
+                }
+            } else if (type === 'S' || type === 'L') {
+                if (parseFloat(value) > 1 || parseFloat(value) < 0) {
+                    event.target.value = 1
+                }
             }
         }
         /* 处理用户传递过来默认的颜色
@@ -398,10 +439,18 @@
             // 默认是传递 rgba 值
             value = value.replace(/ /g, '')
             let color = /rgb(a?)\(([0-9]+),([0-9]+),([0-9]+)(,[0-9]+)?\)/.exec(value)
+            if (!color) {
+                return false
+            }
             let r = color[2]
             let g = color[3]
             let b = color[4]
             return [r, g, b]
+        }
+        /* 根据 rgba 数组返回 rgb 字符串
+         */
+        function getRgb (ary) {
+            return 'rgb(' + ary.slice(0, 3).join(',') + ')'
         }
         /* rgb 转 hsl
          * @param <String> rgb
@@ -446,9 +495,18 @@
                     height: 400
                 }
             })
+            // 调用接口获取颜色
             document.querySelector('#btn').onclick = function () {
                 const result = picker.getCurrentColor('css')
                 alert('当前颜色是' + result)
+            }
+            // 调用接口设置颜色
+            const color = document.querySelector('#input_color')
+            document.querySelector('#set_color').onclick = function (event) {
+                if (!color.value.trim()) {
+                    return
+                }
+                picker.setColor(color.value)
             }
         }
     </script>
