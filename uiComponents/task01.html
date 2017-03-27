@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>UI 组件之色彩选择器</title>
+    <style type="text/css">
+        .picker {
+            overflow: hidden;
+        }
+        .picker__selector--outer {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border: 1px solid #000;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        .picker__selector--inner {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        .picker__container {
+            position: relative;
+            display: inline-block;
+            float: left;
+            overflow: hidden;
+        }
+        .picker__color {
+            margin-right: 10px;
+        }
+        .picker__hub {
+            margin-right: 10px;
+        }
+        .picker__rgb {
+        }
+        .picker__label {
+            display: block;
+        }
+        .picker__input {
+            padding: 8px;
+            margin-left: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .picker__current {
+            width: 80px;
+            height: 30px;
+            border: 1px solid #999;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="picker"></div>
+    <button id="btn">获取当前颜色</button>
+    <script>
+        
+        /* Picker 构造函数
+         * @param <Obect> options
+         */
+        function Picker (options) {
+            this.options = options
+            this.container = document.querySelector(options.el)
+            this.container.className = "picker"
+            this.size = options.size
+            // // 计算该 canvas 所在位置
+            // const offsetLeft = canvas.offsetLeft
+            // const offsetTop = canvas.offsetTop
+            // // 还要减去边框
+            // this.offsetLeft = offsetLeft - 2
+            // this.offsetTop = offsetTop - 2
+            // // 保存 canvas 的大小
+            // this.width = canvas.clientWidth
+            // this.height = canvas.clientHeight
+            // // 保存绘图
+            // const ctx = this.ctx = canvas.getContext('2d')
+            this.colorRgba = handleColor(options.color)
+            // 初始化渐变背景
+            this.renderBackground(options.color)
+            // 绘制色相条
+            this.renderHub()
+            // 渲染 rgb 输入框
+            const inputTable = ['R', 'G', 'B', 'H', 'S', 'L']
+            const inputs = this.colorRgba.map((c, i) => {
+                return {
+                    name: inputTable[i],
+                    value: c
+                }
+            })
+            // 初始化一个空数组，用来保存 r、g、b、h、s、l、rgb 七个输入框
+            this.inputs = []
+            this.createRgb(inputs)
+            // 创建当前颜色面板
+            this.currentColor = createCurrentColor(options.color)
+            this.container.appendChild(this.currentColor)
+        }
+        /* 渲染 canvas 背景色
+         * @param <Object> ctx
+         */
+        Picker.prototype.renderBackground = function (rgba) {
+            const container = document.createElement('div')
+            container.className = 'picker__container'
+            const canvas = this.colorCanvas = document.createElement('canvas')
+            canvas.width = this.size.width
+            canvas.height = this.size.height
+            canvas.className = 'picker__color'
+            container.appendChild(canvas)
+            // 创建选择器
+            const selector = this.colorSelector = createSelector({
+                x: 20,
+                y: 120
+            })
+            this.colorSelectorPos = {
+                x: 20,
+                y: 120
+            }
+            container.appendChild(selector)
+            this.container.appendChild(container)
+            // 获取在页面上的位置
+            this.colorPos = {
+                top: canvas.getBoundingClientRect().top,
+                left: canvas.getBoundingClientRect().left
+            }
+            const ctx = this.colorCtx = canvas.getContext('2d')
+            // 给 canvas 添加点击事件
+            canvas.onclick = (event) => {
+                this.clickColor(event)
+            }
+            ctx.beginPath()
+            // 指定渐变区域
+            /* @param <Number> x0 渐变的开始位置
+             * @param <Number> x1 渐变的开始位置
+             * @param <Number> y0 渐变的结束位置
+             * @param <Number> y1 渐变的结束位置
+             */
+            // const grad = ctx.createLinearGradient(0, 0, 0, 140)
+            // 倾斜的线性渐变
+            const grad = ctx.createLinearGradient(0, 0, this.size.width, this.size.height)
+            // 指定颜色
+            grad.addColorStop(0, 'rgb(255, 255, 255)')
+            grad.addColorStop(0.5, rgba)
+            grad.addColorStop(1, 'rgb(0, 0, 0)')
+            // 将渐变设置为 fillStyle
+            ctx.fillStyle = grad
+            // 绘制矩形
+            ctx.rect(0, 0, this.size.width, this.size.height)
+            ctx.fill()
+        }
+        /* 绘制色相选择条
+         */
+        Picker.prototype.renderHub = function () {
+            const container = document.createElement('div')
+            container.className = 'picker__container'
+            const canvas = document.createElement('canvas')
+            // 色相条宽度
+            canvas.width = 40
+            canvas.height = this.size.height
+            canvas.className = 'picker__hub'
+            // 创建选择器
+            const selector = this.hubSelector = createSelector({
+                x: 20,
+                y: 120
+            })
+            this.hubSelectorPos = {
+                x: 20,
+                y: 120
+            }
+            container.appendChild(canvas)
+            container.appendChild(selector)
+            this.container.appendChild(container)
+            // 获取在页面上的位置
+            this.hubPos = {
+                top: canvas.getBoundingClientRect().top,
+                left: canvas.getBoundingClientRect().left
+            }
+            // 注册点击事件
+            canvas.onclick = (event) => {
+                this.clickHub(event)
+            }
+            const ctx = this.hubCtx = canvas.getContext('2d')
+            ctx.beginPath()
+            // 指定渐变区域
+            const grad = ctx.createLinearGradient(0, 0, 0, this.size.height)
+            // 指定颜色
+            const num = 12
+            // 红色
+            grad.addColorStop(0 / num, 'rgb(255, 0, 0)')
+            // 橙红
+            grad.addColorStop(1 / num, 'rgb(255, 51, 0)')
+            // 橙色
+            grad.addColorStop(2 / num, 'rgb(255, 102, 0)')
+            // 橙黄
+            grad.addColorStop(3 / num, 'rgb(255, 153, 0)')
+            // 黄色
+            grad.addColorStop(4 / num, 'rgb(255, 255, 0)')
+            // 黄绿
+            grad.addColorStop(5 / num, 'rgb(153, 255, 0)')
+            // 绿色
+            grad.addColorStop(6 / num, 'rgb(0, 255, 0)')
+            // 蓝绿
+            grad.addColorStop(7 / num, 'rgb(0, 255, 255)')
+            // 蓝色
+            grad.addColorStop(8 / num, 'rgb(0, 0, 255)')
+            // 篮紫
+            grad.addColorStop(9 / num, 'rgb(102, 0, 255)')
+            // 紫色
+            grad.addColorStop(10 / num, 'rgb(255, 0, 255)')
+            // 紫红
+            grad.addColorStop(11 / num, 'rgb(255, 0, 102)')
+            // 将渐变设置为 fillStyle
+            ctx.fillStyle = grad
+            // 绘制矩形
+            ctx.rect(0, 0, 40, this.size.height)
+            ctx.fill()
+        }
+        /* 点击 canvas 画布
+         */
+        Picker.prototype.clickColor = function (event) {
+            const mouseX = event.pageX - this.colorPos.left - 5
+            const mouseY = event.pageY - this.colorPos.top - 5
+            const ctx = this.colorCtx
+            // 保存选择器位置
+            this.colorSelectorPos = {
+                x: mouseX,
+                y: mouseY
+            }
+            // 重新渲染选择器
+            moveSelector(this.colorSelector, this.colorSelectorPos)
+            this.colorRgba = ctx.getImageData(mouseX, mouseY, 1, 1).data
+            // const rgba = 'rgba(' + this.colorRgba.join(', ') + ')'
+            // console.log(rgba)
+            // 更新输入框
+            this.updateRgb()
+        }
+        /* 点击色相条
+         */
+        Picker.prototype.clickHub = function (event) {
+            const mouseX = event.pageX - this.hubPos.left - 5
+            const mouseY = event.pageY - this.hubPos.top - 5
+            const ctx = this.hubCtx
+            // 保存选择器位置
+            this.hubSelectorPos = {
+                x: mouseX,
+                y: mouseY
+            }
+            // 重新渲染选择器
+            moveSelector(this.hubSelector, this.hubSelectorPos)
+            // this.colorRgba = ctx.getImageData(mouseX, mouseY, 1, 1).data
+            this.HubRgba = ctx.getImageData(mouseX, mouseY, 1, 1).data
+            const rgba = 'rgba(' + this.HubRgba.join(', ') + ')'
+            // 改变左侧的颜色
+            this.changeHub(rgba)
+            // 更新 this.colorRgba
+            const colorLeft = this.colorSelectorPos.x
+            const colorTop = this.colorSelectorPos.y
+            this.colorRgba = this.colorCtx.getImageData(colorLeft, colorTop, 1, 1).data
+            this.updateRgb()
+        }
+        /* 改变颜色选择区域的色相
+         */
+        Picker.prototype.changeHub = function (rgba) {
+            const ctx = this.colorCtx
+            // ctx.beginPath()
+            // // 倾斜的线性渐变
+            const grad = ctx.createLinearGradient(0, 0, this.size.width, this.size.height)
+            // // 指定颜色
+            grad.addColorStop(0, 'rgb(255, 255, 255)')
+            grad.addColorStop(0.5, rgba)
+            grad.addColorStop(1, 'rgb(0, 0, 0)')
+            // // 将渐变设置为 fillStyle
+            ctx.fillStyle = grad
+            // // 绘制矩形
+            ctx.rect(0, 0, this.size.width, this.size.height)
+            ctx.fill()
+        }
+        
+        /* 创建右侧的 rgb 输入框
+         */
+        Picker.prototype.createRgb = function (inputs) {
+            const rgbContainer = document.createElement('div')
+            rgbContainer.className = 'picker__rgb'
+            let innerHtml = ''
+            for(let i = 0, len = inputs.length; i < len; i++) {
+                const value = inputs[i].value
+                const name = inputs[i].name
+                // 创建字段
+                const label = document.createElement('label')
+                label.innerText = name
+                label.className = 'picker__label'
+                // 创建输入框
+                const input = document.createElement('input')
+                input.type = 'number'
+                input.className = `picker__input`
+                // 最大长度
+                input.maxLength = 3
+                input.size = 3
+                // 默认值
+                input.value = value
+                // 处理输入
+                // input.onchange = handleInput
+                // console.dir(input)
+                // 渲染至页面
+                this.inputs.push(input)
+                label.appendChild(input)
+                rgbContainer.appendChild(label)
+            }
+            this.container.appendChild(rgbContainer)
+        }
+        /* 更新 rgb 输入框的值以及当前颜色面板
+         */
+        Picker.prototype.updateRgb = function () {
+            const rgba = this.colorRgba
+            this.inputs.forEach((input, index) => {
+                input.value = rgba[index]
+            })
+
+            const color = 'rgb(' + rgba.slice(0, 3).join(',') + ')'
+            this.currentColor.style.backgroundColor = color
+            console.log(rgbToHsl(color))
+        }
+        /* 返回当前颜色值
+         * @param <String> type (css | rgb | hsl)
+         */
+        Picker.prototype.getCurrentColor = function (type) {
+            const rgba = this.colorRgba
+            const r = rgba[0]
+            const g = rgba[1]
+            const b = rgba[2]
+
+            let rgb = 'rgb(' + [r, g, b].join(',') + ')'
+
+            if (type === 'css') {
+                return '#' + r.toString(16) + g.toString(16) + g.toString(16)
+            } else if (type === 'rgb') {
+                return rgb
+            } else if (type === 'hsl') {
+                return rgbToHsl(rgb)
+            } else {
+                alert('请输入合法的 type 值')
+            }
+        }
+        /* 创建当前颜色面板
+         */
+        function createCurrentColor (backgroundColor) {
+            const currentColor = document.createElement('div')
+            currentColor.className = 'picker__current'
+            currentColor.style.backgroundColor = backgroundColor
+            return currentColor
+        }
+        /* 创建颜色选择器
+         * @param <Object> pos 选择器位置
+         * @return <Element>
+         */
+        function createSelector (pos) {
+            const selector = document.createElement('div')
+            selector.className = 'picker__selector--outer'
+            selector.innerHTML = '<div class="picker__selector--inner"></div>'
+            selector.style.top = pos.y + 'px'
+            selector.style.left = pos.x + 'px'
+            return selector
+        }
+        /* 移动选择器
+         */
+        function moveSelector (selector, pos) {
+            // console.log(selector, pos)
+            selector.style.top = pos.y + 'px'
+            selector.style.left = pos.x + 'px'
+        }
+        /* 处理 rgb 值的输入，主要是长度和类型的校验
+         */
+        function handleInput (event) {
+            const value = event.target.value
+            // if (!value.trim()) {
+            //     event.target.value = 0
+            //     return
+            // }
+            // 如果不是纯数字
+            if (!/^[0-9]+$/.exec(value)) {
+                console.log('不是纯数字')
+                return
+            }
+            if (value.length > 3) {
+                console.log('长度超出')
+                return
+            }
+        }
+        /* 处理用户传递过来默认的颜色
+         * @param <String> value
+         */
+        function handleColor (value) {
+            // 先检查该颜色值的合法性
+            // coding...
+            // 默认是传递 rgba 值
+            value = value.replace(/ /g, '')
+            let color = /rgb(a?)\(([0-9]+),([0-9]+),([0-9]+)(,[0-9]+)?\)/.exec(value)
+            let r = color[2]
+            let g = color[3]
+            let b = color[4]
+            return [r, g, b]
+        }
+        /* rgb 转 hsl
+         * @param <String> rgb
+         */
+        function rgbToHsl (color) {
+            const rgb = handleColor(color)
+            let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255
+            // 获取到 r、g、b 中的最大值与最小值
+            let min = Math.min.apply(Array, [r, g, b]), max = Math.max.apply(Array, [r, g, b])
+            let h, s, l
+            // 计算 h
+            if (max == min) {
+                h = 0
+            } else if (max == r && g >= b) {
+                h = 60 * (g - b) / (max - min)
+            } else if (max == r && g < b) {
+                h = 60 * (g - b) / (max - min) + 360
+            } else if (max == g) {
+                h = 60 * (b - r) / (max - min) + 120
+            } else if (max == b) {
+                h = 60 * (r - g) / (max - min) + 240
+            }
+            // 计算 l
+            l = (max + min) / 2
+            // 计算 s
+            if (l == 0 || max == min) {
+                s = 0
+            } else if (l > 0 && l <= 0.5) {
+                s = (max - min) / (2 * l)
+            } else if (l > 0.5) {
+                s = (max - min) / (2 - 2 * l)
+            }
+            return [Math.round(h), Math.round(s * 100) / 100, Math.round(l * 100) / 100]
+        }
+        document.body.onload = function () {
+            const picker = new Picker({
+                el: '#picker',
+                // 默认颜色
+                color: 'rgba(0, 0, 0, 1)',
+                size: {
+                    width: 400,
+                    height: 400
+                }
+            })
+            document.querySelector('#btn').onclick = function () {
+                const result = picker.getCurrentColor('css')
+                alert('当前颜色是' + result)
+            }
+        }
+    </script>
+</body>
+</html>
