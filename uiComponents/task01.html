@@ -61,7 +61,6 @@
     <input id="input_color" type="text">
     <button id="set_color">设置颜色(rgb值)</button>
     <script>
-        
         /* Picker 构造函数
          * @param <Obect> options
          */
@@ -70,17 +69,6 @@
             this.container = document.querySelector(options.el)
             this.container.className = "picker"
             this.size = options.size
-            // // 计算该 canvas 所在位置
-            // const offsetLeft = canvas.offsetLeft
-            // const offsetTop = canvas.offsetTop
-            // // 还要减去边框
-            // this.offsetLeft = offsetLeft - 2
-            // this.offsetTop = offsetTop - 2
-            // // 保存 canvas 的大小
-            // this.width = canvas.clientWidth
-            // this.height = canvas.clientHeight
-            // // 保存绘图
-            // const ctx = this.ctx = canvas.getContext('2d')
             this.colorRgba = handleColor(options.color)
             this.colorHsl = rgbToHsl(options.color)
             // 初始化渐变背景
@@ -96,17 +84,20 @@
                     value: c
                 }
             })
-            // 初始化一个空数组，用来保存 r、g、b、h、s、l 七个输入框
+            // 初始化一个空数组，用来保存 r、g、b、h、s、l 六个输入框
             this.inputs = []
+            // 创建右侧的输入框
             this.createRgb(inputs)
             // 创建当前颜色面板
             this.currentColor = createCurrentColor(options.color)
             this.container.appendChild(this.currentColor)
+            // 根据传入的颜色值设置选择器位置
+            this.setColor(options.color)
         }
         /* 渲染 canvas 背景色
          * @param <Object> ctx
          */
-        Picker.prototype.renderBackground = function (rgba) {
+        Picker.prototype.renderBackground = function (rgb) {
             const container = document.createElement('div')
             container.className = 'picker__container'
             const canvas = this.colorCanvas = document.createElement('canvas')
@@ -115,14 +106,11 @@
             canvas.className = 'picker__color'
             container.appendChild(canvas)
             // 创建选择器
-            const selector = this.colorSelector = createSelector({
-                x: 20,
-                y: 120
-            })
             this.colorSelectorPos = {
-                x: 20,
-                y: 120
+                x: 0,
+                y: 0
             }
+            const selector = this.colorSelector = createSelector(this.colorSelectorPos)
             container.appendChild(selector)
             this.container.appendChild(container)
             // 获取在页面上的位置
@@ -147,7 +135,7 @@
             const grad = ctx.createLinearGradient(0, 0, this.size.width, this.size.height)
             // 指定颜色
             grad.addColorStop(0, 'rgb(255, 255, 255)')
-            grad.addColorStop(0.5, rgba)
+            grad.addColorStop(0.5, rgb)
             grad.addColorStop(1, 'rgb(0, 0, 0)')
             // 将渐变设置为 fillStyle
             ctx.fillStyle = grad
@@ -166,14 +154,11 @@
             canvas.height = this.size.height
             canvas.className = 'picker__hub'
             // 创建选择器
-            const selector = this.hubSelector = createSelector({
-                x: 20,
-                y: 120
-            })
             this.hubSelectorPos = {
-                x: 20,
-                y: 120
+                x: 0,
+                y: 0
             }
+            const selector = this.hubSelector = createSelector(this.hubSelectorPos)
             container.appendChild(canvas)
             container.appendChild(selector)
             this.container.appendChild(container)
@@ -270,6 +255,7 @@
             this.updateRgb()
         }
         /* 改变颜色选择区域的色相
+         * @param <String> rgba
          */
         Picker.prototype.changeHub = function (rgba) {
             const ctx = this.colorCtx
@@ -311,10 +297,12 @@
                 input.size = 3
                 // 默认值
                 input.value = value
+                // 步长
                 input.step = 0.1
+                input._type = name
                 // 校验输入
                 input.oninput = (event) => {
-                    handleInput(event, name)
+                    this.handleInput(event, name)
                 }
                 // console.dir(input)
                 // 渲染至页面
@@ -323,6 +311,54 @@
                 rgbContainer.appendChild(label)
             }
             this.container.appendChild(rgbContainer)
+        }
+        /* 处理 rgb 值的输入，主要是长度和类型的校验
+         */
+        Picker.prototype.handleInput = function (event, type) {
+            // console.log(event, type)
+            const input = event.target
+            const value = input.value
+            const rgbtable = {
+                R: 0,
+                G: 1,
+                B: 2
+            }
+            const hsltable = {
+                H: 0,
+                S: 1,
+                L: 2
+            }
+            if (!value.trim()) {
+                // event.target.value = 1
+                // event.target.select()
+                return
+            }
+            if (type === 'R' || type === 'G' || type === 'B') {
+                // 如果不是纯数字
+                // if (!/^[0-9]+$/.exec(value)) {
+                //     console.log('不是数字')
+                //     return
+                // }
+                if (parseInt(value) > 255 || parseInt(value) <= 0) {
+                    input.value = 255
+                    // event.target.select()
+                }
+                this.colorRgba[rgbtable[type]] = parseInt(value)
+            } else if (type === 'H') {
+                if (parseInt(value) > 360 || parseInt(value) < 0) {
+                    input.value = 255
+                    // event.target.select()
+                }
+                this.colorHsl[hsltable[type]] = parseInt(value)
+            } else if (type === 'S' || type === 'L') {
+                if (parseFloat(value) > 1 || parseFloat(value) < 0) {
+                    input.value = 1
+                }
+                this.colorHsl[hsltable[type]] = parseFloat(value)
+            }
+
+            this.updateHubSelector()
+            this.updateColorSelector()
         }
         /* 更新 rgb 输入框的值以及当前颜色面板
          */
@@ -334,6 +370,35 @@
 
             const color = 'rgb(' + rgba.slice(0, 3).join(',') + ')'
             this.currentColor.style.backgroundColor = color
+        }
+        /* 更新 hub 选择条内选择器的位置
+         */
+        Picker.prototype.updateHubSelector = function () {
+            // 获取到 h 值，根据该值计算 top
+            const h = this.colorHsl[0]
+            this.hubSelectorPos.y = h / 360 * this.size.height
+            moveSelector(this.hubSelector, this.hubSelectorPos)
+            // 更新颜色面板
+            this.changeHub(getRgb(this.colorRgba))
+        }
+        /* 更新 color 选择面板选择器的位置
+         */
+        Picker.prototype.updateColorSelector = function () {
+            // 获取到 l 值，根据该值计算 top 和 left
+            const l = this.colorHsl[2]
+            // 斜边长度
+            // const length = Math.sqrt(Math.pow(this.size.width, 2) + Math.pow(this.size.height, 2))
+            const length = this.size.width * Math.sqrt(2)
+            console.log(this.colorHsl, length, l)
+
+            let left = parseInt(length * l / Math.sqrt(2))
+            let top = left
+            console.log(length, left, top)
+            this.colorSelectorPos = {
+                x: left,
+                y: top
+            }
+            moveSelector(this.colorSelector, this.colorSelectorPos)
         }
         /* 返回当前颜色值
          * @param <String> type (css | rgb | hsl)
@@ -347,7 +412,7 @@
             let rgb = 'rgb(' + [r, g, b].join(',') + ')'
 
             if (type === 'css') {
-                return '#' + r.toString(16) + g.toString(16) + g.toString(16)
+                return rgbToCss(rgb)
             } else if (type === 'rgb') {
                 return rgb
             } else if (type === 'hsl') {
@@ -369,6 +434,10 @@
             this.colorHsl = rgbToHsl(getRgb(this.colorRgba))
             // 更新输入框
             this.updateRgb()
+            // 更新 hub 选择器
+            this.updateHubSelector()
+            // 
+            this.updateColorSelector()
         }
         /* 创建当前颜色面板
          */
@@ -397,60 +466,39 @@
             selector.style.top = pos.y + 'px'
             selector.style.left = pos.x + 'px'
         }
-        /* 处理 rgb 值的输入，主要是长度和类型的校验
-         */
-        function handleInput (event, type) {
-            // console.log(event, type)
-            const value = event.target.value
-            if (!value.trim()) {
-                // event.target.value = 1
-                // event.target.select()
-                return
-            }
-            if (type === 'R' || type === 'G' || type === 'B') {
-                // 如果不是纯数字
-                // if (!/^[0-9]+$/.exec(value)) {
-                //     console.log('不是数字')
-                //     return
-                // }
-                if (parseInt(value) > 255 || parseInt(value) <= 0) {
-                    event.target.value = 255
-                    // event.target.select()
-                    return
-                }
-            } else if (type === 'H') {
-                if (parseInt(value) > 360 || parseInt(value) < 0) {
-                    event.target.value = 255
-                    // event.target.select()
-                    return
-                }
-            } else if (type === 'S' || type === 'L') {
-                if (parseFloat(value) > 1 || parseFloat(value) < 0) {
-                    event.target.value = 1
-                }
-            }
-        }
+        
         /* 处理用户传递过来默认的颜色
          * @param <String> value
          */
+        // 增加缓存，避免重复计算多次相同的值
+        let cache = {}
         function handleColor (value) {
             // 先检查该颜色值的合法性
             // coding...
             // 默认是传递 rgba 值
+            if (cache[value]) {
+                return cache[value]
+            }
             value = value.replace(/ /g, '')
             let color = /rgb(a?)\(([0-9]+),([0-9]+),([0-9]+)(,[0-9]+)?\)/.exec(value)
             if (!color) {
                 return false
             }
-            let r = color[2]
-            let g = color[3]
-            let b = color[4]
-            return [r, g, b]
+            cache[value] = color.slice(2, 5)
+            return cache[value]
         }
         /* 根据 rgba 数组返回 rgb 字符串
          */
         function getRgb (ary) {
             return 'rgb(' + ary.slice(0, 3).join(',') + ')'
+        }
+        /* rgb 转十六进制
+         * @param <String> color rgb值
+         */
+        function rgbToCss (color) {
+            const rgb = handleColor(color)
+            const r = rgb[0], g = rgb[1], b = rgb[2]
+            return '#' + parseInt(r).toString(16) + parseInt(g).toString(16) + parseInt(g).toString(16)
         }
         /* rgb 转 hsl
          * @param <String> rgb
@@ -488,8 +536,8 @@
         document.body.onload = function () {
             const picker = new Picker({
                 el: '#picker',
-                // 默认颜色
-                color: 'rgba(0, 0, 0, 1)',
+                // 初始颜色
+                color: 'rgb(192, 168, 255)',
                 size: {
                     width: 400,
                     height: 400
@@ -497,7 +545,7 @@
             })
             // 调用接口获取颜色
             document.querySelector('#btn').onclick = function () {
-                const result = picker.getCurrentColor('css')
+                const result = picker.getColor('css')
                 alert('当前颜色是' + result)
             }
             // 调用接口设置颜色
