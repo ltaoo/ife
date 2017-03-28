@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>标签云</title>
+    <style type="text/css">
+        body {
+            background: #24313d;
+        }
+        #container {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            margin: 150px auto 0;
+            border: 1px solid #eee;
+        }
+        .tag__item {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            font-family: Microsoft YaHei;
+            color: #fff;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 3px 6px;
+        }
+        .tag__item:hover {
+            color: #FF0000;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+        /* 构造函数
+         */
+        function Tag (options) {
+            this.options = options
+            this.container = document.querySelector(options.el)
+            const tagList = options.data
+            // 初始化标签
+            this.createTags(tagList)
+            // 初始化三个全局变量
+            this.sineCosine(0, 0, 0)
+            // 初始化鼠标事件
+            this.initMouseEvent()
+            // 一直调用的动画函数
+            this.lasta = 1
+            this.lastb = 1
+            this.mouseX = 1
+            this.mouseY = 1
+            setInterval(this.update.bind(this), 30)
+        }
+        /* 根据数组返回 element list
+         * @param <Array>
+         * @return <Children>
+         */
+        Tag.prototype.createTags = function (tags) {
+            this.tags = this.tags || []
+            const tempContainer = document.createDocumentFragment()
+            tags.forEach(tag => {
+                const aTag = document.createElement('a')
+                aTag.href = tag.href
+                aTag.innerText = tag.title
+                aTag.title = tag.title
+                aTag.className = 'tag__item'
+                // 将标签插入临时的容器
+                tempContainer.appendChild(aTag)
+                // 将节点保存在 this.tags 全局变量中
+                this.tags.push({
+                    el: aTag
+                })
+            })
+            this.container.appendChild(tempContainer)
+            // 初始化标签位置
+            this.initTagPos()
+        }
+        /* 计算指定角度的正弦余弦值
+         * @param <Number>
+         */
+        Tag.prototype.sineCosine = function (a, b, c) {
+            const dtr = Math.PI / 180
+            // 变量名  s a 表示 a 的 sin 值
+            this.sa = Math.sin(a * dtr)
+            this.ca = Math.cos(a * dtr)
+
+            this.sb = Math.sin(b * dtr)
+            this.cb = Math.cos(b * dtr)
+            
+            this.sc = Math.sin(c * dtr)
+            this.cc = Math.cos(c * dtr)
+
+            return {
+                sa: this.sa,
+                ca: this.ca,
+                sb: this.sb,
+                cb: this.cb,
+                sc: this.sc,
+                cc: this.cc
+            }
+        }
+        /* 初始化标签位置
+         */
+        Tag.prototype.initTagPos = function () {
+            // 旋转的球的半径
+            const radius = this.options.radius
+            const tags = this.tags
+            // 不知道干啥用的，改为 false 后位置是随机的了，但是还是在圆周上？
+            const distr = true
+            let phi = 0
+            let theta = 0
+            for (let i = 1, max = tags.length; i < max + 1; i++) {
+                if (distr) {
+                    // 反余弦
+                    phi = Math.acos(- 1 + (2 * i - 1) / max)
+                    theta = Math.sqrt(max * Math.PI) * phi
+                } else {
+                    phi = Math.random() * (Math.PI)
+                    theta = Math.random() * (2 * Math.PI)
+                }
+                //坐标变换，后面的 * Math.sin(phi) 删除后变成了圆柱？
+                tags[i - 1].cx = radius * Math.cos(theta) * Math.sin(phi)
+                tags[i - 1].cy = radius * Math.sin(theta) * Math.sin(phi)
+                // cz 是用来计算 z-index 的，感觉就像是在水平面上计算坐标
+                tags[i - 1].cz = radius * Math.cos(phi)
+                // 改变标签元素的位置
+                tags[i - 1].el.style.left = tags[i - 1].cx + 'px'
+                tags[i - 1].el.style.top = tags[i - 1].cy + 'px'
+            }
+        }
+        /* 初始化鼠标事件
+         */
+        Tag.prototype.initMouseEvent = function () {
+            // 当鼠标移入容器时，标签开始移动
+            this.container.onmouseover = () => {
+                this.active = true
+            }
+            // 鼠标移出容器标签不能移动
+            this.container.onmouseout = () => {
+                this.active = false
+            }
+            // 在容器内移动时，改变全局变量 mouseX 与 mouseY
+            this.container.onmousemove = (ev) => {
+                const oEvent = window.event || ev
+                const container = this.container
+                // 计算鼠标位置，鼠标在屏幕上的位置减去容器的左偏移量再减去容器宽度的一半
+                // 最终得到的值是以容器垂直平分线为起点的
+                this.mouseX = oEvent.clientX - (container.offsetLeft + container.offsetWidth / 2)
+                // 同理，是以水平平分线为起点
+                this.mouseY = oEvent.clientY - (container.offsetTop + container.offsetHeight / 2)
+                // 速率？
+                // this.mouseX /= 5
+                // this.mouseY /= 5
+            }
+        }
+        /* 更新方法
+         */
+        Tag.prototype.update = function () {
+            let lasta = this.lasta
+            let lastb = this.lastb
+            const size = this.options.size || 250
+            const tspeed = this.options.tspeed || 2
+            // 半径
+            const radius = this.options.radius
+            // 椭圆？
+            var howElliptical = 1
+            const mouseX = this.mouseX
+            const mouseY = this.mouseY
+            var d = 300
+            let a, b
+            // 如果鼠标在容器内
+            if (this.active) {
+                // console.log(-Math.min(Math.max(-mouseY, -size), size)) 总是返回正确的位置？
+                // a = (-Math.min(Math.max(-mouseY, -size), size) / radius) * tspeed
+                // b = (Math.min(Math.max(-mouseX, -size), size) / radius) * tspeed
+                // a 和 b 都是从 0 到 180° 的角度
+                a = mouseY / radius * tspeed
+                b = -mouseX / radius * tspeed
+            } else {
+                // 如果不在，就慢慢减小，最终无限接近 0
+                a = lasta * 0.98
+                b = lastb * 0.98
+            }
+            // lasta 和 lastb 也是全局变量，保存着上一次的 a 和 b，这两个变量的作用是用来
+            lasta = a
+            lastb = b
+            // 当 a 和 b 的绝对值小于 0.01 就不用处理了
+            if (Math.abs(lasta) <= 0.01 && Math.abs(lastb) <= 0.01) {
+                return
+            }
+
+            let c = 0
+            // console.log('a', a, 'b', b, 'c', c)
+            // a、b、c 都是角度啊
+            this.sineCosine(a, b, c)
+            let { ca, sa, cb, sb, cc, sc } = this.sineCosine(a, b, c)
+            // 遍历标签的位置、透明度等信息
+            const tags = this.tags
+            for (let j = 0, len = tags.length; j < len; j++) {
+                // 拿到标签的 left 值
+                let rx1 = tags[j].cx
+                let ry1 = tags[j].cy * ca + tags[j].cz * (-sa)
+                let rz1 = tags[j].cy * sa + tags[j].cz * ca
+                // cb 是 cos(b) 如果从一个圆来说，就是某个角度的 x 值，加上同个角度的 sin 值。
+                let rx2 = rx1 * cb + rz1 * sb
+                let ry2 = ry1
+                let rz2 = rx1 * (-sb) + rz1 * cb
+
+                // let rx3 = rx2 * cc + ry2 * (-sc)
+                let rx3 = rx2
+                // let ry3 = rx2 * sc + ry2 * cc
+                let ry3 = ry2
+                let rz3 = rz2
+                // 最终计算得到的 rx3 为 left
+                tags[j].cx = rx3
+                tags[j].cy = ry3
+                tags[j].cz = rz3
+
+                const per = d / (d + rz3)
+
+                tags[j].x = (howElliptical * rx3 * per) - (howElliptical * 2)
+                tags[j].y = ry3 * per
+                tags[j].scale = per
+                tags[j].alpha = per
+
+                tags[j].alpha = (tags[j].alpha - 0.6) * (10 / 6)
+            }
+
+            this.renderTag()
+            this.depthSort()
+        }
+        /* 渲染标签
+         */
+        Tag.prototype.renderTag = function () {
+            // 还要加上容器的宽高
+            const width = this.container.offsetWidth / 2
+            const height = this.container.offsetHeight / 2
+            const tags = this.tags
+            for (let i = 0, len = tags.length; i < len; i++) {
+                // 标签位置
+                const tag = tags[i].el
+                tag.style.left = tags[i].cx + 'px'
+                tag.style.top = tags[i].cy + 'px'
+                // 标签大小
+                tag.style.fontSize = Math.ceil(12 * tags[i].scale / 2) + 8 + 'px'
+                // 标签透明度？
+                tag.style.filter = "alpha(opacity=" + 100 * tags[i].alpha + ")"
+                // 标签透明度
+                tag.style.opacity = tags[i].alpha
+            }
+        }
+        // 深度排序，就是 z-index 值
+        Tag.prototype.depthSort = function () {
+            const len = this.tags.length
+            this.tags.sort(function(vItem1, vItem2) {
+                if (vItem1.el.cz > vItem2.el.cz) {
+                    return -1
+                } else if (vItem1.el.cz < vItem2.el.cz) {
+                    return 1
+                } else {
+                    return 0
+                }
+            })
+            // 将排完序的标签根据排序设置 z-index 值
+            for (let i = 0; i < len; i++) {
+                this.tags[i].el.style.zIndex = i
+            }
+        }
+
+        document.body.onload = function() {
+            // 创建模拟数据
+            const count = 100
+            const data = []
+            for(let i = 0; i < count; i++) {
+                data.push({
+                    title: '标签' + (i + 1),
+                    href: 'https://www.baidu.com'
+                })
+            }
+            // 生成标签云
+            const tagCloud = new Tag({
+                el: '#container',
+                data,
+                // 旋转的球半径，这个应该根据数量自动调整，传入标签之间的间隔更好一些
+                radius: 150,
+                // 转动速率
+                tspeed: 2
+            })
+        }
+    </script>
+</body>
+
+</html>
