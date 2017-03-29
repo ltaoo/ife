@@ -1,0 +1,265 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>UI 组件之图片裁剪器</title>
+    <style type="text/css">
+        .upload__preview {
+            position: relative;
+            width: 600px;
+            height: 360px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .upload__img {
+            height: 100%;
+            display: none;
+        }
+        .upload__selector {
+            position: absolute;
+            left: 0;
+            top: 0;
+            border: 1px dashed red;
+            cursor: move;
+            box-sizing: border-box;
+        }
+        .upload__anchor {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <input id="uploadImage" class="upload__btn" type="file" accept="image/*" >
+    <div class="upload__preview">
+        <img id="uploadPreview" class="upload__img" src="" alt="Image preview" >
+    </div>
+    <canvas id="result" width="300" height="240"></canvas>
+    <script type="text/javascript">
+        /* 裁剪框构造函数
+         */
+        function Selector (options) {
+            this.options = options
+            // 初始宽高
+            this.size = options.size
+            // 构建裁剪框
+            this.createSelector()
+            // 初始化锚点拖动事件
+            this.initAnchorEvent()
+        }
+        Selector.prototype.createSelector = function () {
+            const selector = document.createElement('div')
+            // 裁剪框宽高
+            const { width, height } = this.size
+            this.anchors = []
+            selector.className = 'upload__selector'
+            selector.style = `width: ${width}px; height: ${height}px;`
+            const temp = document.createDocumentFragment()
+            // 创建内部锚点
+            for (let i = 0; i < 8; i++) {
+                const anchor = document.createElement('div')
+                anchor.className = 'upload__anchor'
+                this.anchors.push(anchor)
+                temp.appendChild(anchor)
+            }
+            selector.appendChild(temp)
+            this.element = selector
+            this.renderAnchor()
+        }
+        /* 更新锚点位置
+         */
+        Selector.prototype.renderAnchor = function () {
+            const { width, height } = this.size
+            // 锚点宽高
+            const anchorSize = 8
+            const left = - anchorSize / 2
+            const top = - anchorSize / 2
+            const right = - anchorSize / 2
+            const bottom = - anchorSize / 2
+            const middleX = width / 2 - anchorSize / 2
+            const middleY = height / 2 - anchorSize / 2
+
+            const cursorTable = this.cursorTable = {
+                0: 'nw-resize',
+                1: 'n-resize',
+                2: 'ne-resize',
+                3: 'e-resize',
+                4: 'se-resize',
+                5: 's-resize',
+                6: 'sw-resize',
+                7: 'w-resize'
+            }
+            // 位置计算
+            for (let i = 0; i < 8; i++) {
+                const anchor = this.anchors[i]
+                if (i === 0) {
+                    anchor.style = `left: ${left}px; top: ${top}px; cursor: ${cursorTable[i]};`
+                } 
+                else if (i === 1) {
+                    anchor.style = `left: ${middleX}px; top: ${top}px; cursor: ${cursorTable[i]};`
+                } 
+                else if (i === 2) {
+                    anchor.style = `right: ${right}px; top: ${top}px; cursor: ${cursorTable[i]};`
+                }
+                else if (i === 3) {
+                    anchor.style = `right: ${right}px; top: ${middleY}px; cursor: ${cursorTable[i]};`
+                }
+                else if (i === 4) {
+                    anchor.style = `right: ${right}px; bottom: ${bottom}px; cursor: ${cursorTable[i]};`
+                }
+                else if (i === 5) {
+                    anchor.style = `left: ${middleX}px; bottom: ${bottom}px; cursor: ${cursorTable[i]};`
+                }
+                else if (i === 6) {
+                    anchor.style = `left: ${left}px; bottom: ${bottom}px; cursor: ${cursorTable[i]};`
+                }
+                else if (i === 7) {
+                    anchor.style = `left: ${left}px; top: ${middleY}px; cursor: ${cursorTable[i]};`
+                }
+            }
+        }
+        /* 初始化锚点拖动事件
+         */
+        Selector.prototype.initAnchorEvent = function () {
+            const anchors = this.anchors
+
+            const selector = this.element
+            const cursorTable = this.cursorTable
+
+            this.changeable = false
+            // 只处理右下角锚点的拖动事件
+            anchors[4].onmousedown = (event) => {
+                event.stopPropagation()
+                this.changeable = true
+                selector.style.cursor = cursorTable[4]
+                this.x = event.x
+                this.y = event.y
+            }
+            document.body.onmouseup = () => {
+                this.changeable = false
+                selector.style.cursor = 'move'
+            }
+            document.body.onmousemove = (event) => {
+                // 阻止冒泡
+                if (this.changeable) {
+                    // 旧的宽高值
+                    let width = parseInt(/([0-9]+)px/.exec(selector.style.width)[1])
+                    let height = parseInt(/([0-9]+)px/.exec(selector.style.height)[1])
+                    // 新的宽高值为 当前鼠标位置减去上一次鼠标位置
+                    width += event.x - this.x
+                    height += event.y - this.y
+
+                    this.x = event.x
+                    this.y = event.y
+
+                    selector.style.width = width + 'px'
+                    selector.style.height = height + 'px'
+                    this.size = {
+                        width,
+                        height
+                    }
+
+                    this.renderAnchor()
+                }
+            }
+        }
+        /* 返回 dom 节点
+         */
+        Selector.prototype.getElement = function () {
+            return this.element
+        }
+        /*
+         * ===============================================
+         */
+        document.body.onload = function () {
+            const oFReader = new FileReader(),
+                rFilter = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i
+            const canvas = document.querySelector('#result')
+            const ctx = canvas.getContext('2d')
+
+            const img = document.getElementById("uploadPreview")
+            oFReader.onload = function(oFREvent) {
+                img.src = oFREvent.target.result
+                img.style.display = 'unset'
+                // naturalHeight
+                // ctx.drawImage(img, 0, 0, 200, 200) 前 4 个参数是原图片，后四个参数是canvas
+                draw(img, ctx, 0, 0)
+            }
+
+            function draw (img, ctx, x, y) {
+                ctx.drawImage(img, x / img.clientWidth * img.naturalWidth, y / img.clientWidth * img.naturalHeight, img.naturalWidth * 100 / img.clientWidth, img.naturalHeight * 60 / img.clientHeight , 0, 0, 300, 180)
+            }
+
+            document.querySelector('#uploadImage').onchange = loadImageFile
+            
+            const previewContainer = document.querySelector('.upload__preview')
+            // 创建裁剪框
+            const selectorObject = new Selector({
+                size: {
+                    width: 100,
+                    height: 60
+                }
+            })
+            const selector = selectorObject.getElement()
+            previewContainer.appendChild(selector)
+            // 裁剪框拖动
+            let dragable = false
+            let layerX = 0
+            let layerY = 0
+            previewContainer.onmouseup = function (event) {
+                dragable = false
+            }
+            // previewContainer.onmouseout = function (event) {
+            //     console.log('onmouseout')
+            //     dragable = false
+            // }
+            previewContainer.onmousemove = function (event) {
+                if (dragable && !selectorObject.changeable) {
+                    const x = event.pageX - previewContainer.offsetLeft - layerX
+                    const y = event.pageY - previewContainer.offsetTop - layerY
+
+                    selector.style.left = x + 'px'
+                    selector.style.top = y + 'px'
+
+                    // 移动的时候要重新渲染 canvas
+                    // ctx.drawImage(img, x, y, 100, 60, 0, 0, 300, 180)
+                    draw(img, ctx, x, y)
+                }
+            }
+            // 点击下去，就可以移动了
+            selector.onmousedown = function (event) {
+                layerX = event.layerX
+                layerY = event.layerY
+                dragable = true
+            }
+            // selector.onmouseover = function (event) {
+            //     dragable = true
+            // }
+
+            function loadImageFile() {
+                // 如果上传的图片数为 0，则返回
+                if (document.getElementById("uploadImage").files.length === 0) {
+                    return
+                }
+                // 获取到上传的图片
+                const oFile = document.getElementById("uploadImage").files[0]
+                // 校验图片类型
+                if (!rFilter.test(oFile.type)) {
+                    alert("You must select a valid image file!")
+                    return
+                }
+                oFReader.readAsDataURL(oFile)
+            }
+        }
+        
+    </script>
+</body>
+
+</html>

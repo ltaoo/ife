@@ -54,9 +54,8 @@
             this.mouseY = 1
             setInterval(this.update.bind(this), 30)
         }
-        /* 根据数组返回 element list
+        /* 插入标签节点
          * @param <Array>
-         * @return <Children>
          */
         Tag.prototype.createTags = function (tags) {
             this.tags = this.tags || []
@@ -83,7 +82,7 @@
          */
         Tag.prototype.sineCosine = function (a, b, c) {
             const dtr = Math.PI / 180
-            // 变量名  s a 表示 a 的 sin 值
+            // 变量名 s a 表示 a 的 sin 值
             this.sa = Math.sin(a * dtr)
             this.ca = Math.cos(a * dtr)
 
@@ -108,27 +107,29 @@
             // 旋转的球的半径
             const radius = this.options.radius
             const tags = this.tags
-            // 不知道干啥用的，改为 false 后位置是随机的了，但是还是在圆周上？
+            // 该为 false 后变成非均匀的
             const distr = true
             let phi = 0
             let theta = 0
             for (let i = 1, max = tags.length; i < max + 1; i++) {
                 if (distr) {
-                    // 反余弦
+                    // 点跟圆心的连线与z轴的夹角
                     phi = Math.acos(- 1 + (2 * i - 1) / max)
+                    // 点跟圆心连线在xy平面投影线与x轴的夹角
                     theta = Math.sqrt(max * Math.PI) * phi
                 } else {
                     phi = Math.random() * (Math.PI)
                     theta = Math.random() * (2 * Math.PI)
                 }
                 //坐标变换，后面的 * Math.sin(phi) 删除后变成了圆柱？
+                // 得到的是球面上某个点的空间坐标系
                 tags[i - 1].cx = radius * Math.cos(theta) * Math.sin(phi)
                 tags[i - 1].cy = radius * Math.sin(theta) * Math.sin(phi)
                 // cz 是用来计算 z-index 的，感觉就像是在水平面上计算坐标
                 tags[i - 1].cz = radius * Math.cos(phi)
                 // 改变标签元素的位置
-                tags[i - 1].el.style.left = tags[i - 1].cx + 'px'
-                tags[i - 1].el.style.top = tags[i - 1].cy + 'px'
+                tags[i - 1].el.style.left = tags[i - 1].cx + this.container.offsetWidth / 2 + 'px'
+                tags[i - 1].el.style.top = tags[i - 1].cy + this.container.offsetHeight / 2 + 'px'
             }
         }
         /* 初始化鼠标事件
@@ -221,8 +222,6 @@
 
                 const per = d / (d + rz3)
 
-                tags[j].x = (howElliptical * rx3 * per) - (howElliptical * 2)
-                tags[j].y = ry3 * per
                 tags[j].scale = per
                 tags[j].alpha = per
 
@@ -242,8 +241,8 @@
             for (let i = 0, len = tags.length; i < len; i++) {
                 // 标签位置
                 const tag = tags[i].el
-                tag.style.left = tags[i].cx + 'px'
-                tag.style.top = tags[i].cy + 'px'
+                tag.style.left = tags[i].cx + width + 'px'
+                tag.style.top = tags[i].cy + height + 'px'
                 // 标签大小
                 tag.style.fontSize = Math.ceil(12 * tags[i].scale / 2) + 8 + 'px'
                 // 标签透明度？
