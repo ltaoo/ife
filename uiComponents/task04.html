@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>无限滚动</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            background-color: #efeff4;
+        }
+        .infinite__item {
+            padding: 10px 0;
+            padding-left: 20px;
+            border-bottom: 1px solid #eee;
+            background-color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .infinite__loader {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="infinite"></div>
+    <script type="text/javascript">
+        /* 无限滚动构造函数
+         */
+        function Infinite (options) {
+            this.options = options
+            this.container = document.querySelector(options.el)
+
+            this.init()
+        }
+        /* 初始化
+         */
+        Infinite.prototype.init = function () {
+            this.container.appendChild(this.createItems(this.options.data))
+            this.createLoader()
+            // 注册滚动监听
+            window.addEventListener('scroll', () => {
+                // 滚动的距离
+                const scrollTop = document.body.scrollTop
+                // 如果滚动的距离加上窗口高度大于等于 body 的高度
+                console.log(window.innerHeight, this.container.clientHeight)
+                if(scrollTop + window.innerHeight >= this.container.clientHeight) {
+                    this.loading()
+                    // 触发加载数据
+                    let start = 20
+                    this.options.loadMore(start)
+                        .then(res => {
+                            this.loaded()
+                            this.addData(res)
+                            start += 10
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
+                }
+            })
+        }
+        /* 根据数据创建 element
+         * @param <Array> ary
+         * @return <DocumentFragment>
+         */
+        Infinite.prototype.createItems = function (ary) {
+            let container = document.createDocumentFragment()
+            for(let i = 0, len = ary.length; i < len; i++) {
+                let item = document.createElement('div')
+                // 设置类名
+                item.className = this.options.itemClassName
+                item.innerText = ary[i]
+                container.appendChild(item)
+            }
+
+            return container
+        }
+        /* 增加数据
+         * @param <Array> ary
+         */
+        Infinite.prototype.addData = function (ary) {
+            this.container.appendChild(this.createItems(ary))
+        }
+        /* 创建 loading
+         */
+        Infinite.prototype.createLoader = function () {
+            let loader = document.createElement('div')
+            loader.className = 'infinite__loader'
+            loader.innerText = '正在加载数据...'
+            this.loader = loader
+
+        }
+        /* 显示 loading
+         */
+        Infinite.prototype.loading = function () {
+            this.container.appendChild(this.loader)
+        }
+        /* 隐藏 loading
+         */
+        Infinite.prototype.loaded = function () {
+            let lastChild = this.container.lastElementChild
+            if (lastChild === this.loader) {
+                this.container.removeChild(this.loader)
+            }
+        }
+
+        let initData = []
+        let i = 0
+        for(; i < 20; i++) {
+            initData.push(`Item ${i}`)
+        }
+        const infinite = new Infinite({
+            el: '#infinite',
+            data: initData,
+            itemClassName: 'infinite__item',
+            // 模拟请求接口
+            loadMore: function (i) {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        let data = []
+                        let len = 10 + i
+                        for(; i < len; i++) {
+                            data.push(`Item ${i}`)
+                        }
+                        resolve(data)
+                    }, 2000)
+                })
+            }
+        })
+    </script>
+</body>
+</html>
