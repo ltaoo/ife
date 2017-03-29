@@ -10,6 +10,9 @@ const app = new Koa()
 /* -------------
  * 中间件
  * ------------- */
+// 静态文件支持
+const serve = require('koa-static')
+app.use(serve(__dirname + '/assets'))
 // 模板中间件
 const templating = require('./middlewares/templating')
 app.use(templating('views', {

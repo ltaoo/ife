@@ -12,6 +12,7 @@
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            /*background: url('./bg.jpeg');*/
         }
         .upload__img {
             height: 100%;
@@ -41,6 +42,9 @@
     <div class="upload__preview">
         <img id="uploadPreview" class="upload__img" src="" alt="Image preview" >
     </div>
+    <input id="width" type="text" placeholder="请输入宽度">
+    <input id="height" type="text" placeholder="请输入高度">
+    <button id="size">裁剪</button>
     <canvas id="result" width="300" height="240"></canvas>
     <button id="upload">上传图片到服务器</button>
     <script type="text/javascript">
@@ -207,18 +211,7 @@
                 // 计算比例
                 ctx.drawImage(img, x / img.clientWidth * img.naturalWidth, y / img.clientWidth * img.naturalHeight, img.naturalWidth * width / img.clientWidth, img.naturalHeight * height / img.clientHeight , 0, 0, 300, 300 * height / width)
             }
-            /* 上传图片事件
-             */
-            function loadImageFile(event) {
-                // 如果上传的图片数为 0，则返回
-                if (event.target.files.length === 0) {
-                    return
-                }
-                // 获取到上传的图片
-                const oFile = event.target.files[0]
-                oFReader.readAsDataURL(oFile)
-            }
-            document.querySelector('#uploadImage').onchange = loadImageFile
+            
             
             const previewContainer = document.querySelector('.upload__preview')
             // 创建裁剪框
@@ -238,7 +231,19 @@
             }
             // 获取到裁剪框本身
             const selector = selectorObject.getElement()
-            previewContainer.appendChild(selector)
+            /* 上传图片事件
+             */
+            function loadImageFile(event) {
+                // 如果上传的图片数为 0，则返回
+                if (event.target.files.length === 0) {
+                    return
+                }
+                // 获取到上传的图片
+                const oFile = event.target.files[0]
+                oFReader.readAsDataURL(oFile)
+                previewContainer.appendChild(selector)
+            }
+            document.querySelector('#uploadImage').onchange = loadImageFile
             // 裁剪框拖动
             let dragable = false
             let layerX = 0
@@ -256,15 +261,22 @@
                 if (dragable && !selectorObject.changeable) {
                     x = event.pageX - previewContainer.offsetLeft - layerX
                     y = event.pageY - previewContainer.offsetTop - layerY
-
                     selector.style.left = x + 'px'
                     selector.style.top = y + 'px'
-
                     // 移动的时候要重新渲染 canvas
-                    // ctx.drawImage(img, x, y, 100, 60, 0, 0, 300, 180)
-                    console.log(w, h)
                     draw(img, ctx, x, y, w, h)
                 }
+            }
+            // 点击裁剪按钮根据用户定义宽高裁剪
+            const widthInput = document.querySelector('#width')
+            const heightInput = document.querySelector('#height')
+            document.querySelector('#size').onclick = function (event) {
+                let widhtValue = parseInt(widthInput.value)
+                let heightValue = parseInt(widthInput.value)
+
+                console.log(widhtValue, heightValue)
+
+                draw(img, ctx, 0, 0, widhtValue, heightValue)
             }
             // 上传图片
             document.querySelector('#upload').onclick = function (event) {
