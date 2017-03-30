@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>将本地图片显示在页面上</title>
+</head>
+<body>
+    <input type="file" accept="image/*" id="input">
+    <img id="img" src="">
+    <script type="text/javascript">
+        document.body.onload = function () {
+            const img = document.querySelector('#img')
+            const fileReader = new FileReader()
+            fileReader.onload = function (event) {
+                img.src = event.target.result
+            }
+            let input = document.querySelector('#input')
+            input.onchange = function (event) {
+                let file = event.target.files[0]
+                fileReader.readAsDataURL(file)
+            }
+        }
+    </script>
+</body>
+</html>
