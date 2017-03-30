@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模拟时钟</title>
+    <style type="text/css">
+        .clock__scale {
+            border: 10px solid #eee;
+            border-radius: 50%;
+        }
+        .clock__scale--inner {
+            width: 8px;
+            height: 20px;
+            margin: 0 auto;
+            margin-top: 5px;
+            background-color: #eee;
+        }
+        /* 时针 */
+        .clock__hour {
+            width: 500px;
+            height: 500px;
+            transition: transform .2s;
+        }
+        .clock__hour--inner {
+            width: 14px;
+            height: 260px;
+            margin: 0 auto;
+            margin-top: 30px;
+            background-color: red;
+        }
+        /* 分针 */
+        .clock__minute {
+            width: 500px;
+            height: 500px;
+            transition: transform .2s;
+        }
+        .clock__minute--inner {
+            width: 10px;
+            height: 260px;
+            margin: 0 auto;
+            margin-top: 30px;
+            background-color: green;
+        }
+        /* 秒针 */
+        .clock__second {
+            width: 500px;
+            height: 500px;
+            transition: transform .2s;
+        }
+        .clock__second--inner {
+            width: 8px;
+            height: 260px;
+            margin: 0 auto;
+            margin-top: 30px;
+            background-color: blue;
+        }
+        .clock__circle {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div id="clock"></div>
+    <script type="text/javascript">
+        function Clock (options) {
+            this.options = options
+
+            this.time = options.initTime || new Date()
+            this._time = convert(this.time)
+            // 时间如何换算为角度
+            let hours = this.time.getHours()
+            let minutes = this.time.getMinutes()
+            let seconds = this.time.getSeconds()
+
+            this.container = document.querySelector(options.el)
+            this.renderClock()
+            this.renderHour()
+            this.renderMinute()
+            this.renderSecond()
+
+            // 开始动画
+            setInterval(() => {
+                this.run(new Date())
+            }, 1000)
+        }
+        /* 创建表盘
+         */
+        Clock.prototype.renderClock = function () {
+            const container = document.createDocumentFragment()
+
+            for(let i = 0; i < 12; i++) {
+                let scale = document.createElement('div')
+                scale.className = 'clock__scale'
+                scale.innerHTML = `<div class="clock__scale--inner"><span></span></div>`
+                // 计算角度
+                const deg = 30 * i
+                scale.style = `;position: absolute;width: ${this.options.size}px; height: ${this.options.size}px;transform: rotate(${deg}deg);box-sizing: border-box;`
+
+                container.appendChild(scale)
+            }
+
+            this.container.appendChild(container)
+        }
+        /* 创建时针
+         */
+        Clock.prototype.renderHour = function () {
+            const hour = this.hour = document.createElement('div')
+            hour.className = 'clock__hour'
+            hour.style = `;position: absolute;width: ${this.options.size}px; height: ${this.options.size}px;transform: rotate(${this._time[0]}deg);box-sizing: border-box;`
+            hour.innerHTML = `<div class="clock__hour--inner"></div>`
+
+            this.container.appendChild(hour)
+        }
+        /* 创建分针
+         */
+        Clock.prototype.renderMinute = function () {
+            const minute = this.minute = document.createElement('div')
+            minute.className = 'clock__minute'
+            minute.style = `;position: absolute;width: ${this.options.size}px; height: ${this.options.size}px;transform: rotate(${this._time[1]}deg);box-sizing: border-box;`
+            minute.innerHTML = `<div class="clock__minute--inner"></div>`
+
+            this.container.appendChild(minute)
+        }
+        /* 创建秒针
+         */
+        Clock.prototype.renderSecond = function () {
+            const container = document.createDocumentFragment()
+
+            const second = this.second = document.createElement('div')
+            second.className = 'clock__second'
+            second.style = `;position: absolute;width: ${this.options.size}px; height: ${this.options.size}px;transform: rotate(${this._time[2]}deg);box-sizing: border-box;`
+            second.innerHTML = `<div class="clock__second--inner"></div><div class="clock__circle"></div>`
+            container.appendChild(second)
+            this.container.appendChild(container)
+        }
+        /* 改变时针
+         */
+        Clock.prototype.changeHour = function () {
+            const hour = this.hour
+        }
+        /* 时钟运行
+         */
+        Clock.prototype.run = function (time) {
+            const hour = this.hour
+            const minute = this.minute
+            const second = this.second
+
+            this._time = convert(time)
+
+            hour.style.transform = `rotate(${this._time[0]}deg)`
+            minute.style.transform = `rotate(${this._time[1]}deg)`
+            second.style.transform = `rotate(${this._time[2]}deg)`
+        }
+        /* 将时间字符串转换为对应的角度
+         */
+        function convert (time) {
+            time = new Date(time)
+            // 时间如何换算为角度
+            let hours = time.getHours()
+            let minutes = time.getMinutes()
+            let seconds = time.getSeconds()
+
+            // 小时
+            if (hours > 12) {
+                hours -= 12
+            }
+            let hourRotate = hours * 30
+            // 分钟
+            let minuteRotate = minutes * 6
+            // 秒
+            let secondRotate = seconds * 6
+            return [hourRotate, minuteRotate, secondRotate]
+        }
+
+        window.onload = function () {
+            const clock = new Clock({
+                el: '#clock',
+                size: 500
+            })
+        }
+    </script>
+</body>
+</html>
