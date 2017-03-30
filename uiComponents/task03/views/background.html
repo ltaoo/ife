@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>透明背景</title>
+</head>
+<body>
+    <canvas id="bg" width="600" height="360"></canvas>
+    <script type="text/javascript">
+        window.onload = function () {
+const canvas = document.querySelector('#bg')
+const ctx = canvas.getContext('2d')
+// canvas 宽高
+const width = 600
+const height = 360
+// 黑色方块宽度为 20
+let size = 10 
+// 数量，向上取整
+let xNumber = Math.ceil(600 / size)
+let yNumber = Math.ceil(360 / size)
+ctx.fillStyle = '#ccc'
+for (let i = 0; i < yNumber; i++) {
+    for (let j = 0; j < xNumber; j++) {
+        console.log(j + i, (j + i) % 2)
+        if ((i % 2 === 0 && j % 2 === 0) || (i % 2 === 1 && j % 2 === 1)) {
+            (function (i, j) {
+                setTimeout(() => {
+                    ctx.fillRect(j * size, i * size, size, size)
+                }, 1000)
+            })(i, j)
+        }
+    }
+}
+        }
+    </script>
+</body>
+</html>
