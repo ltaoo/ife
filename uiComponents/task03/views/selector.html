@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>裁剪框移动</title>
+    <style type="text/css">
+        #con {
+            position: relative;
+            width: 600px;
+            height: 360px;
+            margin: 0 auto;
+            border: 1px solid #eee;
+        }
+        #selector {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 1px dashed red;
+            cursor: move;
+        }
+    </style>
+</head>
+<body>
+    <div id="con">
+        <div id="selector"></div>
+    </div>
+    <script type="text/javascript">
+        window.onload = function () {
+            const con = document.querySelector('#con'),
+                  selector = document.querySelector('#selector')
+
+            let layerX = 0
+            let layerY = 0
+            let dragable = false
+            console.dir(con)
+            selector.onmousedown = function (event) {
+                dragable = true
+                layerX = event.layerX
+                layerY = event.layerY
+            }
+            selector.onmouseup = function (event) {
+                dragable = false
+            }
+            selector.onmousemove = function (event) {
+                if (!dragable) {
+                    return
+                }
+                let x = event.pageX - con.offsetLeft - layerX
+                let y = event.pageY - con.offsetTop - layerY
+                if (x < 0
+                    || x > con.clientWidth - selector.clientWidth
+                    || y < 0
+                    || y > con.clientHeight - selector.clientHeight) {
+                    return
+                }
+
+                selector.style.left = x + 'px'
+                selector.style.top = y + 'px'
+            }
+        }
+    </script>
+</body>
+</html>

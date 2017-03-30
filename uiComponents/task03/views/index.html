@@ -226,17 +226,17 @@
                 layerY = event.layerY
                 dragable = true
             }
-            this.imgContainer.onmouseup = function (event) {
+            selector.onmouseup = function (event) {
                 dragable = false
             }
-            this.imgContainer.onmousemove = (event) => {
+            selector.onmousemove = (event) => {
                 if (dragable) {
                     // layerX 是在点击的容器内鼠标相对位置
                     x = event.pageX - this.imgContainer.offsetLeft - layerX
                     y = event.pageY - this.imgContainer.offsetTop - layerY
 
                     // 做超出范围的处理
-                    console.log(x, this.imgContainer.offsetLeft, this.imgContainer.clientWidth)
+                    // console.log(x, this.imgContainer.offsetLeft, this.imgContainer.clientWidth)
                     if (x < 0 || 
                         x + selector.clientWidth > this.imgContainer.clientWidth ||
                         y < 0 ||
