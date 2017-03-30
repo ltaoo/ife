@@ -14,8 +14,6 @@
             height: 360px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            /*background: url('./bg.jpeg');*/
         }
         .upload__img {
             height: 100%;
@@ -208,20 +206,82 @@
             this.createImgContainer()
             // 创建显示图片 canvas 和 ctx
             this.createImg()
+            // 创建裁剪框
+            const selectorObject = new Selector({
+                size: {
+                    width: 100,
+                    height: 60
+                }
+            })
+            const selector = this.selector = selectorObject.getElement()
+            // // 裁剪框拖动
+            let dragable = false
+            let layerX = 0
+            let layerY = 0
+            let x = 0
+            let y = 0
+            // 点击下去，就可以移动了
+            selector.onmousedown = function (event) {
+                layerX = event.layerX
+                layerY = event.layerY
+                dragable = true
+            }
+            this.imgContainer.onmouseup = function (event) {
+                dragable = false
+            }
+            this.imgContainer.onmousemove = (event) => {
+                if (dragable) {
+                    // layerX 是在点击的容器内鼠标相对位置
+                    x = event.pageX - this.imgContainer.offsetLeft - layerX
+                    y = event.pageY - this.imgContainer.offsetTop - layerY
+
+                    // 做超出范围的处理
+                    console.log(x, this.imgContainer.offsetLeft, this.imgContainer.clientWidth)
+                    if (x < 0 || 
+                        x + selector.clientWidth > this.imgContainer.clientWidth ||
+                        y < 0 ||
+                        y + selector.clientHeight > this.imgContainer.clientHeight) {
+                        return
+                    }
+                    selector.style.left = x + 'px'
+                    selector.style.top = y + 'px'
+                    // 移动的时候要重新渲染预览区
+                    // draw(img, ctx, x, y, w, h)
+                }
+            }
+            this.imgContainer.onmouseout = function () {
+                dragable = false
+            }
             /* 选择图片事件
              */
             this.fileReader = new FileReader()
             this.fileReader.onload = (event) => {
-                // img.src = event.target.result
-                // img.style.display = 'unset'
                 // ctx.drawImage(img, 0, 0, 200, 200) 前 4 个参数是原图片，后四个参数是canvas
-                // draw(img, ctx, 0, 0, 100, 60)
                 // 创建一个图片标签
                 const _image = new Image()
                 _image.src = event.target.result
                 // 当图片加载完成，就将图片渲染到 canvas 上
                 _image.onload = () => {
-                    this.imgCtx.drawImage(_image, 0, 0, 400, 400)
+                    // 图片原始宽高
+                    let _width = _image.width
+                    let _height = _image.height
+                    // canvas 宽高
+                    let width = _width
+                    let height = _height
+                    if ((_width / _height) > (600 / 360)) {
+                        width = 600
+                        height = 600 * _height / _width
+                    } else {
+                        width = _width / _height * 360
+                        height = 360
+                    }
+                    // 清除
+                    // console.log(_image.width, _image.height, width, height)
+                    // 计算，不拉伸显示图片
+                    this.imgCtx.clearRect(0, 0, _image.width, _image.height)
+                    this.renderBackground()
+                    this.imgCtx.drawImage(_image, 0, 0, _image.width, _image.height, 0, 0, width, height)
+                    this.imgContainer.appendChild(this.selector)
                 }
                 // 创建图片区
             }
@@ -249,16 +309,6 @@
                 
                 // 用来触发 fileReader 的 onload 事件
                 this.fileReader.readAsDataURL(file)
-                // if (!this.selector) {
-                //     let selector = new Selector({
-                //         size: {
-                //             width: this.selectorWidth,
-                //             height: this.selectorHeight
-                //         }
-                //     })
-                //     this.selector = selector.getElement()
-                // }
-                // this.imgContainer.appendChild(this.selector)
             }
         }
         /* imgContainer ，用来存放 canvas 和 裁剪框的容器
@@ -278,7 +328,16 @@
             this.imgContainer.appendChild(imgCanvas)
             // 绘制黑白背景
             const imgCtx = this.imgCtx = imgCanvas.getContext('2d')
-            this.renderBackground()
+        }
+        /* previewCanvas 裁剪预览区域
+         */
+        Cropper.prototype.createPreview = function () {
+            const previewCanvas = this.previewCanvas = document.createElement('canvas')
+            previewCanvas.width = 100
+            previewCanvas.height = 60
+            // this.container.appendChild(imgCanvas)
+            // 绘制黑白背景
+            this.previewCtx = previewCanvas.getContext('2d')
         }
         /* 绘制表示透明的背景
          */
@@ -301,12 +360,6 @@
             // 填充透明度为 0.1 的黑色遮罩
             imgCtx.fillStyle = 'rgba(0, 0, 0, 0.1)'
             imgCtx.fillRect(0, 0, 600, 360)
-        }
-        Cropper.prototype.resetImage = function (img) {
-
-        }
-        Cropper.prototype.createCanvas = function () {
-
         }
         /*
          * ========= 页面代码 ============
