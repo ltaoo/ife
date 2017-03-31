@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>正则表达式入门</title>
+</head>
+<body>
+    <script type="text/javascript" id="code">
+        function isTel (value) {
+            // console.log(/^[1]{1}[5-8]{1}[0-9]{9}$/.exec(value))
+            if (/^[1]{1}[5-8]{1}[0-9]{9}$/.test(value)) {
+                return true
+            }
+            return false
+        }
+
+        function checkTel (value) {
+            if (isTel(value)) {
+                console.log(`tel: ${value} 是手机号`)
+            } else {
+                console.log(`tel: ${value} 不是是手机号`)
+            }
+        }
+
+        function hasCloseString (value) {
+            const result =/\b([a-zA-Z]+) \1\b/g.exec(value)
+            if (result) {
+                console.log(`${value} 有相邻且重复的单词`)
+            } else {
+                console.log(`${value} 没有有相邻且重复的单词`)
+            }
+        }
+
+        function init () {
+            // 手机号
+            const tel1 = 18812011232
+            checkTel(tel1)
+            const tel2 = 18812312
+            checkTel(tel2)
+            const tel3 = 12345678909
+            checkTel(tel3)
+            // 是否有相邻重复单词
+            const str1 = 'foo foo bar'
+            hasCloseString(str1)
+            const str2 = 'foo bar foo'
+            hasCloseString(str2)
+            const str3 = 'foo barbar bar'
+            hasCloseString(str3)
+        }
+
+        init()
+    </script>
+    <script type="text/javascript">
+        let code = document.querySelector('#code')
+        let codeElement = document.createElement('pre')
+        codeElement.innerHTML = `<code>${code.innerText}</code>`
+        document.body.insertBefore(codeElement, code)
+    </script>
+</body>
+</html>
