@@ -3,6 +3,9 @@
 <head>
     <title>模拟时钟</title>
     <style type="text/css">
+        #clock {
+            overflow: hidden;
+        }
         .clock__scale {
             border: 10px solid #eee;
             border-radius: 50%;
@@ -18,39 +21,47 @@
         .clock__hour {
             width: 500px;
             height: 500px;
-            transition: transform .2s;
+            /*-webkit-animation: tick 43200s normal infinite steps(3600, end) 3s;*/
         }
         .clock__hour--inner {
             width: 14px;
-            height: 260px;
+            height: 200px;
             margin: 0 auto;
-            margin-top: 30px;
+            margin-top: 60px;
             background-color: red;
         }
         /* 分针 */
         .clock__minute {
             width: 500px;
             height: 500px;
-            transition: transform .2s;
+            /*-webkit-animation: tick 3600s normal infinite steps(3600, end) 3s;*/
         }
         .clock__minute--inner {
             width: 10px;
-            height: 260px;
+            height: 200px;
             margin: 0 auto;
-            margin-top: 30px;
+            margin-top: 40px;
             background-color: green;
         }
         /* 秒针 */
         .clock__second {
             width: 500px;
             height: 500px;
-            transition: transform .2s;
+            /*-webkit-animation: second 60s normal infinite steps(60, end) 3s;*/
         }
         .clock__second--inner {
+            width: 500px;
+            height: 500px;
+            padding-top: 30px;
+            box-sizing: border-box;
+            /*-webkit-animation: tick-second 1s normal infinite steps(30, end) 3s;*/
+        }
+        .clock__second--inner::after {
+            content: '';
+            display: block;
             width: 8px;
             height: 260px;
             margin: 0 auto;
-            margin-top: 30px;
             background-color: blue;
         }
         .clock__circle {
@@ -63,15 +74,63 @@
             border-radius: 50%;
             background-color: blue;
         }
+        #inputs {
+            margin-top: 600px;
+        }
+        
+        /* 时针针转动 */
+        @-webkit-keyframes tick{ 
+            0%{ 
+                -webkit-transform: rotate(0deg); 
+            } 
+            100%{ 
+                -webkit-transform: rotate(360deg); 
+            }
+        }
+        /* 秒针转动 */
+        @-webkit-keyframes second{ 
+            0%{ 
+                -webkit-transform: rotate(0deg) 
+            } 
+            100%{ 
+                -webkit-transform: rotate(360deg) 
+            }
+        }
+        /* 秒针动效 */
+        @-webkit-keyframes tick-second{ 
+            0%{ 
+                -webkit-transform: rotate(0deg); 
+            } 
+            21%{ 
+                -webkit-transform: rotate(4deg); 
+            } 
+            26%{ 
+                -webkit-transform: rotate(8deg); 
+            } 
+            33%{ 
+                -webkit-transform: rotate(4deg); 
+            } 
+            37%{ 
+                -webkit-transform: rotate(6deg); 
+            } 
+            100%{ 
+                -webkit-transform: rotate(6deg); 
+            }
+        }
     </style>
 </head>
 <body>
     <div id="clock"></div>
+    <div id="inputs">
+        <input id="time" type="datetime-local" name="">
+        <button id="btn">设置时间</button>
+    </div>
     <script type="text/javascript">
         function Clock (options) {
             this.options = options
 
             this.time = options.initTime || new Date()
+            // _time 是角度数组
             this._time = convert(this.time)
             // 时间如何换算为角度
             let hours = this.time.getHours()
@@ -86,7 +145,12 @@
 
             // 开始动画
             setInterval(() => {
-                this.run(new Date())
+                this.time = new Date(this.time.getTime() + 1000)
+                this.run(this.time)
+                // console.log(now.getTime(), new Date(options.notify).getTime())
+                if (options.notify && compare(this.time, new Date(options.notify))) {
+                    alert('到达预期时间')
+                }
             }, 1000)
         }
         /* 创建表盘
@@ -152,10 +216,18 @@
             const second = this.second
 
             this._time = convert(time)
+            console.log(this.time)
 
             hour.style.transform = `rotate(${this._time[0]}deg)`
             minute.style.transform = `rotate(${this._time[1]}deg)`
             second.style.transform = `rotate(${this._time[2]}deg)`
+        }
+        /* 设置时间
+         */
+        Clock.prototype.setTime = function (time) {
+            this.time = new Date(time)
+            console.log('set time', this.time, time)
+            this._time = convert(this.time)
         }
         /* 将时间字符串转换为对应的角度
          */
@@ -167,7 +239,7 @@
             let seconds = time.getSeconds()
 
             // 小时
-            if (hours > 12) {
+            if (hours >= 12) {
                 hours -= 12
             }
             let hourRotate = hours * 30
@@ -177,12 +249,34 @@
             let secondRotate = seconds * 6
             return [hourRotate, minuteRotate, secondRotate]
         }
+        /* 比较两个时间是否相等
+         */
+        function compare (time1, time2) {
+            if (time1.getFullYear() === time1.getFullYear()
+                && time1.getDate() === time2.getDate()
+                && time1.getDay() === time2.getDay()
+                && time1.getHours() === time2.getHours()
+                && time1.getMinutes() === time2.getMinutes()
+                && time1.getSeconds() === time2.getSeconds()) {
+                return true
+            }
+            return false
+        }
 
         window.onload = function () {
             const clock = new Clock({
                 el: '#clock',
-                size: 500
+                size: 500,
+                // notify: new Date(new Date().getTime() + 5000)
             })
+
+            // 设置时间
+            const timeInput = document.querySelector('#time')
+            document.querySelector('#btn').onclick = function (event) {
+                let time = timeInput.value
+                // console.log(new Date(time))
+                clock.setTime(time)
+            }
         }
     </script>
 </body>
