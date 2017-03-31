@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>自定义网页右键菜单</title>
+    <style type="text/css">
+        .container {
+            padding: 10px 20px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .menu {
+            margin: 0;
+            padding: 0;
+            min-width: 300px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            list-style: none;
+        }
+        .menu__item {
+            display: block;
+            padding: 10px 20px;
+            list-style: none;
+            cursor: pointer;
+            border-bottom: 1px solid #ccc;
+        }
+        .menu__item:last-child {
+            border-bottom-width: 0;
+        }
+        .menu__item:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <p>右键单击</p>
+    </div>
+    <script type="text/javascript">
+        function Menu (options) {
+            this.options = options
+            this.container = document.querySelector(options.el)
+            // 创建菜单
+            this.createMenu(options.data)
+            this.container.oncontextmenu = (event) => {
+                event.preventDefault()
+                const x = event.pageX
+                const y = event.pageY
+                // 展示菜单
+                this.showMenu(x, y)
+            }
+            // 
+            document.onclick = () => {
+                // 如果点击时菜单是显示状态，就隐藏
+                if (this.show) {
+                    this.hiddenMenu()
+                }
+            }
+        }
+        Menu.prototype.createMenu = function (data) {
+            const container = document.createDocumentFragment()
+
+            for(let i = 0, len = data.length; i < len; i++) {
+                const item = document.createElement('menuitem')
+                item.className = 'menu__item'
+                item.innerText = data[i]
+                item.onclick = function () {
+                    alert(data[i])
+                }
+                container.appendChild(item)
+            }
+
+            const menu = this.menu = document.createElement('menu')
+            menu.className = 'menu'
+            // menu.style = `min-width: ${this.options.width}px;`
+            menu.appendChild(container)
+        }
+        Menu.prototype.showMenu = function (x, y) {
+            // 处理超出屏幕的问题
+            if (x + 300 > window.innerWidth) {
+                x = x - 300
+            }
+            if (y + this.menu.clientHeight > window.innerHeight) {
+                y = y - this.menu.clientHeight
+            }
+            this.menu.style = `;position:absolute;left:${x}px;top:${y}px;`
+            this.show = true
+            this.container.appendChild(this.menu)
+        }
+        Menu.prototype.hiddenMenu = function () {
+            const menu = this.menu
+            if (this.show) {
+                this.show = false
+                this.container.removeChild(menu)
+            }
+        }
+        window.onload = function () {
+            const menu = new Menu({
+                el: '#app',
+                data: ['item1', 'item2']
+            })
+        }
+    </script>
+</body>
+</html>
