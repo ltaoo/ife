@@ -4,6 +4,7 @@
     <title>使用 CSS 实现折叠面板</title>
     <style type="text/css">
         .accordion__item {
+            position: relative;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -21,17 +22,24 @@
             display: none;
         }
         .accordion__content {
-            height: 0;
+            max-height: 0;
             background-color: #fff;
-            transition: height 1s;
+            transition: max-height .3s;
         }
         .accordion__input:checked + .accordion__content {
-            height: auto;
+            max-height: 200px;
             padding: 10px;
             border-top: 1px solid #ccc;
         }
         .accordion__text {
+            /* 作为伸缩盒子 */
+            display: -webkit-box;
             margin: 0;
+            overflow : hidden;
+            /* 超出使用省略号 */
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 6;
+            -webkit-box-orient: vertical;
         }
     </style>
 </head>
@@ -41,14 +49,14 @@
             <label href="#" class="accordion__title" for="item1">Collapsible Group Item #1</label>
             <input class="accordion__input" id="item1" type="radio" name="accordion">
             <div class="accordion__content">
-                <p class="accordion__text">Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
+                <p class="accordion__text">这是一段很长的内容，超出容器最大高度，所以超出部分会显示省略号   h life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHSAnim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS..</p>
             </div>
         </div>
         <div class="accordion__item">
             <label href="#" class="accordion__title" for="item2">Collapsible Group Item #2</label>
             <input class="accordion__input" id="item2" type="radio" name="accordion">
             <div class="accordion__content">
-                <p class="accordion__text">Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
+                <p class="accordion__text">这是一段很短的文字 c synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
             </div>
         </div>
         <div class="accordion__item">
