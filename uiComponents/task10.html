@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSS3 饼状 loading 效果</title>
+    <style type="text/css">
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading {
+            position: relative;
+            width: 50px;
+            height: 50px;
+        }
+        .loading__circle {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #ff29bc;
+            border-top-color: transparent;
+            border-radius: 50%;
+            box-sizing: border-box;
+            /*animation: rotate 1s infinite linear;*/
+        }
+        .loading__inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            border: 15px solid #fca2ca;
+            border-bottom-color: #ff29bc;
+            border-left-color: #ff29bc;
+            border-radius: 50%;
+        }
+        .loading__half {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            /*transform: translate(-50%, -50%);*/
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+        .loading__half--left {
+            /*border: 15px solid blue;*/
+            border: 15px solid #ff29bc;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            animation: right 20s infinite linear;
+            z-index: 1;
+        }
+        .loading__half--right {
+            border: 15px solid #fca2ca;
+            /*border: 15px solid green;*/
+            border-left-color: transparent;
+            border-bottom-color: transparent;
+            /*transform: rotate(180deg);*/
+            animation: left 20s infinite linear;
+            animation-delay: 5s;
+            z-index: 0;
+        }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(180deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes left {
+            0% {
+                transform: rotate(45deg);
+            }
+            25% {
+                transform: rotate(-135deg);
+            }
+            50% {
+                transform: rotate(-135deg);
+            }
+            75% {
+                transform: rotate(-315deg);
+            }
+            100% {
+                transform: rotate(-315deg);
+            }
+        }
+        @keyframes right {
+            0% {
+                transform: rotate(45deg);
+                z-index: 1;
+            }
+            25% {
+                transform: rotate(-135deg);
+            }
+            50% {
+                transform: rotate(-135deg);
+                z-index: 1;
+            }
+            50.001% {
+                transform: rotate(-135deg);
+                z-index: 0;
+            }
+            75% {
+                transform: rotate(-315deg);
+                z-index: 0;
+            }
+            99.999% {
+                transform: rotate(-315deg);
+                z-index: 0;
+            }
+            100% {
+                transform: rotate(-315deg);
+                z-index: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading">
+            <div class="loading__circle"></div>
+            <div class="loading__inner"></div>
+            <div class="loading__half loading__half--left"></div>
+            <div class="loading__half loading__half--right"></div>
+        </div>
+    </div>
+</body>
+</html>
