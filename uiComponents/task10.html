@@ -20,7 +20,7 @@
             border-top-color: transparent;
             border-radius: 50%;
             box-sizing: border-box;
-            /*animation: rotate 1s infinite linear;*/
+            animation: rotate 1s infinite linear;
         }
         .loading__inner {
             position: absolute;
@@ -45,7 +45,7 @@
             border: 15px solid #ff29bc;
             border-top-color: transparent;
             border-right-color: transparent;
-            animation: right 20s infinite linear;
+            animation: right 2s infinite linear;
             z-index: 1;
         }
         .loading__half--right {
@@ -54,8 +54,8 @@
             border-left-color: transparent;
             border-bottom-color: transparent;
             /*transform: rotate(180deg);*/
-            animation: left 20s infinite linear;
-            animation-delay: 5s;
+            animation: left 2s infinite linear;
+            animation-delay: .5s;
             z-index: 0;
         }
         @keyframes rotate {
@@ -63,10 +63,10 @@
                 transform: rotate(0deg);
             }
             50% {
-                transform: rotate(180deg);
+                transform: rotate(-180deg);
             }
             100% {
-                transform: rotate(360deg);
+                transform: rotate(-360deg);
             }
         }
         @keyframes left {
