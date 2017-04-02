@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>正则表达式之简易 markdown 文件解析器</title>
     <style type="text/css">
@@ -32,6 +33,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="markdown">
@@ -42,10 +44,21 @@
         </div>
     </div>
     <script type="text/javascript">
+        function replace(regex, opt) {
+            regex = regex.source
+            opt = opt || ''
+            return function self(name, val) {
+                if (!name) return new RegExp(regex, opt)
+                val = val.source || val
+                val = val.replace(/(^|[^\[])\^/g, '$1')
+                regex = regex.replace(name, val)
+                return self
+            }
+        }
         /* 解析 markdown 语法
          * @param <String> content
          */
-        function convert (content) {
+        function convert(content) {
             let result = ''
             // 标题正则
             const titleRegexp = /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/
@@ -53,7 +66,22 @@
             const newline = /^\n+/
             // 正文正则
             const textRegexp = /^ *([^\n]+)/
-            while(content) {
+            // 列表正则
+            let list = /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/
+            const bullet = /(?:[*+-]|\d+\.)/
+            const def = /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/
+            list = replace(list)
+                (/bull/g, bullet)
+                ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
+                ('def', '\\n+(?=' + def.source + ')')
+                ()
+            // li 标签
+            let item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
+            item = replace(item, 'gm')(/bull/g, bullet)()
+            /* 
+             * ===============  开始解析正文 ==================
+             */
+            while (content) {
                 let titleResult = titleRegexp.exec(content)
                 // 如果匹配到标题
                 if (titleResult) {
@@ -71,9 +99,22 @@
                     content = content.slice(newlineResult[0].length, content.length)
                     continue
                 }
+                // 匹配列表正则
+                let listResult = list.exec(content)
+                if (listResult) {
+                    let value = listResult[0]
+                    // 在内部再进行遍历，拼装 li 标签
+                    result += '<ul>'
+                    let _result = value.match(item)
+                    for(let i = 0, len = _result.length; i < len; i++) {
+                        result += `<li>${_result[i].substring(2, _result[i].length)}</li>`
+                    }
+                    result += '</ul>'
+                    content = content.slice(listResult[0].length, content.length)
+                    continue
+                }
                 // 匹配正文内容
                 let textResult = textRegexp.exec(content)
-                // console.log(textResult)
                 if (textResult) {
                     result += createContent(textResult[0])
                     content = content.slice(textResult[0].length, content.length)
@@ -87,12 +128,12 @@
          * @param <String> tag
          * @param <String> value
          */
-        function createTitle (tag, value) {
+        function createTitle(tag, value) {
             return `<h${tag.length}>${value}</h${tag.length}>`
         }
         /* 创建正文 p 标签
          */
-        function createContent (content) {
+        function createContent(content) {
             return `<p>${content}</p>`
         }
         let preview = document.querySelector('.markdown__preview')
@@ -102,4 +143,5 @@
         }
     </script>
 </body>
+
 </html>
