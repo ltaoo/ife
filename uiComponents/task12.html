@@ -78,6 +78,11 @@
             // li 标签
             let item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
             item = replace(item, 'gm')(/bull/g, bullet)()
+            // 引用
+            let blockquote = /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/
+            blockquote = replace(blockquote)
+                ('def', def)
+                ()
             /* 
              * ===============  开始解析正文 ==================
              */
@@ -113,6 +118,14 @@
                     content = content.slice(listResult[0].length, content.length)
                     continue
                 }
+                // 匹配引用
+                let blockquoteResult = blockquote.exec(content)
+                if (blockquoteResult) {
+                    let value = blockquoteResult[0]
+                    result += createBlockquote(value)
+                    content = content.slice(value.length, content.length)
+                    continue
+                }
                 // 匹配正文内容
                 let textResult = textRegexp.exec(content)
                 if (textResult) {
@@ -135,6 +148,11 @@
          */
         function createContent(content) {
             return `<p>${content}</p>`
+        }
+        /* 创建引用标签
+         */
+        function createBlockquote (content) {
+            return `<blockquote>${content.substring(2, content.length)}</blockquote>`
         }
         let preview = document.querySelector('.markdown__preview')
         document.querySelector('.markdown__input').oninput = (event) => {
