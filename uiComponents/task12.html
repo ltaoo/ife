@@ -85,8 +85,10 @@
                 ()
             // 代码块
             const code = /^( {4}[^\n]+\n*)+/
+            // 第二种代码块
+            const fences = /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/
             /* 
-             * ===============  开始解析正文 ==================
+             * ===============  开始解析 正文 ==================
              */
             while (content) {
                 let titleResult = titleRegexp.exec(content)
@@ -111,12 +113,12 @@
                 if (listResult) {
                     let value = listResult[0]
                     // 在内部再进行遍历，拼装 li 标签
-                    result += '<ul>'
+                    result += listResult[2] === '-' ? '<ul>' : '<ol>'
                     let _result = value.match(item)
                     for(let i = 0, len = _result.length; i < len; i++) {
                         result += `<li>${_result[i].substring(2, _result[i].length)}</li>`
                     }
-                    result += '</ul>'
+                    result += listResult[2] === '-' ? '</ul>' : '</ol>'
                     content = content.slice(listResult[0].length, content.length)
                     continue
                 }
@@ -134,6 +136,16 @@
                     let value = codeResult[0]
                     result += `<pre><code>${value.substring(4, value.length)}</code></pre>`
                     content = content.slice(value.length, content.length)
+                    continue
+                }
+                // 匹配第二种代码块
+                let code2Result = fences.exec(content)
+                if (code2Result) {
+                    let str = code2Result[0]
+                    let language = code2Result[2]
+                    let value = code2Result[3]
+                    result += `<pre><code>${value}</code></pre>`
+                    content = content.slice(str.length, content.length)
                     continue
                 }
                 // 匹配正文内容
