@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>正则表达式之简易 markdown 文件解析器</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .markdown {
+            overflow: hidden;
+        }
+        .markdown__editor {
+            float: left;
+            width: 50%;
+            height: 100vh;
+            padding: 10px;
+        }
+        .markdown__input {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+        .markdown__preview {
+            float: left;
+            width: 45%;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="markdown">
+            <div class="markdown__editor">
+                <textarea class="markdown__input"></textarea>
+            </div>
+            <div class="markdown__preview"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        /* 解析 markdown 语法
+         * @param <String> content
+         */
+        function convert (content) {
+            let result = ''
+            // 标题正则
+            const titleRegexp = /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/
+            // 换行正则
+            const newline = /^\n+/
+            // 正文正则
+            const textRegexp = /^ *([^\n]+)/
+            while(content) {
+                let titleResult = titleRegexp.exec(content)
+                // 如果匹配到标题
+                if (titleResult) {
+                    let tag = titleResult[1]
+                    let value = titleResult[2]
+                    result += createTitle(tag, value)
+                    // 将匹配到的删除掉 012345
+                    // console.log(titleResult[0], content, content.length)
+                    content = content.slice(titleResult[0].length, content.length)
+                    continue
+                }
+                // 如果匹配到换行
+                console.log(content)
+                let newlineResult = newline.exec(content)
+                console.log(newlineResult)
+                if (newlineResult) {
+                    content = content.slice(newlineResult.length, content.length)
+                    continue
+                }
+                // 匹配正文内容
+                // let textResult = textRegexp.exec(content)
+                // console.log(textResult)
+                // if (textResult) {
+                //     let value = titleResult[1]
+                //     result += createTitle(tag, value)
+                //     content = content.slice(value.length, content.length - 1)
+                //     continue
+                // }
+                // console.log(content)
+                content = null
+            }
+            return result
+        }
+        /* 根据 # 数量和 value 生成 h1 ~ h6 标签
+         * @param <String> tag
+         * @param <String> value
+         */
+        function createTitle (tag, value) {
+            return `<h${tag.length}>${value}</h${tag.length}>`
+        }
+        let preview = document.querySelector('.markdown__preview')
+        document.querySelector('.markdown__input').oninput = (event) => {
+            let content = event.target.value
+            preview.innerHTML = convert(content)
+        }
+    </script>
+</body>
+</html>
