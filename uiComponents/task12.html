@@ -83,6 +83,8 @@
             blockquote = replace(blockquote)
                 ('def', def)
                 ()
+            // 代码块
+            const code = /^( {4}[^\n]+\n*)+/
             /* 
              * ===============  开始解析正文 ==================
              */
@@ -123,6 +125,14 @@
                 if (blockquoteResult) {
                     let value = blockquoteResult[0]
                     result += createBlockquote(value)
+                    content = content.slice(value.length, content.length)
+                    continue
+                }
+                // 匹配代码块
+                let codeResult = code.exec(content)
+                if (codeResult) {
+                    let value = codeResult[0]
+                    result += `<pre><code>${value.substring(4, value.length)}</code></pre>`
                     content = content.slice(value.length, content.length)
                     continue
                 }
