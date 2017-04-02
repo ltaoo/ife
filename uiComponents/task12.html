@@ -66,23 +66,19 @@
                     continue
                 }
                 // 如果匹配到换行
-                console.log(content)
                 let newlineResult = newline.exec(content)
-                console.log(newlineResult)
                 if (newlineResult) {
-                    content = content.slice(newlineResult.length, content.length)
+                    content = content.slice(newlineResult[0].length, content.length)
                     continue
                 }
                 // 匹配正文内容
-                // let textResult = textRegexp.exec(content)
+                let textResult = textRegexp.exec(content)
                 // console.log(textResult)
-                // if (textResult) {
-                //     let value = titleResult[1]
-                //     result += createTitle(tag, value)
-                //     content = content.slice(value.length, content.length - 1)
-                //     continue
-                // }
-                // console.log(content)
+                if (textResult) {
+                    result += createContent(textResult[0])
+                    content = content.slice(textResult[0].length, content.length)
+                    continue
+                }
                 content = null
             }
             return result
@@ -93,6 +89,11 @@
          */
         function createTitle (tag, value) {
             return `<h${tag.length}>${value}</h${tag.length}>`
+        }
+        /* 创建正文 p 标签
+         */
+        function createContent (content) {
+            return `<p>${content}</p>`
         }
         let preview = document.querySelector('.markdown__preview')
         document.querySelector('.markdown__input').oninput = (event) => {
