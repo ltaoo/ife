@@ -1,6 +1,13 @@
 const page = require('webpage').create()
-// 搜索关键字
-const keyword = '百度前端技术学院'
+// 从命令行获取搜索关键字
+const system = require('system');
+// 默认关键词为'百度前端学院'
+var keyword = '百度前端学院'
+// 如果命令行有传参数，就用命令行的参数作为关键词
+console.log(system.args.length, system.args, system.args[1])
+if (system.args.length !== 1) {
+    keyword = system.args[1]
+}
 // 请求地址
 const searchURL = 'https://www.baidu.com/s?wd=' + encodeURIComponent(keyword)
 // 开始时间
