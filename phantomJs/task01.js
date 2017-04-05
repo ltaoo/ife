@@ -7,28 +7,39 @@ const searchURL = 'https://www.baidu.com/s?wd=' + encodeURIComponent(keyword)
 const startTime = new Date()
 // 请求指定地址
 page.open(searchURL, function (status) {
+    // 这里只能用 var ？
+    var result = null
     if (status !== 'success') {
-        console.log(JSON.stringify({ 'code': 0,'msg': '抓取失败','err': '网页加载失败' }))
+        result = {
+            code: 0,
+            msg: '抓取失败',
+            word: keyword,
+            time: new Date() - startTime
+        }
     } else {
         const dataList = page.evaluate(function () {
-            return $('#content_left .c-container').map(function(){
-                return {
-                    title: $(this).find('.t').text() || '',
-                    info: $(this).find('.c-abstract').text() || '',
-                    link: $(this).find('.t > a').attr('href') || '',
-                    pic: $(this).find('.general_image_pic img').attr('src') || ''
-                }
-            }).toArray()
+            var resultList = document.querySelectorAll('.result')
+            var ary = []
+            for (var i = 0, len = resultList.length; i < len; i++) {
+                var item = resultList[i]
+                ary.push({
+                    title: item.querySelector('.t').innerText,
+                    info: item.querySelector('.c-abstract').innerText,
+                    link: item.querySelector('.t > a').href,
+                    pic: item.querySelector('.c-img') ? item.querySelector('.c-img').src : '没有图片'
+                })
+            }
+            return ary
         })
-        const result = {
+        result = {
             code: 1,
             msg: '抓取成功',
             word: keyword,
             time: new Date() - startTime,
             dataList: dataList
         }
-        phantom.outputEncoding="utf8"
-        console.log(JSON.stringify(result, null, 4))
-        phantom.exit()
     }
+    phantom.outputEncoding = 'utf8'
+    console.log(JSON.stringify(result, null, 4))
+    phantom.exit()
 })
