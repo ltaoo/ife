@@ -18,6 +18,28 @@
         li {
             list-style: none;
         }
+        .music {
+            width: 800px;
+            margin: 0 auto;
+            padding: 20px 0 50px 0;
+            overflow: hidden;
+        }
+        .music__player {
+            float: left;
+            width: 560px;
+            padding: 0 20px;
+        }
+        .music__album {
+            float: left;
+            width: 240px;
+            height: 240px;
+            border-radius: 120px;
+            overflow: hidden;
+        }
+        .music__img {
+            width: 100%;
+            height: 100%;
+        }
         .musics__item {
             padding: 10px 20px;
             margin-bottom: 10px;
@@ -57,7 +79,7 @@
                     render(res[0])
                     // 初始化播放器控制器
                     const player = document.querySelector('.player__source')
-                    console.dir(player)
+                    // console.dir(player)
                     document.querySelector('.player__play').onclick = function () {
                         console.log('暂停')
                         if (player.paused) {
@@ -66,18 +88,33 @@
                         }
                         player.pause()
                     }
+                    // 总时长
+                    let duration = 0
+                    player.addEventListener('canplay', function (e) {
+                        duration = e.target.duration
+                    })
                     // 进度控制
                     const currentTime = document.querySelector('.music__currenttime')
                     const progressBar = document.querySelector('.player__progressbar')
-                    player.addEventListener('timeupdate', function (e) {
-                        let current = e.target.currentTime
-                        currentTime.innerHTML = current
+                    // player.addEventListener('timeupdate', function (e) {
+                    //     let current = e.target.currentTime
+                    //     currentTime.innerHTML = formatSeconds(current) + '/' + formatSeconds(duration)
+                    //     // 计算播放百分比
+                    //     // console.log(typeof current, typeof duration, current, duration, current / duration)
+                    //     let per = current / duration * 100 + '%'
+                    //     // console.log(per)
+                    //     progressBar.style.right = `calc(100% - ${per})`
+                    // })
+                    setInterval(() => {
+                        if (player.paused) {
+                            return
+                        }
+                        let current = player.currentTime
+                        currentTime.innerHTML = formatSeconds(current) + '/' + formatSeconds(duration)
                         // 计算播放百分比
-                        // 总时长
-                        const duration = player.duration
-                        console.log(typeof current, typeof duration, current, duration, current / duration)
+                        // console.log(typeof current, typeof duration, current, duration, current / duration)
                         let per = current / duration * 100 + '%'
-                        console.log(per)
+                        // console.log(per)
                         progressBar.style.right = `calc(100% - ${per})`
                     })
                 })
@@ -118,12 +155,12 @@
             const singer = music.singer.map(singer => {
                 return singer.name
             }).join(', ')
-            let innerHtml = `<div class="music_player"><h2 class="music__title">${music.songname}</h2>
+            let innerHtml = `<div class="music__player"><h2 class="music__title">${music.songname}</h2>
             <p class="music__singer">${singer}</p>
             <audio class="player__source">
                 Your browser does not support the <code>audio</code> element.
                 <source src="${music.audiourl}">
-            </audio><span class="music__currenttime">00:00</span><div class="player__progress"><span class="player__progressbar"></span></div><button class="player__play">暂停</button></div><div class="music__album"><img src="https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000"></div>`
+            </audio><span class="music__currenttime">00:00/00:00</span><input type="range"><div class="player__progress"><span class="player__progressbar"></span></div><button class="player__play">暂停</button><button class="player__faster">快进</button></div><div class="music__album"><img class="music__img" src="https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000"></div>`
             document.querySelector('.music').innerHTML = innerHtml
         }
         /* 渲染搜索结果列表
@@ -138,6 +175,37 @@
                 container.appendChild(li)
             })
             document.querySelector('.musics').appendChild(container)
+        }
+        /* 将秒数转换为时分秒
+         * @param <Number>
+         * @return <String>
+         */
+        function formatSeconds (value) {
+            let second = parseInt(value)
+            let hour = 0
+            let minute = 0
+
+            if (second >= 60) {
+                minute = parseInt(second / 60)
+                second = parseInt(second % 60)
+
+                if (minute >= 60) {
+                    hour = parseInt(minute / 60)
+                    minute = parseInt(minute % 60)
+                }
+            }
+
+            let result = second < 10 ? `0${second}` : second
+            if (minute > 0) {
+                result = (minute < 10 ? `0${minute}` : minute) + ':' + result
+            } else {
+                result = `00:${result}`
+            }
+            if (hour > 0) {
+                result = (hour < 10 ? `0${hour}` : hour) + ':' + result
+            }
+
+            return result
         }
 
         window.onload = function () {
