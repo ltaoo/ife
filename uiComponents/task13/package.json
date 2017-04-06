@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fetch-jsonp": "^1.0.6",
     "jquery": "^3.2.1"
   }
 }
