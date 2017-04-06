@@ -1,3 +1,15 @@
-# Koa template
+# 网页抓取分析
 
-学习 koa 过程中搭建出一个能够即开即用的模板项目。
+将项目`clone`下来后，首先使用`docker`开启`mongodb`容器
+
+```bash
+docker run -v "$(pwd)":/data --name phantom_db -p 27017:27017 -d mongo
+```
+
+开启成功后安装项目依赖：
+
+```bash
+npm i
+```
+
+然后就可以运行服务了。
