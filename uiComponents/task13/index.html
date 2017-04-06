@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>仿豆瓣音乐播放器</title>
     <style type="text/css">
+        * {
+            box-sizing: border-box;
+        }
         body {
             background-color: rgba(250, 250, 250, 0.933333);
         }
@@ -20,6 +23,20 @@
             margin-bottom: 10px;
             background-color: #fff;
             cursor: pointer;
+        }
+        .player__progress {
+            position: relative;
+            width: 100%;
+            height: 1px;
+            margin: 10px 0;
+            background-color: #dadada;
+        }
+        .player__progressbar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 1px;
+            background-color: rgb(107, 189, 122);
         }
     </style>
 </head>
@@ -38,6 +55,31 @@
                     renderResult(res)
                     // 默认显示第一首
                     render(res[0])
+                    // 初始化播放器控制器
+                    const player = document.querySelector('.player__source')
+                    console.dir(player)
+                    document.querySelector('.player__play').onclick = function () {
+                        console.log('暂停')
+                        if (player.paused) {
+                            player.play()
+                            return
+                        }
+                        player.pause()
+                    }
+                    // 进度控制
+                    const currentTime = document.querySelector('.music__currenttime')
+                    const progressBar = document.querySelector('.player__progressbar')
+                    player.addEventListener('timeupdate', function (e) {
+                        let current = e.target.currentTime
+                        currentTime.innerHTML = current
+                        // 计算播放百分比
+                        // 总时长
+                        const duration = player.duration
+                        console.log(typeof current, typeof duration, current, duration, current / duration)
+                        let per = current / duration * 100 + '%'
+                        console.log(per)
+                        progressBar.style.right = `calc(100% - ${per})`
+                    })
                 })
                 .catch(err => {
                     alert(err)
@@ -78,12 +120,15 @@
             }).join(', ')
             let innerHtml = `<div class="music_player"><h2 class="music__title">${music.songname}</h2>
             <p class="music__singer">${singer}</p>
-            <audio controls="controls">
+            <audio class="player__source">
                 Your browser does not support the <code>audio</code> element.
                 <source src="${music.audiourl}">
-            </audio></div><div class="music__album"><img src="https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000"></div>`
+            </audio><span class="music__currenttime">00:00</span><div class="player__progress"><span class="player__progressbar"></span></div><button class="player__play">暂停</button></div><div class="music__album"><img src="https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000"></div>`
             document.querySelector('.music').innerHTML = innerHtml
         }
+        /* 渲染搜索结果列表
+         * @param <Array> ary
+         */
         function renderResult (ary) {
             let container = document.createDocumentFragment()
             ary.forEach(music => {
@@ -94,7 +139,10 @@
             })
             document.querySelector('.musics').appendChild(container)
         }
-        init()
+
+        window.onload = function () {
+            init()
+        }
     </script>
 </body>
 </html>
