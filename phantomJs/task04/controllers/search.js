@@ -39,19 +39,20 @@ let search = async (ctx, next) => {
         })
         // 必须图片都创建完成后才继续往下运行
         await Promise.all(promiseList)
-        // var res = new Results({
-        //     keyword: params.keyword,
-        //     device: params.device,
-        //     data: data
-        // })
-        // res.save(function (err) {
-        //     if (err) {
-        //         console.log(err)
-        //         return
-        //     }
-        //     console.log('写入数据成功')
-        //     // ctx.response.body = JSON.stringify()
-        // })
+        // 写入数据库
+        var _res = new Results({
+            keyword: keyword,
+            device: device,
+            data: data.dataList
+        })
+        _res.save(function (err) {
+            if (err) {
+                console.log(err)
+                return
+            }
+            console.log('写入数据成功')
+            // ctx.response.body = JSON.stringify()
+        })
         // console.log(data)
         ctx.response.body = JSON.stringify(data)
     } catch (err) {
