@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>仿豆瓣音乐播放器</title>
+</head>
+<body>
+    <div class="container">
+        <div class="music">
+            <h2 class="music__title">幸运大门</h2>
+            <p class="music__singer">郭顶</p>
+            <audio controls="controls">
+                Your browser does not support the <code>audio</code> element.
+                <source src="http://ws.stream.qqmusic.qq.com/1647643.m4a?fromtag=46">
+            </audio>
+        </div>
+    </div>
+    <script type="text/javascript" src="./node_modules/fetch-jsonp/build/fetch-jsonp.js"></script>
+    <script type="text/javascript" src="./node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        function init () {
+            // 初始化音乐列表
+            searchMusic('河图')
+                .then(res => {
+                    console.log(res)
+                    // 默认显示第一首
+                    // render(res[0])
+                })
+                .catch(err => {
+                    alert(err)
+                })
+        }
+        /* 使用 qq 音乐接口搜索音乐列表
+         * @param <String> query
+         * @return <Promise>
+         */
+        function searchMusic (query, page=1) {
+            return new Promise((resolve, reject) => {
+                // fetch(`https://c.y.qq.com/soso/fcgi-bin/client_search_cp?&t=0&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&p=${page}&n=20&w=${query}&g_tk=755250217&loginUin=184009428&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`, {
+                //     // jsonpCallback: 'callback'
+                //     mode: 'no-cors'
+                // })
+                //     .then(res => {
+                //         return res.json()
+                //     })
+                //     .then(json => {
+                //         // 过滤无用字段
+                //         let musicList = json.data.song.list.map(music => {
+                //             // 获取音乐 id 与图片 id
+                //             const song_id = music_info[0]
+                //             // const song_name = music_info[1]
+                //             // const singer = music_info[3]
+                //             const img_id = music_info[4]
+                //             const audio_url = `http://ws.stream.qqmusic.qq.com/${id}.m4a?fromtag=46`
+
+                //             return {
+                //                 id: music.songid,
+                //                 song: music.songname,
+                //                 // 数组
+                //                 singer: music.singer
+                //             }
+                //         })
+
+                //         resolve(musicList)
+                //     })
+                //     .catch(err => {
+                //         reject(err)
+                //     })
+                $.ajax({
+                    url: `https://c.y.qq.com/soso/fcgi-bin/client_search_cp?ct=24&qqmusic_ver=1298&remoteplace=sizer.yqq.song_next&searchid=151342943803015700&t=0&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&p=${page}&n=20&w=${query}&g_tk=755250217&loginUin=184009428&hostUin=0&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`,
+                    type: 'GET',
+                    dataType: 'jsonp',
+                    jsonp: 'callback',
+                    jsonpCallback: 'callback',
+                    success (res) {
+                        resolve(res)
+                    },
+                    error (err) {
+                        reject(err)
+                    }
+                })
+            })
+        }
+        function callback (data) {
+            console.log(data)
+        }
+        /* 根据 json 渲染播放器
+         * @param <Object> music
+         */
+        function render (music) {
+
+        }
+        /* 根据 song_id 查询播放地址
+         * @param <String> id
+         */
+        function getPlayUrl (id) {
+            fetch('')
+        }
+        init()
+    </script>
+</body>
+</html>
