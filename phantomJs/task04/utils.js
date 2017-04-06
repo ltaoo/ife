@@ -1,4 +1,6 @@
+var fs = require('fs')
 var exec = require('child_process').exec
+var request = require('request')
 
 // 从百度进行搜索
 function searchFromBaidu (file, keyword, device) {
@@ -17,6 +19,25 @@ function searchFromBaidu (file, keyword, device) {
     })
 }
 
+// 生成图片
+function createImg (url, path) {
+    return new Promise((resolve, reject) => {
+        request.head(url, function (err, res, body) {
+            if (err) {
+                reject(err)
+                return
+            }
+            request(url)
+                .pipe(fs.createWriteStream(path))
+                .on('close', function () {
+                    // 生成本地图片文件获取实际尺寸
+                    resolve(path + ' 图片下载成功')
+                })
+        })
+    })
+}
+
 module.exports = {
-    searchFromBaidu: searchFromBaidu
+    searchFromBaidu: searchFromBaidu,
+    createImg: createImg
 }
