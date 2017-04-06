@@ -1,5 +1,6 @@
-// const fs = require('fs')
-// const request = require('request')
+const fs = require('fs')
+const path = require('path')
+const request = require('request')
 const uuid = require('node-uuid')
 
 const lib = require('../utils')
@@ -15,21 +16,23 @@ let search = async (ctx, next) => {
         // 如果存在图片，则将图片下载至静态文件目录
         console.log(result)
         let data = JSON.parse(result)
-        // console.log(data)
         data.dataList = data.dataList.map((item, index) => {
             if (item.pic) {
                 // 生成唯一 id
                 let imgTitle = uuid.v1() + '.jpg'
-                let path = './assets/' + imgTitle
+                let imgPath = path.join(__dirname, '../assets') + '/' + imgTitle
+                request.head(item.pic, function (err, res, body) {
+                    request(item.pic)
+                        .pipe(fs.createWriteStream(imgPath))
+                        .on('close', function () {
+                            // 生成本地图片文件获取实际尺寸
+                            console.log(imgTitle, '图片下载成功')
+                        })
+                })
                 return Object.assign(item, {
                     localImg: imgTitle
                 })
-                // request(item.pic)
-                //     .pipe(fs.createWriteStream(path))
-                //     .on('close', function () {
-                //         // 生成本地图片文件获取实际尺寸
-                //         console.log(imgTitle, '图片下载成功')
-                //     })
+                
             } else {
                 return item
             }
