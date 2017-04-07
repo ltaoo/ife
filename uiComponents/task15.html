@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"> 
+    <title>巨型画布</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1024" height="768"></canvas>
+    <canvas id="preview" width="200" height="200"></canvas>
+    <script type="text/javascript">
+        function init () {
+            const canvas = document.querySelector('#canvas')
+            const ctx = canvas.getContext('2d')
+
+            // 预览画布
+            const previewCanvas = document.querySelector('#preview')
+            const previewCtx = previewCanvas.getContext('2d')
+
+            // 显示图片
+            let img = new Image()
+            img.src = './img/img.png'
+            img.onload = function () {
+                ctx.drawImage(img, 0, 0)
+
+                // 同时渲染预览区的图片
+                let previewWidth = 200
+                let previewHeight = 200 * img.height / img.width
+                previewCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, previewWidth, previewHeight)
+                // 绘制矩形框
+                previewCtx.strokeStyle = 'red'
+                // 指定粗细
+                previewCtx.lineWidth = 3
+                // 矩形框的宽高为 canvas 宽高 / 原始图片宽高 * 预览图宽高
+                let width = 1024 / img.width * previewWidth
+                let height = 768 / img.height * previewHeight
+                // console.log(width, height)
+                previewCtx.strokeRect(0, 0, width, height);
+            }
+
+        }
+
+        init()
+    </script>
+</body>
+</html>
