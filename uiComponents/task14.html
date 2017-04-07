@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"> 
+    <title>实现树形组件</title>
+    <style type="text/css">
+        .tree__root {
+            padding: 0;
+        }
+        .tree__root--hidden .tree__leaf {
+            display: none;
+        }
+        .tree__leaf {
+            margin-left: 20px;
+        }
+        .tree__text {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="tree">
+        <ul class="tree__root"></ul>
+    </div>
+    <script type="text/javascript">
+        function init () {
+            var nodes = [ 
+                {
+                    name: "父节点1", 
+                    children: [ 
+                        {
+                            name: "子节点1"
+                        }, {
+                            name: "子节点2"
+                        } 
+                    ]
+                }, {
+                    name: "父节点2", 
+                    children: [ 
+                        {
+                            name: "子节点3"
+                        }, {
+                            name: "子节点4", 
+                            children:[ 
+                                {
+                                    name:"子节点5"
+                                } 
+                            ]
+                        } 
+                    ]
+                } 
+            ]
+            const rootNode = document.querySelector('.tree__root')
+            // 渲染页面
+            walk(nodes, rootNode)
+            // 处理点击事件
+            document.querySelector('.tree').onclick = function (e) {
+                const textEl = e.target
+                const parent = textEl.parentElement
+                console.dir(textEl.parentElement)
+                // 如果点击的这个文本的父容器是 li，表示是文件不是文件夹
+                if (parent.nodeName === 'LI') {
+                    return
+                } else if (parent.nodeName === 'UL') {
+                    // 这个才是要展开或者收起子文件
+                    const className = parent.className
+
+                    if (/hidden/.exec(className)) {
+                        parent.className = 'tree__root'
+                        return
+                    }
+                    parent.className += ' tree__root--hidden'
+                }
+            }
+        }
+
+        function walk (nodes, root) {
+            // 获取到 tree 容器
+            for(let i = 0, len = nodes.length; i < len; i++) {
+                let node = nodes[i]
+                const rootNode = document.createElement('li')
+                rootNode.className = 'tree__leaf'
+                // rootNode.innerHTML = `<p>${node.name}</p>`
+                render(node, rootNode)
+                root.appendChild(rootNode)
+            }
+        }
+
+        function render (node, parent) {
+            let rootNode = null
+            // 如果有子元素，就是一个文件夹
+            if (node.children) {
+                rootNode = document.createElement('ul')
+                rootNode.className = 'tree__root'
+                rootNode.innerHTML = `<p class="tree__text">${node.name}</p>`
+                walk(node.children, rootNode)
+            } else {
+                rootNode = document.createElement('p')
+                rootNode.className = 'tree__text'
+                rootNode.innerHTML = `${node.name}`
+            }
+
+            parent.appendChild(rootNode)
+        }
+
+        window.onload = function () {
+            init()
+        }
+    </script>
+</body>
+</html>
