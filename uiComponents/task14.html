@@ -3,7 +3,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"> 
     <title>实现树形组件</title>
+    <link rel="stylesheet" type="text/css" href="./lib/css/font-awesome.min.css">
     <style type="text/css">
+        .fa {
+            width: 24px;
+        }
         .tree__root {
             padding: 0;
         }
@@ -57,6 +61,7 @@
             document.querySelector('.tree').onclick = function (e) {
                 const textEl = e.target
                 const parent = textEl.parentElement
+                const icon = textEl.querySelector('.fa')
                 console.dir(textEl.parentElement)
                 // 如果点击的这个文本的父容器是 li，表示是文件不是文件夹
                 if (parent.nodeName === 'LI') {
@@ -64,12 +69,14 @@
                 } else if (parent.nodeName === 'UL') {
                     // 这个才是要展开或者收起子文件
                     const className = parent.className
-
+                    // 如果是隐藏的，就展开
                     if (/hidden/.exec(className)) {
                         parent.className = 'tree__root'
+                        icon.className = 'fa fa-folder-open-o'
                         return
                     }
                     parent.className += ' tree__root--hidden'
+                    icon.className = 'fa fa-folder-o'
                 }
             }
         }
@@ -92,12 +99,12 @@
             if (node.children) {
                 rootNode = document.createElement('ul')
                 rootNode.className = 'tree__root'
-                rootNode.innerHTML = `<p class="tree__text">${node.name}</p>`
+                rootNode.innerHTML = `<p class="tree__text"><i class="fa fa-folder-open-o" aria-hidden="true"></i>${node.name}</p>`
                 walk(node.children, rootNode)
             } else {
                 rootNode = document.createElement('p')
                 rootNode.className = 'tree__text'
-                rootNode.innerHTML = `${node.name}`
+                rootNode.innerHTML = `<i class="fa fa-file-code-o" aria-hidden="true"></i>${node.name}`
             }
 
             parent.appendChild(rootNode)
