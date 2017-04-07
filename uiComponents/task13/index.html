@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"> 
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>仿豆瓣音乐播放器</title>
+    <link rel="stylesheet" type="text/css" href="./lib/font-awesome-4.7.0/css/font-awesome.min.css">
     <style type="text/css">
         * {
             box-sizing: border-box;
@@ -23,6 +24,43 @@
             margin: 0 auto;
             padding: 20px 0 50px 0;
             overflow: hidden;
+        }
+        .music__title {
+            font-weight: normal;
+        }
+        .music__singer {
+            margin: 8px 0 10px 0;
+        }
+        .music__currenttime {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        .music__volumnicon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        .music__volumn {
+            position: relative;
+            display: inline-block;
+            vertical-align: middle;
+            width: 100px;
+            height: 2px;
+            border-radius: 2px;
+            background-color: #dadada;
+            cursor: pointer;
+        }
+        .music__volumnbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background-color: rgb(155, 155, 155);
         }
         .music__player {
             float: left;
@@ -50,7 +88,7 @@
             position: relative;
             width: 100%;
             height: 1px;
-            margin: 10px 0;
+            margin: 10px 0 40px 0;
             background-color: #dadada;
         }
         .player__progressbar {
@@ -60,14 +98,52 @@
             height: 1px;
             background-color: rgb(107, 189, 122);
         }
+        .player__play {
+            margin-left: 8px;
+            margin-right: 20px;
+        }
+        .player__play > .fa-play, .player__play > .fa-pause {
+            font-size: 28px;
+            cursor: pointer;
+        }
+        .player__faster {
+            margin-right: 20px;
+        }
+        .player__faster > .fa-forward {
+            font-size: 26px;
+            cursor: pointer;
+        }
+        .player__next > .fa-step-forward {
+            font-size: 26px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="music"></div>
+        <div class="music">
+            <div class="music__player">
+                <h2 class="music__title">${music.songname}</h2>
+                <p class="music__singer">${singer}</p>
+                <audio class="player__source">
+                    Your browser does not support the <code>audio</code> element.
+                    <source src="${music.audiourl}">
+                </audio>
+                <span class="music__currenttime">00:00/00:00</span>
+                <i class="fa fa-volume-up music__volumnicon" aria-hidden="true"></i>
+                <div class="music__volumn"><span class="music__volumnbar"></span></div>
+                <div class="player__progress"><span class="player__progressbar"></span></div>
+                <span class="player__play"><i class="fa fa-play" aria-hidden="true"></i></span>
+                <span class="player__faster"><i class="fa fa-forward" aria-hidden="true"></i></span>
+                <span class="player__next"><i class="fa fa-step-forward" aria-hidden="true"></i></span>
+            </div>
+            <div class="music__album">
+                <img class="music__img" src="https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000">
+            </div>
+        </div>
         <ul class="musics"></ul>
     </div>
-    <script type="text/javascript" src="./node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="./lib/jquery.min.js"></script>
     <script type="text/javascript">
         function init () {
             // 初始化音乐列表
@@ -76,17 +152,24 @@
                     // 渲染搜索结果列表
                     renderResult(res)
                     // 默认显示第一首
-                    render(res[0])
+                    let number = 0
+                    const title = document.querySelector('.music__title')
+                    const singerEl = document.querySelector('.music__singer')
+                    const time = document.querySelector('.music__currenttime')
                     // 初始化播放器控制器
                     const player = document.querySelector('.player__source')
+                    const album = document.querySelector('.music__img')
+                    render(res[number], title, singerEl, time, player, album)
                     // console.dir(player)
-                    document.querySelector('.player__play').onclick = function () {
-                        console.log('暂停')
+                    // 播放暂停按钮
+                    let startBtn = document.querySelector('.player__play')
+                    startBtn.onclick = function () {
+                        // 如果当前是暂停
                         if (player.paused) {
-                            player.play()
+                            play(startBtn, player, 'play')
                             return
                         }
-                        player.pause()
+                        play(startBtn, player, 'pause')
                     }
                     // 总时长
                     let duration = 0
@@ -117,6 +200,34 @@
                         // console.log(per)
                         progressBar.style.right = `calc(100% - ${per})`
                     })
+                    // 监听播放结束
+                    player.addEventListener('ended', (e) => {
+                        // 播放下一首
+                        number += 1
+                        next(res, number, title, singerEl, time, player, album, startBtn)
+                        // render(res[number])
+                        // // 要重新获取到 player 和 startBtn
+                        // let player = document.querySelector('.player__source')
+                        // let startBtn = document.querySelector('.player__play')
+                        // play(startBtn, player, 'play')
+                    })
+                    // 快进
+                    document.querySelector('.player__faster').onclick = function () {
+                        player.currentTime += 5
+                    }
+                    // 音频控制
+                    document.querySelector('.music__volumn').onclick = function (e) {
+                        console.log(e, e.layerX)
+                        // 将点击时的位置除以总长度，得到大概百分比
+                        let width = e.target.clientWidth
+                        const volumn = (e.layerX / width).toFixed(1)
+                        console.log(volumn)
+                    }
+                    // 播放下一首
+                    document.querySelector('.player__next').onclick = function () {
+                        number += 1
+                        next(res, number, title, singerEl, time, player, album, startBtn)
+                    }
                 })
                 .catch(err => {
                     alert(err)
@@ -151,17 +262,29 @@
         /* 根据 json 渲染播放器
          * @param <Object> music
          */
-        function render (music) {
+        function render (music, title, singerEl, time, player, album) {
             const singer = music.singer.map(singer => {
                 return singer.name
             }).join(', ')
-            let innerHtml = `<div class="music__player"><h2 class="music__title">${music.songname}</h2>
-            <p class="music__singer">${singer}</p>
-            <audio class="player__source">
-                Your browser does not support the <code>audio</code> element.
-                <source src="${music.audiourl}">
-            </audio><span class="music__currenttime">00:00/00:00</span><input type="range"><div class="player__progress"><span class="player__progressbar"></span></div><button class="player__play">暂停</button><button class="player__faster">快进</button></div><div class="music__album"><img class="music__img" src="https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000"></div>`
-            document.querySelector('.music').innerHTML = innerHtml
+
+            // 拿到对应的节点更新值
+            // const title = document.querySelector('.music__title')
+            title.innerText = music.songname
+            // const singerEl = document.querySelector('.music__singer')
+            singerEl.innerText = singer
+            // const time = document.querySelector('.music__currenttime')
+            time.innerText = '00:00/00:00'
+            // const player = document.querySelector('.player__source')
+            player.src = music.audiourl
+            // const album = document.querySelector('.music__img')
+            album.src = `https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000`
+            // let innerHtml = `<div class="music__player"><h2 class="music__title">${music.songname}</h2>
+            // <p class="music__singer">${singer}</p>
+            // <audio class="player__source">
+            //     Your browser does not support the <code>audio</code> element.
+            //     <source src="${music.audiourl}">
+            // </audio><span class="music__currenttime"></span><i class="fa fa-volume-up music__volumnicon" aria-hidden="true"></i><div class="music__volumn"><span class="music__volumnbar"></span></div><div class="player__progress"><span class="player__progressbar"></span></div><span class="player__play"><i class="fa fa-play" aria-hidden="true"></i></span><span class="player__faster"><i class="fa fa-fast-forward" aria-hidden="true"></i></span></div><div class="music__album"><img class="music__img" src=""></div>`
+            // document.querySelector('.music').innerHTML = innerHtml
         }
         /* 渲染搜索结果列表
          * @param <Array> ary
@@ -206,6 +329,27 @@
             }
 
             return result
+        }
+        /* 播放或者暂停音乐
+         * @param <Element> btn
+         * @param <Element> player
+         * @param <String> type <play | pause>
+         */
+        function play (btn, player, type) {
+            if (type === 'play') {
+                player.play()
+                // 并将图片更换为暂停
+                btn.querySelector('.fa').className = 'fa fa-pause'
+            } else if (type === 'pause') {
+                player.pause()
+                btn.querySelector('.fa').className = 'fa fa-play'
+            }
+        }
+        /* 播放下一首
+         */
+        function next (list, current, title, singerEl, time, player, album, btn) {
+            render(list[current], title, singerEl, time, player, album)
+            play(btn, player, 'play')
         }
 
         window.onload = function () {
