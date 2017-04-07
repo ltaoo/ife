@@ -105,14 +105,10 @@
             font-size: 28px;
             cursor: pointer;
         }
-        .player__faster {
+        .player__faster, .player__next {
             margin-right: 20px;
         }
-        .player__faster > .fa-forward {
-            font-size: 26px;
-            cursor: pointer;
-        }
-        .player__next > .fa-step-forward {
+        .player__faster > .fa-forward, .player__next > .fa-step-forward, .player__style > .fa-refresh, .player__style > .fa-random {
             font-size: 26px;
             cursor: pointer;
         }
@@ -135,6 +131,7 @@
                 <span class="player__play"><i class="fa fa-play" aria-hidden="true"></i></span>
                 <span class="player__faster"><i class="fa fa-forward" aria-hidden="true"></i></span>
                 <span class="player__next"><i class="fa fa-step-forward" aria-hidden="true"></i></span>
+                <span class="player__style"><i class="fa fa-random" aria-hidden="true"></i></span>
             </div>
             <div class="music__album">
                 <img class="music__img" src="https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000">
@@ -200,19 +197,34 @@
                         // console.log(per)
                         progressBar.style.right = `calc(100% - ${per})`
                     })
+                    const playerStyleEl = document.querySelector('.player__style')
+                    // 播放方式， 默认为 1，顺序播放
+                    let playStyle = 1
+                    playerStyleEl.onclick = function () {
+                        if (playStyle === 0) {
+                            playStyle = 1
+                            playerStyleEl.querySelector('.fa-refresh').className = 'fa fa-random'
+                        } else {
+                            playStyle = 0
+                            playerStyleEl.querySelector('.fa-random').className = 'fa fa-refresh'
+                        }
+                    }
                     // 监听播放结束
                     player.addEventListener('ended', (e) => {
-                        // 播放下一首
-                        number += 1
-                        if (number > res.length) {
-                            number = 0
+                        // 如果是顺序播放
+                        if (playStyle === 1) {
+                            // 播放下一首
+                            number += 1
+                            if (number > res.length) {
+                                number = 0
+                            }
+                            next(res, number, title, singerEl, time, player, album, startBtn, volumebar)
+                            return
                         }
-                        next(res, number, title, singerEl, time, player, album, startBtn, volumebar)
-                        // render(res[number])
-                        // // 要重新获取到 player 和 startBtn
-                        // let player = document.querySelector('.player__source')
-                        // let startBtn = document.querySelector('.player__play')
-                        // play(startBtn, player, 'play')
+                        // 如果是循环播放
+                        player.currentTime = 0
+                        player.play()
+                        
                     })
                     // 快进
                     document.querySelector('.player__faster').onclick = function () {
@@ -359,9 +371,9 @@
             play(btn, player, 'play')
         }
 
-        window.onload = function () {
+        $(document).ready(function () {
             init()
-        }
+        })
     </script>
 </body>
 </html>
