@@ -26,7 +26,6 @@
             img.src = './img/img.png'
             img.onload = function () {
                 ctx.drawImage(img, 0, 0)
-
                 // 同时渲染预览区的图片
                 let previewWidth = 200
                 let previewHeight = 200 * img.height / img.width
@@ -34,14 +33,51 @@
                 // 绘制矩形框
                 previewCtx.strokeStyle = 'red'
                 // 指定粗细
-                previewCtx.lineWidth = 3
+                previewCtx.lineWidth = 2
                 // 矩形框的宽高为 canvas 宽高 / 原始图片宽高 * 预览图宽高
                 let width = 1024 / img.width * previewWidth
                 let height = 768 / img.height * previewHeight
                 // console.log(width, height)
                 previewCtx.strokeRect(0, 0, width, height);
-            }
 
+                // 处理鼠标拖拽操作
+                let initX = 0
+                let initY = 0
+                // instanceX 和 instanceY 分别是鼠标拖拽移动的距离
+                let instanceX = 0
+                let instanceY = 0
+                canvas.onmousedown = function (e) {
+                    initX = e.layerX
+                    initY = e.layerY
+                }
+                let x = 0
+                let y = 0
+                canvas.onmouseup = function (e) {
+                    instanceX += e.layerX - initX
+                    instanceY += e.layerY - initY
+                    // console.log(instanceX, instanceY)
+
+                    instanceX = instanceX > 0 ? 0 : instanceX
+                    instanceY = instanceY > 0 ? 0 : instanceY
+
+                    if (instanceX < - img.width) {
+                        instanceX = - img.width
+                    }
+
+                    if (instanceY < - img.height) {
+                        instanceY = - img.height
+                    }
+                    // 知道了鼠标从按下到松开偏移的距离
+                    ctx.drawImage(img, instanceX, instanceY)
+                    // 更新矩形框的位置，清空画布重新画
+                    previewCtx.clearRect(0, 0, previewWidth, previewHeight)
+                    previewCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, previewWidth, previewHeight)
+                    // 计算矩形框的位置
+                    x = -instanceX / img.width * previewWidth
+                    y = -instanceY / img.height * previewHeight
+                    previewCtx.strokeRect(x, y, width, height)
+                }
+            }
         }
 
         init()
