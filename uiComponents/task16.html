@@ -6,22 +6,54 @@
 	<style>
 		#canvas {
 			position: relative;
+			display: inline-block;
 			width: 600px;
 			height: 360px;
-			border: 1px solid #ccc;
+			border: 1px solid #666;
+		}
+		#layers {
+			display: inline-block;
+			height: 360px;
+			min-width: 132px;
+			border: 1px solid #666;
+			overflow-y: auto;
 		}
 		.layer {
 			position: absolute;
+		}
+		.layers__item {
+			display: flex;
+			border: 1px solid #ccc;
+			padding: 0 10px;
+			cursor: pointer;
+		}
+		.layers__item:last-child {
+		}
+		.layers__item--drag {
+			border-style: dashed;
+		}
+		.layers__control {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-right: 10px;
 		}
 	</style>
 </head>
 <body>
 	<div id="canvas"></div>
+	<div id="layers"></div>
+	<!-- <canvas id="test" width="600" height="400"></canvas> -->
 	<script>
 		function init () {
 			const canvas = document.querySelector('#canvas')
+			// fillbackground(document.querySelector('#test').getContext('2d'), 10, '#eee')
+			// 右侧图层容器
+			const layersContainer = document.querySelector('#layers')
 			// 图层数组
 			let layers = []
+			// 创建一个仅仅用来作为预览的 canvas
+			const fakeImg = createBackgroundCanvas()
 			// 监听绘制操作
 			let drawable = false
 			let pressX = 0
@@ -32,7 +64,7 @@
 				pressY = event.layerY
 				drawable = true
 			}
-			// 移动操作
+			// 移动操作，newLayer 是绘画区域重叠的每一个 canvas
 			let newLayer = null
 			canvas.onmousemove = event => {
 				if (!drawable) {
@@ -40,14 +72,8 @@
 				}
 				// 如果新图层不存在，则创建它
 				if (!newLayer) {
-					newLayer = document.createElement('canvas')
-					newLayer.width = 600
-					newLayer.height = 360
-					newLayer.className = 'layer'
-					// 将新创建的图层加入到图层列表中，并且设置 z-index 值总是比之前的更大
+					newLayer = createLayer(canvas, layersContainer, fakeImg, layers.length)
 					layers.push(newLayer)
-					newLayer.style.zIndex = layers.length
-					canvas.appendChild(newLayer)
 				}
 				// 模拟画笔移动
 				const ctx = newLayer.getContext('2d')
@@ -64,7 +90,166 @@
 				newLayer = null
 				drawable = false
 			}
+			// 右侧图层列表操作
+			layersContainer.onclick = event => {
+				const target = event.target
+				// 点击按钮
+				if (target.tagName === 'BUTTON') {
+					const index = target.getAttribute('data-index')
+					// 如果点击按钮时文本是 隐藏，则表示要隐藏该图层
+					if (target.innerText === '隐藏') {
+						target.innerText = '展示'
+						layers[index].style.display = 'none'
+					} else {
+						target.innerText = '隐藏'
+						layers[index].style.display = 'block'
+					}
+				}
+			}
+			// 处理改变图层顺序
+			const sourceContainer = layersContainer
+			sourceContainer.ondrag = event => {
+				const node = event.target
+				if (node.className.indexOf('drag') === -1) {
+					node.className += ' layers__item--drag'
+				}
+
+				const x = event.pageX
+				const y = event.pageY
+
+				// 计算位置，给出结束拖放后可能的放置位置
+				let isInContainer = false
+				if (isIn(sourceContainer, {
+					x,
+					y
+				})) {
+					// 
+					isInContainer = true
+					sourceContainer.style.border = '1px solid red'
+				} else {
+					isInContainer = false
+					sourceContainer.style.border = '1px solid #666'
+				}
+				let virtualNode = null
+				// 疯狂计算位置
+	            if(isInContainer) {
+	                // 如果进入了容器，必定会有这个虚拟节点
+	                // 一个在目标容器内的虚拟节点用来预知位置
+	                // if(!virtualNode) {
+	                //     virtualNode = document.createElement('div')
+	                //     virtualNode.className = 'layers__item--virtual'
+	                // }
+	                if(y >= layers.length * 50) {
+	                    sourceContainer.appendChild(node)
+	                }
+	                else {
+	                    // 计算出现在鼠标应该是在哪个位置
+	                    const index = Math.floor(y / 50)
+	                    sourceContainer.insertBefore(node, (sourceContainer.children)[index])
+	                }
+	            }
+			}
+			sourceContainer.ondragend = event => {
+				const node = event.target
+				node.className = removeClassName(node.className, 'layers__item--drag')
+			}
 		}
+
+		/* 创建新图层
+		 *
+		 */
+		function createLayer (container, layersContainer, fakeImg, index) {
+			const newLayer = document.createElement('canvas')
+			newLayer.width = 600
+			newLayer.height = 360
+			newLayer.className = 'layer'
+			// 将新创建的图层加入到图层列表中，并且设置 z-index 值总是比之前的更大
+			newLayer.style.zIndex = layers.length
+			// 放入页面上的容器中
+			container.appendChild(newLayer)
+
+			// 并且在右侧图层面板新增节点表示新图层
+			const layerPreview = document.createElement('div')
+			layerPreview.className = 'layers__item'
+			layerPreview.draggable = "true"
+			// 创建一个临时容器
+			const tempContainer = document.createDocumentFragment()
+			// 左侧眼睛
+			const control = document.createElement('div')
+			control.className = 'layers__control layers__control--show'
+			control.innerHTML = `${index}<button class="layers__btn" data-index=${index}>隐藏</button>`
+			// control.$index = layers.length
+			tempContainer.appendChild(control)
+			// 右侧缩略图
+			const preview = fakeImg.cloneNode(true)
+			preview.getContext('2d').drawImage(fakeImg, 0, 0)
+			preview.className = 'layers__preview'
+			tempContainer.appendChild(preview)
+			layerPreview.appendChild(tempContainer)
+			layersContainer.insertBefore(layerPreview, layersContainer.firstElementChild)
+
+			return newLayer
+		}
+		/* 创建一个只有背景的 canvas
+		 */
+		function createBackgroundCanvas () {
+			const canvas = document.createElement('canvas')
+			canvas.width = 50
+			canvas.height = 50
+			fillbackground(canvas.getContext('2d'), 5, '#eee')
+
+			return canvas
+		}
+		/* 给指定画布绘制背景
+		 * @param <CanvasRenderingContext2D> ctx
+		 * @param <Number> size
+		 * @param <String> color
+		 */
+		function fillbackground (ctx, size=10, color='#eee') {
+			// 数量，向上取整
+			let xNumber = Math.ceil(600 / size)
+			let yNumber = Math.ceil(360 / size)
+			ctx.fillStyle = color
+			let k = 0
+			for (let i = 0; i < yNumber; i++) {
+			    for (let j = 0; j < xNumber; j++) {
+			        if ((k + i) % 2 === 0) {
+	                    ctx.fillRect(j * size, i * size, size, size)
+			        }
+			        k++
+			    }
+			}
+		}
+		/* 移除类名
+		 * @param <String> className 全部类名
+		 * @param <String> target 要移除的类名
+		 */
+		function removeClassName (className, target) {
+			return className.split(' ').filter(function (className) {
+				return className !== target
+			}).join(' ')
+		}
+		/* 判断某个坐标是否在指定容器内
+		 */
+		function isIn(targetContainer, position) {
+			// 目标容器在屏幕上的坐标
+		    const targetContainerX = targetContainer.offsetLeft
+		    const targetContainerY = targetContainer.offsetTop
+		    // 
+	        const endX = position.x
+	        const endY = position.y
+
+	        if(
+	        	endX > targetContainerX 
+	        	&& endX < targetContainerX + targetContainer.clientWidth 
+	        	&& endY > targetContainerY 
+	        	&& endY < targetContainerY + targetContainer.clientHeight
+	        ) {
+	            return true
+	        }
+
+	        return false
+	    }
 
 		init()
 	</script>
