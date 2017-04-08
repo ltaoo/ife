@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>分层画布</title>
+	<style>
+		#canvas {
+			position: relative;
+			width: 600px;
+			height: 360px;
+			border: 1px solid #ccc;
+		}
+		.layer {
+			position: absolute;
+		}
+	</style>
+</head>
+<body>
+	<div id="canvas"></div>
+	<script>
+		function init () {
+			const canvas = document.querySelector('#canvas')
+			// 图层数组
+			let layers = []
+			// 监听绘制操作
+			let drawable = false
+			let pressX = 0
+			let pressY = 0
+			canvas.onmousedown = event => {
+				canvas.style.cursor = 'pointer'
+				pressX = event.layerX
+				pressY = event.layerY
+				drawable = true
+			}
+			// 移动操作
+			let newLayer = null
+			canvas.onmousemove = event => {
+				if (!drawable) {
+					return
+				}
+				// 如果新图层不存在，则创建它
+				if (!newLayer) {
+					newLayer = document.createElement('canvas')
+					newLayer.width = 600
+					newLayer.height = 360
+					newLayer.className = 'layer'
+					// 将新创建的图层加入到图层列表中，并且设置 z-index 值总是比之前的更大
+					layers.push(newLayer)
+					newLayer.style.zIndex = layers.length
+					canvas.appendChild(newLayer)
+				}
+				// 模拟画笔移动
+				const ctx = newLayer.getContext('2d')
+				// 初始位置
+				ctx.beginPath()
+				ctx.moveTo(pressX, pressY)
+				ctx.lineTo(event.layerX, event.layerY)
+				ctx.stroke()
+				pressX = event.layerX
+				pressY = event.layerY
+			}
+			canvas.onmouseup = event => {
+				canvas.style.cursor = 'default'
+				newLayer = null
+				drawable = false
+			}
+		}
+
+		init()
+	</script>
+</body>
+</html>
