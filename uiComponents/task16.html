@@ -41,6 +41,7 @@
 	</style>
 </head>
 <body>
+	<input type="color" id="color"><br>
 	<div id="canvas"></div>
 	<div id="layers"></div>
 	<!-- <canvas id="test" width="600" height="400"></canvas> -->
@@ -58,11 +59,15 @@
 			let drawable = false
 			let pressX = 0
 			let pressY = 0
+			let color = '#000'
+			const colorEle = document.querySelector('#color')
 			canvas.onmousedown = event => {
 				canvas.style.cursor = 'pointer'
 				pressX = event.layerX
 				pressY = event.layerY
 				drawable = true
+
+				color = colorEle.value
 			}
 			// 移动操作，newLayer 是绘画区域重叠的每一个 canvas
 			let newLayer = null
@@ -73,10 +78,12 @@
 				// 如果新图层不存在，则创建它
 				if (!newLayer) {
 					newLayer = createLayer(canvas, layersContainer, fakeImg, layers.length)
-					layers.push(newLayer)
+					layers.unshift(newLayer)
 				}
 				// 模拟画笔移动
 				const ctx = newLayer.getContext('2d')
+				ctx.fillStyle = color
+				ctx.strokeStyle = color
 				// 初始位置
 				ctx.beginPath()
 				ctx.moveTo(pressX, pressY)
@@ -95,30 +102,35 @@
 				const target = event.target
 				// 点击按钮
 				if (target.tagName === 'BUTTON') {
-					const index = target.getAttribute('data-index')
+					const index = Array.from(layersContainer.children).indexOf(target.parentElement.parentElement)
 					// 如果点击按钮时文本是 隐藏，则表示要隐藏该图层
 					if (target.innerText === '隐藏') {
 						target.innerText = '展示'
-						layers[index].style.display = 'none'
+						canvas.children[index].style.display = 'none'
 					} else {
 						target.innerText = '隐藏'
-						layers[index].style.display = 'block'
+						canvas.children[index].style.display = 'initial'
 					}
 				}
 			}
 			// 处理改变图层顺序
+			let isInContainer = false
+			let nodeIndex = null
+			let index = 0
 			const sourceContainer = layersContainer
 			sourceContainer.ondrag = event => {
 				const node = event.target
 				if (node.className.indexOf('drag') === -1) {
 					node.className += ' layers__item--drag'
 				}
+				if (!nodeIndex) {
+	                nodeIndex = Array.from(sourceContainer.children).indexOf(node)
+				}
 
 				const x = event.pageX
 				const y = event.pageY
 
 				// 计算位置，给出结束拖放后可能的放置位置
-				let isInContainer = false
 				if (isIn(sourceContainer, {
 					x,
 					y
@@ -131,6 +143,7 @@
 					sourceContainer.style.border = '1px solid #666'
 				}
 				let virtualNode = null
+				let hasRemove = false
 				// 疯狂计算位置
 	            if(isInContainer) {
 	                // 如果进入了容器，必定会有这个虚拟节点
@@ -139,19 +152,50 @@
 	                //     virtualNode = document.createElement('div')
 	                //     virtualNode.className = 'layers__item--virtual'
 	                // }
-	                if(y >= layers.length * 50) {
-	                    sourceContainer.appendChild(node)
-	                }
-	                else {
+	            	node.style.display = 'flex'
+	            	let number = layers.length
 	                    // 计算出现在鼠标应该是在哪个位置
-	                    const index = Math.floor(y / 50)
-	                    sourceContainer.insertBefore(node, (sourceContainer.children)[index])
-	                }
+	                    index = Math.floor(y / 50)
+	                    if (index > sourceContainer.children.length) {
+	                    	index = sourceContainer.children.length
+	                    }
+	                    sourceContainer.insertBefore(node, sourceContainer.children[index])
+
+	                    // 改变左侧图层层叠顺序，就是改变 z-index 值
+	                    // 从数组中先移除这个要改变 z-index 值的 canvas
+	                    // const moveLayer = layers.slice(nodeIndex, nodeIndex + 1)
+	                    // layers.splice(realIndex, 0, moveLayer)
+	                    // console.log(nodeIndex, index, number)
+	                    // canvas.insertBefore(canvas.children[nodeIndex], canvas.children[index])
+	                    // console.log(layers.map(layer => layer.style.zIndex))
+	            } else {
+	            	// 如果不在容器内，表示要删除该节点	
+	            	// node.style.display = 'none'
 	            }
 			}
 			sourceContainer.ondragend = event => {
 				const node = event.target
 				node.className = removeClassName(node.className, 'layers__item--drag')
+				// 改变图层顺序
+				sourceContainer.insertBefore(node, sourceContainer.children[index])
+                canvas.insertBefore(canvas.children[nodeIndex], canvas.children[index])
+				nodeIndex = null
+				// const x = event.pageX
+				// const y = event.pageY
+
+				// console.log(isInContainer, isIn(sourceContainer, {
+				// 	x,
+				// 	y
+				// }), node.querySelector('button').getAttribute('data-index'))
+
+				// if (isIn(sourceContainer, {
+				// 	x,
+				// 	y
+				// })) {
+				// 	node.style.display = 'flex'
+				// } else {
+				// 	sourceContainer.removeChild(node)
+				// }
 			}
 		}
 
@@ -164,9 +208,10 @@
 			newLayer.height = 360
 			newLayer.className = 'layer'
 			// 将新创建的图层加入到图层列表中，并且设置 z-index 值总是比之前的更大
-			newLayer.style.zIndex = layers.length
+			newLayer.style.zIndex = index
 			// 放入页面上的容器中
-			container.appendChild(newLayer)
+			container.insertBefore(newLayer, container.firstElementChild)
+			// container.appendChild(newLayer)
 
 			// 并且在右侧图层面板新增节点表示新图层
 			const layerPreview = document.createElement('div')
