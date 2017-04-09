@@ -7,7 +7,7 @@ fs.readFile('./map/allCity.json', 'utf8', (err, res) => {
     const geo = {}
     for(let i = 0, len = cities.length; i < len; i++) {
         const city = cities[i]
-        if (city.bottom === 'FALSE' && city.superior !== 0) {
+        if (city.bottom === 'FALSE') {
             // 处理城市名中的市
             city.name = city.name.replace(/市/, '')
             if (cityTable[city.name]) {
