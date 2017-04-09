@@ -34,12 +34,41 @@
             values
         }
     }
+    /* 生成一系列的折线
+     */
+    function createSeries (data) {
+        // 只显示 10 个城市
+        const limit = 9
+        let i = 0
+        // 折线说明
+        const legend = []
+        const series = []
+        for(let city in data) {
+            if (i > 10) {
+                break
+            }
+            legend.push(city)
+
+            series.push({
+                name: city,
+                type: 'line',
+                data: convertData(data[city]).values
+            })
+            i += 1
+        }
+
+        return {
+            legend,
+            series
+        }
+    }
     const myChart = echarts.init(document.getElementById('main'))
     myChart.showLoading()
     $.get('./aqi/data.json', (res) => {
         myChart.hideLoading()
 
         const data = convertData(res['湛江'])
+        const { series, legend } = createSeries(res)
         // console.log(data)
         option = {
             title: {
@@ -49,7 +78,7 @@
                 trigger: 'axis'
             },
             legend: {
-                // data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+                data: legend
             },
             grid: {
                 left: '3%',
@@ -99,13 +128,7 @@
                     end: 100
                 }
             ],
-            series: [
-                {
-                    name:'湛江',
-                    type:'line',
-                    data: data.values
-                }
-            ]
+            series
         }
         myChart.setOption(option)
     })
