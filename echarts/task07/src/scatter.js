@@ -6,7 +6,6 @@ function scatterInit () {
         const res = []
         // data 从保存了所有数据的对象变成只保存了第一条数据的数组
         data = getData(data)
-        console.log(data)
         for (let i = 0; i < data.length; i++) {
             const geoCoord = geo[data[i].name]
             if (geoCoord) {
@@ -48,8 +47,10 @@ function scatterInit () {
                 const option = {
                     backgroundColor: '#404a59',
                     title: {
-                        text: '主要城市',
-                        color: '#fff',
+                        text: '空气质量散点图',
+                        textStyle: {
+                            color: '#fff'
+                        },
                         x: 'center'
                     },
                     tooltip: {
