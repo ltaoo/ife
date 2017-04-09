@@ -117,7 +117,16 @@
 			let isInContainer = false
 			let nodeIndex = null
 			let index = 0
+			// 目标容器在屏幕上的坐标用来定位鼠标是否在该容器内
+		    const targetContainerX = layersContainer.offsetLeft
+		    const targetContainerY = layersContainer.offsetTop
+		    const targetWidth  = layersContainer.clientWidth
+		    const targetHeight = layersContainer.clientHeight
 			const sourceContainer = layersContainer
+
+			// 保存拖拽过程中的 x 和 y 值，因为结束拖放后 x y 值不一致了
+			let x = 0
+			let y = 0
 			sourceContainer.ondrag = event => {
 				const node = event.target
 				if (node.className.indexOf('drag') === -1) {
@@ -126,12 +135,13 @@
 				if (!nodeIndex) {
 	                nodeIndex = Array.from(sourceContainer.children).indexOf(node)
 				}
-
-				const x = event.pageX
-				const y = event.pageY
+				if (event.pageX !== 0 && event.pageY !== 0) {
+					x = event.pageX
+					y = event.pageY
+				}
 
 				// 计算位置，给出结束拖放后可能的放置位置
-				if (isIn(sourceContainer, {
+				if (isIn(targetContainerX, targetContainerY, targetWidth, targetHeight, {
 					x,
 					y
 				})) {
@@ -144,6 +154,7 @@
 				}
 				let virtualNode = null
 				let hasRemove = false
+				console.log(x, y, isInContainer)
 				// 疯狂计算位置
 	            if(isInContainer) {
 	                // 如果进入了容器，必定会有这个虚拟节点
@@ -160,55 +171,40 @@
 	                    	index = sourceContainer.children.length
 	                    }
 	                    sourceContainer.insertBefore(node, sourceContainer.children[index])
-
-	                    // 改变左侧图层层叠顺序，就是改变 z-index 值
-	                    // 从数组中先移除这个要改变 z-index 值的 canvas
-	                    // const moveLayer = layers.slice(nodeIndex, nodeIndex + 1)
-	                    // layers.splice(realIndex, 0, moveLayer)
-	                    // console.log(nodeIndex, index, number)
-	                    // canvas.insertBefore(canvas.children[nodeIndex], canvas.children[index])
-	                    // console.log(layers.map(layer => layer.style.zIndex))
 	            } else {
 	            	// 如果不在容器内，表示要删除该节点	
-	            	// node.style.display = 'none'
+	            	node.style.display = 'none'
 	            }
 			}
 			sourceContainer.ondragend = event => {
 				const node = event.target
 				node.className = removeClassName(node.className, 'layers__item--drag')
-				// 改变图层顺序
-				sourceContainer.insertBefore(node, sourceContainer.children[index])
-                canvas.insertBefore(canvas.children[nodeIndex], canvas.children[index])
-                // 改变 z-index 值
-                // for(let i = canvas.children.length - 1; i >= 0 ; i--) {
-                // 	const nodeIndex = Math.abs(i - canvas.children.length - 1)
-	               //  const layer = canvas.children[nodeIndex]
-	               //  console.log(nodeIndex, i)
-	               //  layer.style.zIndex = i
-                // }
-                for(let i = 0, len = canvas.children.length; i < len; i++) {
-	                const layer = canvas.children[i]
-                	const zIndex = Math.abs(i - canvas.children.length)
-                	// console.log(i, zIndex - 1)
-	                layer.style.zIndex = zIndex - 1
-                }
+				// 如果结束拖放后，拖放元素存在容器内，就是要改变顺序
+				if (isInContainer) {
+					node.style.display = 'flex'
+					// 改变图层顺序
+					sourceContainer.insertBefore(node, sourceContainer.children[index])
+	                canvas.insertBefore(canvas.children[nodeIndex], canvas.children[index])
+	                // 改变 z-index 值
+
+	                for(let i = 0, len = canvas.children.length; i < len; i++) {
+		                const layer = canvas.children[i]
+	                	const zIndex = Math.abs(i - canvas.children.length)
+	                	// console.log(i, zIndex - 1)
+		                layer.style.zIndex = zIndex - 1
+	                }
+	            // 如果不存在容器中，就是要移除图层
+				} else {
+					// 先计算出 index
+					const index = Array.from(sourceContainer.children).indexOf(node)
+					canvas.removeChild(canvas.children[index])
+					// 同时还要移除左侧的图层
+					sourceContainer.removeChild(node)
+				}
+				
 				nodeIndex = null
-				// const x = event.pageX
-				// const y = event.pageY
 
-				// console.log(isInContainer, isIn(sourceContainer, {
-				// 	x,
-				// 	y
-				// }), node.querySelector('button').getAttribute('data-index'))
 
-				// if (isIn(sourceContainer, {
-				// 	x,
-				// 	y
-				// })) {
-				// 	node.style.display = 'flex'
-				// } else {
-				// 	sourceContainer.removeChild(node)
-				// }
 			}
 		}
 
@@ -290,19 +286,16 @@
 		}
 		/* 判断某个坐标是否在指定容器内
 		 */
-		function isIn(targetContainer, position) {
-			// 目标容器在屏幕上的坐标
-		    const targetContainerX = targetContainer.offsetLeft
-		    const targetContainerY = targetContainer.offsetTop
+		function isIn(targetContainerX, targetContainerY, targetWidth, targetHeight, position) {
 		    // 
 	        const endX = position.x
 	        const endY = position.y
 
 	        if(
 	        	endX > targetContainerX 
-	        	&& endX < targetContainerX + targetContainer.clientWidth 
+	        	&& endX < targetContainerX + targetWidth
 	        	&& endY > targetContainerY 
-	        	&& endY < targetContainerY + targetContainer.clientHeight
+	        	&& endY < targetContainerY + targetHeight
 	        ) {
 	            return true
 	        }
