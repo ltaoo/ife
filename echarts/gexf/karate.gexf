@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.3" version="1.3" xmlns:viz="http://www.gexf.net/1.3/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.3 http://www.gexf.net/1.3/gexf.xsd">
+  <meta lastmodifieddate="2017-04-09">
+    <creator>Gephi 0.9</creator>
+    <description></description>
+  </meta>
+  <graph defaultedgetype="directed" mode="static">
+    <nodes>
+      <node id="1.0" label="1.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-530.38947" y="584.3212"></viz:position>
+      </node>
+      <node id="2.0" label="2.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-106.25706" y="-283.68903"></viz:position>
+      </node>
+      <node id="3.0" label="3.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="200.37035" y="-64.383354"></viz:position>
+      </node>
+      <node id="4.0" label="4.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="81.66093" y="606.83307"></viz:position>
+      </node>
+      <node id="5.0" label="5.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="378.70245" y="-362.4664"></viz:position>
+      </node>
+      <node id="6.0" label="6.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="287.23285" y="450.8129"></viz:position>
+      </node>
+      <node id="7.0" label="7.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="347.41223" y="267.93393"></viz:position>
+      </node>
+      <node id="8.0" label="8.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-138.05359" y="624.61035"></viz:position>
+      </node>
+      <node id="9.0" label="9.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="67.82519" y="-49.118313"></viz:position>
+      </node>
+      <node id="10.0" label="10.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="137.69609" y="158.13101"></viz:position>
+      </node>
+      <node id="11.0" label="11.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-730.21063" y="-55.041748"></viz:position>
+      </node>
+      <node id="12.0" label="12.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-94.17951" y="-396.9255"></viz:position>
+      </node>
+      <node id="13.0" label="13.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="383.10028" y="-133.32758"></viz:position>
+      </node>
+      <node id="14.0" label="14.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-366.1972" y="-274.03268"></viz:position>
+      </node>
+      <node id="15.0" label="15.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-106.452736" y="-86.96868"></viz:position>
+      </node>
+      <node id="16.0" label="16.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="136.86668" y="556.32385"></viz:position>
+      </node>
+      <node id="17.0" label="17.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="482.64667" y="-232.83078"></viz:position>
+      </node>
+      <node id="18.0" label="18.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-203.9493" y="-169.00128"></viz:position>
+      </node>
+      <node id="19.0" label="19.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-294.90457" y="-90.30715"></viz:position>
+      </node>
+      <node id="20.0" label="20.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-79.958534" y="-283.3515"></viz:position>
+      </node>
+      <node id="21.0" label="21.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-417.95795" y="-368.50723"></viz:position>
+      </node>
+      <node id="22.0" label="22.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="488.2978" y="-326.25443"></viz:position>
+      </node>
+      <node id="23.0" label="23.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="136.69005" y="-145.60504"></viz:position>
+      </node>
+      <node id="24.0" label="24.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="124.00799" y="-175.39717"></viz:position>
+      </node>
+      <node id="25.0" label="25.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="117.08581" y="-201.93845"></viz:position>
+      </node>
+      <node id="26.0" label="26.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="322.1784" y="247.436"></viz:position>
+      </node>
+      <node id="27.0" label="27.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-326.588" y="-537.3707"></viz:position>
+      </node>
+      <node id="28.0" label="28.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-695.8095" y="377.60117"></viz:position>
+      </node>
+      <node id="29.0" label="29.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-92.156685" y="142.86545"></viz:position>
+      </node>
+      <node id="30.0" label="30.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-244.81624" y="-277.10153"></viz:position>
+      </node>
+      <node id="31.0" label="31.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-695.5167" y="-278.36636"></viz:position>
+      </node>
+      <node id="32.0" label="32.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="460.95764" y="340.2629"></viz:position>
+      </node>
+      <node id="33.0" label="33.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="62.253227" y="193.1022"></viz:position>
+      </node>
+      <node id="34.0" label="34.0">
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-66.81138" y="-218.48663"></viz:position>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="0" source="2.0" target="1.0"></edge>
+      <edge id="1" source="3.0" target="1.0"></edge>
+      <edge id="2" source="3.0" target="2.0"></edge>
+      <edge id="3" source="4.0" target="1.0"></edge>
+      <edge id="4" source="4.0" target="2.0"></edge>
+      <edge id="5" source="4.0" target="3.0"></edge>
+      <edge id="6" source="5.0" target="1.0"></edge>
+      <edge id="7" source="6.0" target="1.0"></edge>
+      <edge id="8" source="7.0" target="1.0"></edge>
+      <edge id="9" source="7.0" target="5.0"></edge>
+      <edge id="10" source="7.0" target="6.0"></edge>
+      <edge id="11" source="8.0" target="1.0"></edge>
+      <edge id="12" source="8.0" target="2.0"></edge>
+      <edge id="13" source="8.0" target="3.0"></edge>
+      <edge id="14" source="8.0" target="4.0"></edge>
+      <edge id="15" source="9.0" target="1.0"></edge>
+      <edge id="16" source="9.0" target="3.0"></edge>
+      <edge id="17" source="10.0" target="3.0"></edge>
+      <edge id="18" source="11.0" target="1.0"></edge>
+      <edge id="19" source="11.0" target="5.0"></edge>
+      <edge id="20" source="11.0" target="6.0"></edge>
+      <edge id="21" source="12.0" target="1.0"></edge>
+      <edge id="22" source="13.0" target="1.0"></edge>
+      <edge id="23" source="13.0" target="4.0"></edge>
+      <edge id="24" source="14.0" target="1.0"></edge>
+      <edge id="25" source="14.0" target="2.0"></edge>
+      <edge id="26" source="14.0" target="3.0"></edge>
+      <edge id="27" source="14.0" target="4.0"></edge>
+      <edge id="28" source="17.0" target="6.0"></edge>
+      <edge id="29" source="17.0" target="7.0"></edge>
+      <edge id="30" source="18.0" target="1.0"></edge>
+      <edge id="31" source="18.0" target="2.0"></edge>
+      <edge id="32" source="20.0" target="1.0"></edge>
+      <edge id="33" source="20.0" target="2.0"></edge>
+      <edge id="34" source="22.0" target="1.0"></edge>
+      <edge id="35" source="22.0" target="2.0"></edge>
+      <edge id="36" source="26.0" target="24.0"></edge>
+      <edge id="37" source="26.0" target="25.0"></edge>
+      <edge id="38" source="28.0" target="3.0"></edge>
+      <edge id="39" source="28.0" target="24.0"></edge>
+      <edge id="40" source="28.0" target="25.0"></edge>
+      <edge id="41" source="29.0" target="3.0"></edge>
+      <edge id="42" source="30.0" target="24.0"></edge>
+      <edge id="43" source="30.0" target="27.0"></edge>
+      <edge id="44" source="31.0" target="2.0"></edge>
+      <edge id="45" source="31.0" target="9.0"></edge>
+      <edge id="46" source="32.0" target="1.0"></edge>
+      <edge id="47" source="32.0" target="25.0"></edge>
+      <edge id="48" source="32.0" target="26.0"></edge>
+      <edge id="49" source="32.0" target="29.0"></edge>
+      <edge id="50" source="33.0" target="3.0"></edge>
+      <edge id="51" source="33.0" target="9.0"></edge>
+      <edge id="52" source="33.0" target="15.0"></edge>
+      <edge id="53" source="33.0" target="16.0"></edge>
+      <edge id="54" source="33.0" target="19.0"></edge>
+      <edge id="55" source="33.0" target="21.0"></edge>
+      <edge id="56" source="33.0" target="23.0"></edge>
+      <edge id="57" source="33.0" target="24.0"></edge>
+      <edge id="58" source="33.0" target="30.0"></edge>
+      <edge id="59" source="33.0" target="31.0"></edge>
+      <edge id="60" source="33.0" target="32.0"></edge>
+      <edge id="61" source="34.0" target="9.0"></edge>
+      <edge id="62" source="34.0" target="10.0"></edge>
+      <edge id="63" source="34.0" target="14.0"></edge>
+      <edge id="64" source="34.0" target="15.0"></edge>
+      <edge id="65" source="34.0" target="16.0"></edge>
+      <edge id="66" source="34.0" target="19.0"></edge>
+      <edge id="67" source="34.0" target="20.0"></edge>
+      <edge id="68" source="34.0" target="21.0"></edge>
+      <edge id="69" source="34.0" target="23.0"></edge>
+      <edge id="70" source="34.0" target="24.0"></edge>
+      <edge id="71" source="34.0" target="27.0"></edge>
+      <edge id="72" source="34.0" target="28.0"></edge>
+      <edge id="73" source="34.0" target="29.0"></edge>
+      <edge id="74" source="34.0" target="30.0"></edge>
+      <edge id="75" source="34.0" target="31.0"></edge>
+      <edge id="76" source="34.0" target="32.0"></edge>
+      <edge id="77" source="34.0" target="33.0"></edge>
+    </edges>
+  </graph>
+</gexf>

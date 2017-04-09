@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>ECharts No.6 - 绘制人物关系图</title>
+    <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script src="//cdn.bootcss.com/echarts/3.4.0/echarts.js"></script>
+    <script src="./extension/dataTool.min.js"></script>
+</head>
+<body>
+    <div id="main" style = "width: 800px; height: 600px;"></div>
+    <script>
+        function init () {
+            const myChart = echarts.init(document.getElementById('main'))
+            myChart.showLoading()
+            $.get('./gexf/karate.gexf', xml => {
+                myChart.hideLoading()
+                // 使用 dataTool 解析 gexf 数据
+                const graph = echarts.dataTool.gexf.parse(xml)
+                console.log(graph)
+                // 对节点进行遍历
+                graph.nodes.forEach(node => {
+                    node.itemStyle = null
+                    node.symbolSize = 10
+                    node.value = node.symbolSize
+                    // 这个是用来分类的属性
+                    // node.category = node.attributes.modularity_class
+                    // 使用随机 x y ？
+                    node.x = node.y = null
+                    node.draggable = true
+                })
+                // 创建分类
+                // const categories = []
+                // for (let i = 0; i < 9; i++) {
+                //     categories[i] = {
+                //         name: `类目 ${i}`
+                //     }
+                // }
+                // 创建配置项
+                const option = {
+                    title: {
+                        text: 'Karate club'
+                    },
+                    // legend: [
+                    //     {
+                    //         data: categories.map(cate => {
+                    //             return cate.name
+                    //         })
+                    //     }
+                    // ],
+                    animation: false,
+                    series: [
+                        {
+                            name: 'Karate club',
+                            type: 'graph',
+                            // 径向
+                            layout: 'circular',
+                            // layout: 'force',
+                            data: graph.nodes,
+                            links: graph.links,
+                            // categories,
+                            // ?
+                            roam: true,
+                            label: {
+                                normal: {
+                                    position: 'right'
+                                }
+                            },
+                            force: {
+                                repulsion: 100
+                            }
+                        }
+                    ]
+                }
+
+                // 创建图表
+                myChart.setOption(option)
+            }, 'xml')
+        }
+
+        init()
+    </script>
+</body>
+</html>
