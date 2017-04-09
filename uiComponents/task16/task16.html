@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>分层画布</title>
+	<style>
+		#canvas {
+			position: relative;
+			display: inline-block;
+			width: 600px;
+			height: 360px;
+			border: 1px solid #666;
+		}
+		#layers {
+			display: inline-block;
+			height: 360px;
+			min-width: 210px;
+			border: 1px solid #666;
+			overflow-y: auto;
+		}
+		.layer {
+			position: absolute;
+		}
+		.layers__item {
+			display: flex;
+			border: 1px solid #ccc;
+			padding: 0 10px;
+			cursor: pointer;
+		}
+		.layers__item:last-child {
+		}
+		.layers__item--drag {
+			border-style: dashed;
+		}
+		.layers__control {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-right: 10px;
+		}
+	</style>
+</head>
+<body>
+	<input type="color" id="color"><br>
+	<div id="canvas"></div>
+	<div id="layers"></div>
+	<script src="./src/utils.js"></script>
+	<script src="./src/main.js"></script>
+	<script>
+		init()
+	</script>
+</body>
+</html>
