@@ -179,6 +179,19 @@
 				// 改变图层顺序
 				sourceContainer.insertBefore(node, sourceContainer.children[index])
                 canvas.insertBefore(canvas.children[nodeIndex], canvas.children[index])
+                // 改变 z-index 值
+                // for(let i = canvas.children.length - 1; i >= 0 ; i--) {
+                // 	const nodeIndex = Math.abs(i - canvas.children.length - 1)
+	               //  const layer = canvas.children[nodeIndex]
+	               //  console.log(nodeIndex, i)
+	               //  layer.style.zIndex = i
+                // }
+                for(let i = 0, len = canvas.children.length; i < len; i++) {
+	                const layer = canvas.children[i]
+                	const zIndex = Math.abs(i - canvas.children.length)
+                	// console.log(i, zIndex - 1)
+	                layer.style.zIndex = zIndex - 1
+                }
 				nodeIndex = null
 				// const x = event.pageX
 				// const y = event.pageY
@@ -207,6 +220,7 @@
 			newLayer.width = 600
 			newLayer.height = 360
 			newLayer.className = 'layer'
+			newLayer.setAttribute('data-index', index)
 			// 将新创建的图层加入到图层列表中，并且设置 z-index 值总是比之前的更大
 			newLayer.style.zIndex = index
 			// 放入页面上的容器中
