@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+    <script src="./src/fakeVelocity.js"></script>
+    <style>
+        #demo {
+            width: 300px;
+            height: 180px;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="demo"></div>
+    <script>
+        window.onload = function () {
+            const animateEl = new Animation(document.querySelector('#demo'))
+            animateEl.animation({
+                opacity: 0.5
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>封装 DOM 动画类库（一）</title>
+    <style>
+        .demo {
+            width: 300px;
+            height: 180px;
+            background-color: red;
+        }
+    </style>
+    <script src="./dep/jquery.min.js"></script>
+    <script src="./dep/jquery.velocity.js"></script>
+</head>
+<body>
+    <div class="demo"></div>
+    <button id="run">点击执行动画</button>
+    <script>
+        window.onload = function () {
+            // 监听按钮点击事件
+            $('#run').bind('click', function () {
+                // 将 demo 元素的透明度修改为 0.5，有两种调用方式，这两种方式是由一句代码实现的
+                // $.fn.velocity = $.velocity.animate = function() {...}   
+                // 1、
+                $('.demo').velocity({
+                    opacity: 0.5
+                })
+                // 2、
+                // $.velocity.animate($('.demo'), {
+                //     opacity: 0.5
+                // })
+            })
+        }
+    </script>
+</body>
+</html>
