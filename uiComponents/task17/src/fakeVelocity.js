@@ -5,8 +5,29 @@
     }
     // 给指定 dom 设置值
     function setPropertyValue (element, property, value) {
-        element.style[property] = value
-        return [property, value]
+        let propertyName = property
+        /********************
+          声明需要额外处理的属性
+        *********************/
+        const transformProperties = [ "translateX", "translateY", "translateZ", "scale", "scaleX", "scaleY", "scaleZ", "skewX", "skewY", "rotateX", "rotateY", "rotateZ" ]
+        const Normalizations = {
+            registered: {}
+        }
+        // 如果这个属性是需要额外处理的
+        for(let i = 0, len = transformProperties.length; i < len; i++) {
+            const transformName = transformProperties[i]
+            Normalizations.registered[transformName] = function (propertyValue) {
+                return transformName + '(' + propertyValue + ')'
+            }
+        }
+        let propertyValue = value
+        // 判断是否需要额外处理
+        if (Normalizations.registered[property]) {
+            propertyName = 'transform'
+            propertyValue = Normalizations.registered[property](value)
+        }
+        console.log(propertyName, propertyValue)
+        element.style[propertyName] = propertyValue
     }
     // 分割值与单位
     function separateValue (property, value) {
@@ -64,12 +85,10 @@
         for(let property in propertiesMap) {
             // 拿到开始值
             const startSeparatedValue = separateValue(property, getPropertyValue(element, property))
-            console.log(startSeparatedValue)
-            const startValue = parseFloat(startSeparatedValue[0])
+            const startValue = parseFloat(startSeparatedValue[0]) || 0
             const startValueUnitType = startSeparatedValue[1]
             // 结束值
             const endSeparatedValue = separateValue(property, propertiesMap[property])
-            console.log(endSeparatedValue)
             const endValue = parseFloat(endSeparatedValue[0]) || 0
             const endValueUnitType = endSeparatedValue[1]
 
@@ -99,6 +118,8 @@
             for(let property in propertiesContainer) {
                 // 拿到该属性当前值，一开始是 startValue
                 const tween = propertiesContainer[property]
+
+                
                 // 如果动画执行完成
                 if (percentComplete === 1) {
                     currentValue = tween.endValue

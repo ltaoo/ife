@@ -9,7 +9,6 @@
             width: 300px;
             height: 180px;
             background-color: red;
-            transform: rotate(30deg)
         }
     </style>
 </head>
@@ -21,10 +20,10 @@
             document.querySelector('#run').onclick = function () {
                 const animateEl = new Animation(document.querySelector('#demo'))
                 animateEl.animation({
-                    opacity: 0.5,
+                    // opacity: 0.5,
                     width: '50%',
                     height: '300px',
-                    rotateZ: '90deg'
+                    rotateZ: '30deg'
                 })
             }
         }

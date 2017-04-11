@@ -895,9 +895,11 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                     /* Perform a normalization injection. */
                     /* Note: The normalization logic handles the transformCache updating. */
                     CSS.Normalizations.registered[property]("inject", element, propertyValue);
-
+                    console.log(CSS.Normalizations.registered)
                     propertyName = "transform";
                     propertyValue = $.data(element, NAME).transformCache[property];
+                    // console.log($.data(element, NAME).transformCache)
+                    console.log(propertyValue)
                 } else {
                     /* Inject hooks. */
                     if (CSS.Hooks.registered[property]) {
@@ -928,7 +930,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                     } else {
                         element.style[propertyName] = propertyValue;
                     }
-
                     if ($.velocity.debug >= 2) console.log("Set " + property + " (" + propertyName + "): " + propertyValue);
                 }
             }
@@ -956,7 +957,7 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
 
                 transformString += transformName + transformValue + " ";
             }
-
+            // 
             CSS.setPropertyValue(element, "transform", transformString);
         }
     };    
@@ -2041,6 +2042,10 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                                 currentValue = tween.endValue;
                             /* Otherwise, calculate currentValue based on the current delta from startValue. */
                             } else {
+                                console.log(property)
+                                if (property === 'rotateZ') {
+                                    console.log(tween)
+                                }
                                 currentValue = tween.startValue + ((tween.endValue - tween.startValue) * $.easing[tween.easing](percentComplete));
                             }
 
