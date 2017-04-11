@@ -1554,7 +1554,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
 
                         /* Separate startValue. */
                         separatedValue = separateValue(property, startValue);
-                        console.log(separatedValue)
                         startValue = separatedValue[0];
                         startValueUnitType = separatedValue[1];
 

@@ -9,10 +9,35 @@
         return [property, value]
     }
     // 分割值与单位
-    function separateValue (value) {
+    function separateValue (property, value) {
         // 只处理两种简单的情况，没有单位和单位为 px
-        const result = /([0-9]+)([a-z]{2})?/.exec(value)
-        return [result[1], result[2] || '']
+        let unitType,
+            numericValue
+        // replace 是字符串的方法，如果是数值类型则没有 replace 方法
+        numericValue = value.toString().replace(/[%A-z]+$/, function(match) {
+            unitType = match
+            return ""
+        })
+
+        // 如果没有获取到单位，就根据属性来获取
+        function getUnitType (property) {
+            if (/^(rotate|skew)/i.test(property)) {
+                // 这两个属性值单位是 deg ，有点特殊
+                return "deg"
+            } else if (/(^(scale|scaleX|scaleY|scaleZ|opacity|alpha|fillOpacity|flexGrow|flexHeight|zIndex|fontWeight)$)|color/i.test(property)) {
+                // 这些属性值都是没有单位的
+                return ""
+            } else {
+                // 如果都没有匹配到，就默认是 px
+                return "px"
+            }
+        }
+
+        if (!unitType) {
+            unitType = getUnitType(property)
+        }
+
+        return [ numericValue, unitType ]
     }
 
     /* ========================
@@ -37,13 +62,14 @@
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
-            const startSeparatedValue = separateValue(getPropertyValue(element, property))
+            const startSeparatedValue = separateValue(property, getPropertyValue(element, property))
+            console.log(startSeparatedValue)
             // 拿到开始值
             const startValue = startSeparatedValue[0]
             // 单位值
             const unitType = startSeparatedValue[1]
-            // 先处理简单的情况，假设只能改变一个属性
-            const endSeparatedValue = separateValue(propertiesMap[property])
+            const endSeparatedValue = separateValue(property, propertiesMap[property])
+            console.log(endSeparatedValue)
             // 结束值
             const endValue = endSeparatedValue[0]
             // 将上面的值都保存到 propertiesContainer 中 参考源码 1812
@@ -81,8 +107,9 @@
                     currentValue = parseFloat(tween.startValue) + ((tween.endValue - tween.startValue) * Animation.easing['swing'](percentComplete))
                     tween.currentValue = currentValue
                 }
+                console.log(currentValue)
                 // 改变 dom 的属性值
-                setPropertyValue(element, property, currentValue + tween.unitType)
+                // setPropertyValue(element, property, currentValue + tween.unitType)
                 // 终止调用 tick
                 if (percentComplete === 1) {
                     isTicking = false
@@ -94,7 +121,7 @@
             }
         }
 
-        tick()
+        // tick()
     }
 
     // 暴露至全局
