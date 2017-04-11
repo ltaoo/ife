@@ -62,22 +62,21 @@
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
+            // 拿到开始值
             const startSeparatedValue = separateValue(property, getPropertyValue(element, property))
             console.log(startSeparatedValue)
-            // 拿到开始值
-            const startValue = startSeparatedValue[0]
-            // 单位值
-            const unitType = startSeparatedValue[1]
+            const startValue = parseFloat(startSeparatedValue[0])
+            const startValueUnitType = startSeparatedValue[1]
+            // 结束值
             const endSeparatedValue = separateValue(property, propertiesMap[property])
             console.log(endSeparatedValue)
-            // 结束值
-            const endValue = endSeparatedValue[0]
-            // 将上面的值都保存到 propertiesContainer 中 参考源码 1812
+            const endValue = parseFloat(endSeparatedValue[0]) || 0
+            const endValueUnitType = endSeparatedValue[1]
+
             propertiesContainer[property] = {
                 startValue,
                 endValue,
-                unitType,
-                currentValue: startValue
+                unitType: endValueUnitType
             }
         }
         let timeStart
@@ -107,9 +106,8 @@
                     currentValue = parseFloat(tween.startValue) + ((tween.endValue - tween.startValue) * Animation.easing['swing'](percentComplete))
                     tween.currentValue = currentValue
                 }
-                console.log(currentValue)
                 // 改变 dom 的属性值
-                // setPropertyValue(element, property, currentValue + tween.unitType)
+                setPropertyValue(element, property, currentValue + tween.unitType)
                 // 终止调用 tick
                 if (percentComplete === 1) {
                     isTicking = false
@@ -121,7 +119,7 @@
             }
         }
 
-        // tick()
+        tick()
     }
 
     // 暴露至全局

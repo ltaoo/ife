@@ -1463,7 +1463,7 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                             easing = valueData[1],
                             startValue = valueData[2];
 
-                        console.log(valueData)
+                        // console.log(valueData)
 
                         /* Now that the original property name's format has been used for the parsePropertyValue() lookup above, we force the property to its camelCase styling to normalize it for manipulation. */
                         property = CSS.Names.camelCase(property);
@@ -1730,7 +1730,7 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                             } else { 
                                 /* By this point, we cannot avoid unit conversion (it's undesirable since it causes layout thrashing). If we haven't already, we trigger calculateUnitRatios(), which runs once per element per call. */
                                 elementUnitRatios = elementUnitRatios || calculateUnitRatios();
-
+                                console.log(elementUnitRatios)
                                 /* The following RegEx matches CSS properties that have their % values measured relative to the x-axis. */
                                 /* Note: W3C spec mandates that all of margin and padding's properties (even top and bottom) are %-relative to the *width* of the parent element, so they're included in this expression. */
                                 var axis = (/margin|padding|left|right|width|text|word|letter/i.test(property) || /X$/.test(property)) ? "x" : "y";
@@ -1806,7 +1806,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                         /**************************
                            tweensContainer Push
                         **************************/
-
                         /* Construct the per-property tween object, and push it to the element's tweensContainer. */
                         tweensContainer[property] = {
                             rootPropertyValue: rootPropertyValue,
@@ -1816,6 +1815,7 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                             unitType: endValueUnitType,
                             easing: easing
                         };
+                        console.log(tweensContainer[property])
 
                         if ($.velocity.debug) console.log("tweensContainer (" + property + "): " + JSON.stringify(tweensContainer[property]), element);
                     }
