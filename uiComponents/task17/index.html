@@ -7,11 +7,12 @@
         .demo {
             width: 300px;
             height: 180px;
-            background-color: red;
+            background: rgb(234, 235, 235);
         }
     </style>
     <script src="./dep/jquery.min.js"></script>
     <script src="./dep/jquery.velocity.js"></script>
+    <!-- <script src="./dep/velocity.1.5.0.js"></script> -->
 </head>
 <body>
     <div class="demo"></div>
@@ -26,8 +27,11 @@
                 $('.demo').velocity({
                     // opacity: 0.5,
                     width: '50%',
-                    height: '300px',
-                    rotateZ: '30deg'
+                    // height: '300px',
+                    // rotateZ: '30deg',
+                    // backgroundColor: 'rgb(0, 255, 255)'
+                }, {
+                    duration: 4000
                 })
                 // 2、
                 // $.velocity.animate($('.demo'), {

@@ -863,7 +863,11 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
             /* If a value wasn't produced via hook extraction or normalization, query the DOM. */
             if (!/^[\d-]/.test(propertyValue)) {
                 propertyValue = computePropertyValue(element, CSS.Names.prefixCheck(property)[0]); /* GET */
+                // propertyValue = computePropertyValue(element, null); /* GET */
             }
+            // if (property === 'width') {
+            //     console.log(element, propertyValue, CSS.Names.prefixCheck(property)[0])
+            // }
 
             /* Since property lookups are for animation purposes (which entails computing the numeric delta between start and end values), convert CSS null-values to an integer of value 0. */
             if (CSS.Values.isCSSNullValue(propertyValue)) {
@@ -1605,6 +1609,8 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                         /* Todo: Shift this logic into the calls' first tick instance so that it's synced with RAF. */
                         /* Todo: Store the original values and skip re-setting if we're animating height or width in the properties map. */
                         function calculateUnitRatios () {
+
+                                console.log(element, getComputedStyle(element, null).getPropertyValue('width'), 'pre-2')
                             /* The properties below are used to determine whether the element differs sufficiently from this call's prior element to also differ in its unit conversion ratio.
                                If the properties match up with those of the prior element, the prior element's conversion ratios are used. Like most optimizations in Velocity, this is done to minimize DOM querying. */
                             var sameRatioIndicators = {
@@ -1661,32 +1667,38 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                             /* Since % values are relative to their respective axes, ratios are calculated for both width and height. In contrast, only a single ratio is required for rem and em. */
                             /* When calculating % values, we set a flag to indiciate that we want the computed value instead of offsetWidth/Height, which incorporate additional dimensions (such as padding and border-width) into their values. */
                             originalValues.width = CSS.getPropertyValue(element, "width", null, true); /* GET */
+                            console.log(originalValues.width, '1')
+                            
+                            console.log(element, getComputedStyle(element, null).getPropertyValue('width'), 'pre-2')
                             originalValues.minWidth = CSS.getPropertyValue(element, "minWidth"); /* GET */
                             /* Note: max-width/height must default to "none" when 0 is returned, otherwise the element cannot have its width/height set. */
                             originalValues.maxWidth = CSS.getPropertyValue(element, "maxWidth") || "none"; /* GET */
-
                             originalValues.height = CSS.getPropertyValue(element, "height", null, true); /* GET */
                             originalValues.minHeight = CSS.getPropertyValue(element, "minHeight"); /* GET */
                             originalValues.maxHeight = CSS.getPropertyValue(element, "maxHeight") || "none"; /* GET */
 
                             originalValues.paddingLeft = CSS.getPropertyValue(element, "paddingLeft"); /* GET */
-
+                            // console.log(sameBasePercent) // false
                             if (sameBasePercent) {
                                 elementUnitRatios.percentToPxRatioWidth = unitConversionRatios.lastPercentToPxWidth;
                                 elementUnitRatios.percentToPxRatioHeight = unitConversionRatios.lastPercentToPxHeight;
                             } else {
-                                CSS.setPropertyValue(element, "overflowX",  "hidden"); /* SET */
-                                CSS.setPropertyValue(element, "overflowY",  "hidden"); /* SET */
-                                CSS.setPropertyValue(element, "boxSizing",  "content-box"); /* SET */
-
+                                // CSS.setPropertyValue(element, "overflowX",  "hidden"); /* SET */
+                                // CSS.setPropertyValue(element, "overflowY",  "hidden"); /* SET */
+                                // CSS.setPropertyValue(element, "boxSizing",  "content-box"); /* SET */
+                                // console.log(measurement)
                                 CSS.setPropertyValue(element, "width", measurement + "%"); /* SET */
-                                CSS.setPropertyValue(element, "minWidth", measurement + "%"); /* SET */
-                                CSS.setPropertyValue(element, "maxWidth", measurement + "%"); /* SET */
+                            // console.log(CSS.getPropertyValue(element, "width", null, true)) /* GET */
+                                // CSS.setPropertyValue(element, "minWidth", measurement + "%"); /* SET */
+                                // 这个必须存在
+                                // CSS.setPropertyValue(element, "maxWidth", measurement + "%"); /* SET */
 
-                                CSS.setPropertyValue(element, "height",  measurement + "%"); /* SET */
-                                CSS.setPropertyValue(element, "minHeight",  measurement + "%"); /* SET */
-                                CSS.setPropertyValue(element, "maxHeight",  measurement + "%"); /* SET */
+                                // CSS.setPropertyValue(element, "height",  measurement + "%"); /* SET */
+                                // CSS.setPropertyValue(element, "minHeight",  measurement + "%"); /* SET */
+                                // CSS.setPropertyValue(element, "maxHeight",  measurement + "%"); /* SET */
                             }
+
+                                console.log(element, getComputedStyle(element, null).getPropertyValue('width'), 'pre-2')
 
                             if (sameBaseEm) {
                                 elementUnitRatios.emToPxRatio = unitConversionRatios.lastEmToPx;
@@ -1697,7 +1709,9 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                             /* The following pixel-value GETs cannot be batched with the prior GETs since they depend upon the values temporarily set immediately above; layout thrashing cannot be avoided here. */
                             if (!sameBasePercent) {
                                 /* Divide the returned value by the measurement value to get the ratio between 1% and 1px. Default to 1 since conversion logic using 0 can produce Infinite. */
+                                console.log(element, getComputedStyle(element, null).getPropertyValue('width'), 'pre-2')
                                 elementUnitRatios.percentToPxRatioWidth = unitConversionRatios.lastPercentToPxWidth = (parseFloat(CSS.getPropertyValue(element, "width", null, true)) || 1) / measurement; /* GET */
+                                // console.log(elementUnitRatios, CSS.getPropertyValue(element, "width", null, true))
                                 elementUnitRatios.percentToPxRatioHeight = unitConversionRatios.lastPercentToPxHeight = (parseFloat(CSS.getPropertyValue(element, "height", null, true)) || 1) / measurement; /* GET */
                             }
 
@@ -1731,7 +1745,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                             } else { 
                                 /* By this point, we cannot avoid unit conversion (it's undesirable since it causes layout thrashing). If we haven't already, we trigger calculateUnitRatios(), which runs once per element per call. */
                                 elementUnitRatios = elementUnitRatios || calculateUnitRatios();
-                                console.log(elementUnitRatios)
                                 /* The following RegEx matches CSS properties that have their % values measured relative to the x-axis. */
                                 /* Note: W3C spec mandates that all of margin and padding's properties (even top and bottom) are %-relative to the *width* of the parent element, so they're included in this expression. */
                                 var axis = (/margin|padding|left|right|width|text|word|letter/i.test(property) || /X$/.test(property)) ? "x" : "y";
@@ -1761,6 +1774,7 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                                 /* Invert the px ratios to convert into to the target unit. */
                                 switch (endValueUnitType) {
                                     case "%":
+                                        console.log(startValue, axis, elementUnitRatios.percentToPxRatioWidth)
                                         startValue *= 1 / (axis === "x" ? elementUnitRatios.percentToPxRatioWidth : elementUnitRatios.percentToPxRatioHeight); 
                                         break;
 
@@ -2042,10 +2056,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                                 currentValue = tween.endValue;
                             /* Otherwise, calculate currentValue based on the current delta from startValue. */
                             } else {
-                                console.log(property)
-                                if (property === 'rotateZ') {
-                                    console.log(tween)
-                                }
                                 currentValue = tween.startValue + ((tween.endValue - tween.startValue) * $.easing[tween.easing](percentComplete));
                             }
 

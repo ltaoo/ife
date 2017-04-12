@@ -56,6 +56,12 @@
         }
         return [ numericValue, unitType ]
     }
+    // 计算换算比率
+    function calculateUnitRatios (element, property) {
+        const measurement = 10
+        setPropertyValue(element, property, measurement + '%')
+        return (parseFloat(getPropertyValue(element, property)) || 1) / measurement
+    }
     /* ========================
      * 构造函数
     =========================*/
@@ -73,19 +79,24 @@
         const element = this.element
         // 默认参数
         const opts = {
-            duration: 400
+            duration: 4000
         }
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
             // 拿到开始值
             const startSeparatedValue = separateValue(property, getPropertyValue(element, property))
-            const startValue = parseFloat(startSeparatedValue[0]) || 0
+            let startValue = parseFloat(startSeparatedValue[0]) || 0
             const startValueUnitType = startSeparatedValue[1]
             // 结束值
             const endSeparatedValue = separateValue(property, propertiesMap[property])
             const endValue = parseFloat(endSeparatedValue[0]) || 0
             const endValueUnitType = endSeparatedValue[1]
+
+            if (startValueUnitType !== endValueUnitType) {
+                const ratios = calculateUnitRatios(element, property)
+                startValue *= 1 / ratios
+            }
 
             propertiesContainer[property] = {
                 startValue,
