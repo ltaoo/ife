@@ -67,6 +67,7 @@
     =========================*/
     function Animation (element) {
         this.element = element
+        this.isTicking = true
     }
     // easing 缓动函数
     Animation.easing = {
@@ -105,8 +106,7 @@
             }
         }
         let timeStart
-        // 终止动画标志
-        let isTicking = true
+        const _this = this
         // 核心动画函数
         function tick () {
             // 当前时间
@@ -140,7 +140,7 @@
                     opts.complete.call(null)
                 }
             }
-            if (isTicking) {
+            if (_this.isTicking) {
                 requestAnimationFrame(tick)
             }
         }
@@ -162,6 +162,10 @@
         this.animation({
             height: originHeight
         })
+    }
+    // 终止动画
+    Animation.prototype.stop = function () {
+        this.isTicking = false
     }
     // 暴露至全局
     window.Animation = Animation
