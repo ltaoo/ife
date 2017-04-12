@@ -53,10 +53,11 @@
                 // ]
                 // Animation.runSequence(mySequence)
                 // 预定义动画
-                animateEl.animated({
-                    opacity: [1, 0],
-                    translateX: [0, -20]
-                })
+                // animateEl.animated({
+                //     opacity: [1, 0],
+                //     translateX: [0, -20]
+                // })
+                animateEl.effect('transition.slideLeftIn')
             }
             document.querySelector('#slideup').onclick = function () {
                 animateEl.slideUp()
