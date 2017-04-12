@@ -75,8 +75,7 @@
         }
     }
     // 暴露的动画接口
-    Animation.prototype.animation = function (propertiesMap, options={}) {
-        const element = this.element
+    Animation.prototype.animation = function (element, propertiesMap, options={}) {
         // 使用配置项覆盖默认参数
         const opts = Object.assign({
             duration: 400
@@ -148,6 +147,23 @@
             opts.begin.call(null)
         }
         tick()
+    }
+    Animation.prototype.slideUp = function () {
+        const element = this.element
+        const animation = this.animation
+        // 记住原始高度
+        this.originHeight = getPropertyValue(element, 'height')
+        animation(element, {
+            height: '0px'
+        })
+    }
+    Animation.prototype.slideDown = function () {
+        const element = this.element
+        const animation = this.animation
+        const originHeight = this.originHeight
+        animation(element, {
+            height: originHeight
+        })
     }
     // 暴露至全局
     window.Animation = Animation

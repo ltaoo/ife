@@ -15,11 +15,13 @@
 <body>
     <div id="demo"></div>
     <button id="run">点击执行动画</button>
+    <button id="slideup">滑动隐藏</button>
+    <button id="slidedown">滑动展示</button>
     <script>
         window.onload = function () {
+            const animateEl = new Animation(document.querySelector('#demo'))
             document.querySelector('#run').onclick = function () {
-                const animateEl = new Animation(document.querySelector('#demo'))
-                animateEl.animation({
+                animateEl.animation(document.querySelector('#demo'), {
                     opacity: 0.5,
                     width: '50%',
                     rotateZ: '90deg'
@@ -28,6 +30,12 @@
                         alert('animation is begin')
                     }
                 })
+            }
+            document.querySelector('#slideup').onclick = function () {
+                animateEl.slideUp()
+            }
+            document.querySelector('#slidedown').onclick = function () {
+                animateEl.slideDown()
             }
         }
     </script>
