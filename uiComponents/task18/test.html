@@ -11,25 +11,28 @@
         }
     </style>
     <script src="./dep/jquery.min.js"></script>
-    <script src="./dep/velocity.1.5.0.js"></script>
-    <script src="./dep/velocity.ui.js"></script>
+    <!-- <script src="./dep/velocity.1.5.0.js"></script> -->
+    <!-- <script src="./dep/velocity.ui.js"></script> -->
+    <script src="./dep/jquery.velocity.js"></script>
 </head>
 <body>
     <div class="demo demo1"></div>
-    <div class="demo demo2"></div>
-    <div class="demo demo3"></div>
+    <!-- <div class="demo demo2"></div>
+    <div class="demo demo3"></div> -->
     <button id="run">点击执行动画</button>
     <script>
         window.onload = function () {
             // 监听按钮点击事件
             $('#run').bind('click', function () {
-                var mySequence = [
-                    { e: $('.demo1'), p: { translateX: 100 }, o: { duration: 1000 } },
-                    { e: $('.demo2'), p: { translateX: 200 }, o: { duration: 1000 } },
-                    { e: $('.demo3'), p: { translateX: 300 }, o: { duration: 1000 } }
-                ];
-                $.Velocity.RunSequence(mySequence);
+                // var mySequence = [
+                //     { e: $('.demo1'), p: { translateX: 100 }, o: { duration: 1000 } },
+                //     { e: $('.demo2'), p: { translateX: 200 }, o: { duration: 1000 } },
+                //     { e: $('.demo3'), p: { translateX: 300 }, o: { duration: 1000 } }
+                // ];
+                // $.Velocity.RunSequence(mySequence);
+                // $('.demo1').velocity("transition.slideLeftIn")
             })
+                $('.demo1').velocity({opacity: [1, 0], translateX: [0, -20], translateZ: 0})
         }
     </script>
 </body>

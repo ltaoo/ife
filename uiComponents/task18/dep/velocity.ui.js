@@ -249,7 +249,7 @@
 							opts.visibility = redirectOptions.visibility;
 						}
 					}
-
+					console.log(propertyMap, opts)
 					Velocity.animate(element, propertyMap, opts);
 				}
 			};

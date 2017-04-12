@@ -13,6 +13,17 @@
             return transformName + '(' + propertyValue + ')'
         }
     }
+    // 解析属性值，主要是处理属性值可能是数组的情况
+    function parsePropertyValue (value) {
+        let endValue, startValue
+        if (Object.prototype.toString.call(value) === '[object Array]') {
+            endValue = value[0]
+            startValue = value[1]
+        } else {
+            endValue = value
+        }
+        return [endValue, startValue]
+    }
     // 获取指定 dom 的指定属性值
     function getPropertyValue (element, property) {
         return window.getComputedStyle(element, null).getPropertyValue(property)
@@ -87,19 +98,28 @@
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
+            const valueAry = parsePropertyValue(propertiesMap[property])
+            console.log(valueAry)
+            let endValue = valueAry[0]
+            let startValue = valueAry[1]
             // 拿到开始值
-            const startSeparatedValue = separateValue(property, getPropertyValue(element, property))
-            let startValue = parseFloat(startSeparatedValue[0]) || 0
+            if (startValue === undefined) {
+                startValue = getPropertyValue(element, property)
+            }
+            const startSeparatedValue = separateValue(property, startValue)
+            startValue = parseFloat(startSeparatedValue[0]) || 0
             const startValueUnitType = startSeparatedValue[1]
             // 结束值
-            const endSeparatedValue = separateValue(property, propertiesMap[property])
-            const endValue = parseFloat(endSeparatedValue[0]) || 0
+            const endSeparatedValue = separateValue(property, endValue)
+            endValue = parseFloat(endSeparatedValue[0]) || 0
             const endValueUnitType = endSeparatedValue[1]
 
             if (startValueUnitType !== endValueUnitType) {
                 const ratios = calculateUnitRatios(element, property)
                 startValue *= 1 / ratios
             }
+
+            console.log(startValue, endValue)
 
             propertiesContainer[property] = {
                 startValue,

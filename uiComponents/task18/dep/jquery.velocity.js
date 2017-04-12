@@ -1466,6 +1466,7 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                         var valueData = parsePropertyValue(propertiesMap[property]),
                             endValue = valueData[0],
                             easing = valueData[1],
+                            // startValue
                             startValue = valueData[2];
 
                         // console.log(valueData)

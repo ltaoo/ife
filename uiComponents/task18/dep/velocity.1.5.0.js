@@ -3347,6 +3347,7 @@
                          The optional third parameter is a forcefed startValue to be used instead of querying the DOM for
                          the element's current value. Read Velocity's docmentation to learn more about forcefeeding: VelocityJS.org/#forcefeeding */
                         var parsePropertyValue = function(valueData, skipResolvingEasing) {
+                            console.log(valueData, skipResolvingEasing)
                             var endValue, easing, startValue;
 
                             /* If we have a function as the main argument then resolve it first, in case it returns an array that needs to be split */
@@ -3643,6 +3644,7 @@
                                 startValueUnitType = separatedValue[1];
 
                                 /* Separate endValue, and extract a value operator (e.g. "+=", "-=") if one exists. */
+                                console.log(endValue)
                                 separatedValue = separateValue(property, endValue);
                                 endValue = separatedValue[0].replace(/^([+-\/*])=/, function(match, subMatch) {
                                     operator = subMatch;
@@ -3895,6 +3897,7 @@
                                 unitType: endValueUnitType,
                                 easing: easing
                             };
+                            console.log(tweensContainer[property])
                             if (pattern) {
                                 tweensContainer[property].pattern = pattern;
                             }
