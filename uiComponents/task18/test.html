@@ -31,8 +31,12 @@
                 // ];
                 // $.Velocity.RunSequence(mySequence);
                 // $('.demo1').velocity("transition.slideLeftIn")
+                $('.demo1').velocity({
+                    translateX: '20px',
+                    rotateZ: '90deg'
+                })
             })
-                $('.demo1').velocity({opacity: [1, 0], translateX: [0, -20], translateZ: 0})
+                // $('.demo1').velocity({opacity: [1, 0], translateX: [0, -20], translateZ: 0})
         }
     </script>
 </body>

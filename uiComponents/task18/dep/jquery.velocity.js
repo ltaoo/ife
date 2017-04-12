@@ -881,7 +881,7 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
 
         /* The singular setPropertyValue, which routes the logic for all normalizations, hooks, and standard CSS properties. */
         setPropertyValue: function(element, property, propertyValue, rootPropertyValue, scrollContainer) {
-            var propertyName = property;    
+            var propertyName = property;
 
             /* In order to be subjected to call options and element queueing, scroll animation is routed through Velocity as if it were a standard CSS property. */
             if (property === "scroll") {
@@ -899,7 +899,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                     /* Perform a normalization injection. */
                     /* Note: The normalization logic handles the transformCache updating. */
                     CSS.Normalizations.registered[property]("inject", element, propertyValue);
-                    console.log(CSS.Normalizations.registered)
                     propertyName = "transform";
                     propertyValue = $.data(element, NAME).transformCache[property];
                     // console.log($.data(element, NAME).transformCache)
@@ -925,7 +924,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
 
                     /* Assign the appropriate vendor prefix before perform an official style update. */
                     propertyName = CSS.Names.prefixCheck(property)[0];
-
                     /* A try/catch is used for IE<=8, which throws an error when "invalid" CSS values are set, e.g. a negative width. Try/catch is avoided for other browsers since it incurs a performance overhead. */
                     if (IE <= 8) {
                         try {

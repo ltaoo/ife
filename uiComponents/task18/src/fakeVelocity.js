@@ -32,12 +32,19 @@
     function setPropertyValue (element, property, value) {
         let propertyName = property
         let propertyValue = value
-        // 判断是否需要额外处理
+        // 判断是否需要额外处理，如果要，比如是 translateX，就不设置值，仅仅计算并返回
         if (Normalizations.registered[property]) {
             propertyName = 'transform'
             propertyValue = Normalizations.registered[property](value)
+        } else {
+            element.style[propertyName] = propertyValue
         }
-        element.style[propertyName] = propertyValue
+
+        return [propertyName, propertyValue]
+    }
+    function flushTransformCache (element, transformCache) {
+        console.log(element, transformCache)
+        setPropertyValue(element, 'transform', transformCache.join(' '))
     }
     // 分割值与单位
     function separateValue (property, value) {
@@ -98,6 +105,7 @@
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
+            console.log(property, propertiesMap)
             const valueAry = parsePropertyValue(propertiesMap[property])
             console.log(valueAry)
             let endValue = valueAry[0]
@@ -130,6 +138,8 @@
         let timeStart
         let isTicking = true
         const _this = this
+        let transformCache = []
+        let transformPropertyExists = false
         // 核心动画函数
         function tick () {
             // 当前时间
@@ -154,7 +164,16 @@
                     tween.currentValue = currentValue
                 }
                 // 改变 dom 的属性值
-                setPropertyValue(element, property, currentValue + tween.unitType)
+                const adjustedSetData = setPropertyValue(element, property, currentValue + tween.unitType)
+                if (adjustedSetData[0] === 'transform') {
+                    transformPropertyExists = true
+                    transformCache.push(adjustedSetData[1])
+                }
+            }
+            // 这里再次调用？
+            if (transformPropertyExists) {
+                flushTransformCache(element, transformCache)
+                transformCache = []
             }
             // 终止调用 tick
             if (percentComplete === 1) {
@@ -210,6 +229,9 @@
     }
     Animation.prototype.slideDown = function () {
         const originHeight = this.originHeight
+        if (!originHeight) {
+            return
+        }
         this.animation({
             height: originHeight
         })
