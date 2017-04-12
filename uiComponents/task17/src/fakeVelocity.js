@@ -75,12 +75,12 @@
         }
     }
     // 暴露的动画接口
-    Animation.prototype.animation = function (propertiesMap) {
+    Animation.prototype.animation = function (propertiesMap, options={}) {
         const element = this.element
-        // 默认参数
-        const opts = {
-            duration: 4000
-        }
+        // 使用配置项覆盖默认参数
+        const opts = Object.assign({
+            duration: 400
+        }, options)
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
@@ -136,10 +136,16 @@
             // 终止调用 tick
             if (percentComplete === 1) {
                 isTicking = false
+                if (opts.complete) {
+                    opts.complete.call(null)
+                }
             }
             if (isTicking) {
                 requestAnimationFrame(tick)
             }
+        }
+        if (opts.begin) {
+            opts.begin.call(null)
         }
         tick()
     }
