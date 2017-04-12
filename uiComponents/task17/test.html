@@ -21,7 +21,7 @@
         window.onload = function () {
             const animateEl = new Animation(document.querySelector('#demo'))
             document.querySelector('#run').onclick = function () {
-                animateEl.animation(document.querySelector('#demo'), {
+                animateEl.animation({
                     opacity: 0.5,
                     width: '50%',
                     rotateZ: '90deg'
