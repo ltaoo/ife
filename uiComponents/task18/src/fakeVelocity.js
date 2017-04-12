@@ -78,6 +78,7 @@
     }
     // 暴露的动画接口
     Animation.prototype.animation = function ( propertiesMap, options={}) {
+        console.log(options)
         const element = this.element
         // 使用配置项覆盖默认参数
         const opts = Object.assign({

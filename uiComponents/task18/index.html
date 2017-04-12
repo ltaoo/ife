@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <title>封装 DOM 动画类库（二）</title>
     <script src="./src/fakeVelocity.js"></script>
+    <script src="./src/fakeVelocity.ui.js"></script>
     <style>
-        #demo {
+        .demo {
             width: 300px;
             height: 180px;
             background-color: red;
@@ -13,7 +14,9 @@
     </style>
 </head>
 <body>
-    <div id="demo"></div>
+    <div class="demo demo1"></div>
+    <div class="demo demo2"></div>
+    <div class="demo demo3"></div>
     <button id="run">点击执行动画</button>
     <button id="slideup">滑动隐藏</button>
     <button id="slidedown">滑动展示</button>
@@ -22,15 +25,31 @@
         window.onload = function () {
             const animateEl = new Animation(document.querySelector('#demo'))
             document.querySelector('#run').onclick = function () {
-                animateEl.animated({
-                    opacity: 0.5
-                }, {
-                    duration: 500
-                }).animated({
-                    width: '50%'
-                }).animated({
-                    rotateZ: '90deg'
-                })
+                // animateEl.animated({
+                //     opacity: 0.5
+                // }).animated({
+                //     width: '50%'
+                // }).animated({
+                //     translateX: '100px'
+                // })
+                var mySequence = [
+                    { 
+                        e: document.querySelector('.demo1'), 
+                        p: { translateX: 100 }, 
+                        o: { duration: 1000 } 
+                    },
+                    { 
+                        e: document.querySelector('.demo2'), 
+                        p: { translateX: 200 }, 
+                        o: { duration: 1000 } 
+                    },
+                    { 
+                        e: document.querySelector('.demo3'), 
+                        p: { translateX: 300 }, 
+                        o: { duration: 1000 } 
+                    }
+                ]
+                Animation.runSequence(mySequence)
             }
             document.querySelector('#slideup').onclick = function () {
                 animateEl.slideUp()
