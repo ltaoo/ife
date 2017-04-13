@@ -6,37 +6,126 @@
     <script src="./src/fakeVelocity.js"></script>
     <script src="./src/fakeVelocity.ui.js"></script>
     <style>
+        .container {
+            margin-bottom: 20px;
+        }
         .demo {
             width: 300px;
             height: 180px;
             background-color: red;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="demo demo1"></div>
-    <!-- <div class="demo demo2"></div>
-    <div class="demo demo3"></div> -->
-    <button id="run" style="margin-top: 300px;">点击执行动画</button>
-    <button id="slideup">滑动隐藏</button>
-    <button id="slidedown">滑动展示</button>
-    <button id="stop">终止动画</button>
+    <section class="container chain">
+        <h2>链式调动动画</h2>
+        <div class="demo demo1"></div>
+        <button id="chain_start">start</button>
+        <button class="reset">reset</button>
+    </section>
+    <section class="container queue">
+        <h2>预定义动画队列</h2>
+        <div class="demo demo1"></div>
+        <div class="demo demo2"></div>
+        <div class="demo demo3"></div>
+        <button id="queue_start">start</button>
+        <button class="reset">reset</button>
+    </section>
+    <section class="container preanimation">
+        <h2>预定义动画</h2>
+        <div class="demo demo1"></div>
+        <button id="pre_animation_start">start</button>
+    </section>
+    <section class="container reverse">
+        <h2>reverse 方法</h2>
+        <div class="demo demo1"></div>
+        <button id="reverse_btn">start</button>
+        <button class="reset">reset</button>
+    </section>
+    <section class="container finish">
+        <h2>finish 方法</h2>
+        <div class="demo demo1"></div>
+        <button id="finish_btn">start</button>
+        <button class="reset">reset</button>
+    </section>
+    <section class="container transform">
+        <h2>transform 动画</h2>
+        <p>transform 动画的难点在于如果使用非行内样式设置了初始值，无法正确获取到初始值因为是矩阵？</p>
+        <a href="https://www.zhihu.com/question/30215867">第一个回答</a>
+        <p>只支持 translateX 与 translateY</p>
+        <div class="demo demo1"></div>
+        <button id="transform_btn">start</button>
+        <button class="reset">reset</button>
+    </section>
+    <section class="container color">
+        <h2>color 动画</h2>
+        <p>只支持 backgroundColor</p>
+        <div class="demo demo1"></div>
+        <button id="color_btn">start</button>
+        <button class="reset">reset</button>
+    </section>
     <script>
         window.onload = function () {
-            const animateEl = new Animation(document.querySelector('.demo1'))
-            document.querySelector('#run').onclick = function () {
-                // 链式调用
-                // animateEl.animated({
-                //     opacity: 0.5
-                // }).animated({
-                //     width: '50%'
-                // }).animated({
-                //     translateX: '100px'
-                // })
-                // 颜色变化
+            /***************
+                链式调用
+             **************/
+             document.querySelector('#chain_start').onclick = function () {
+                const animateEl = new Animation(document.querySelector('.chain .demo1'))
                 animateEl.animated({
-                    backgroundColor: '#00ff00',
-                    // 仅仅支持 translateX 和 translateY，似乎源码也无法在css设置rotateZ 初始值的情况下正确动画
+                    translateX: '100px'
+                }).animated({
+                    opacity: 0.5
+                }).animated({
+                    backgroundColor: '#00ff00'
+                })
+                // 不能链式调用 transform 动画
+             }
+            /***************
+                预定义动画队列
+             **************/
+            document.querySelector('#queue_start').onclick = function () {
+                var mySequence = [
+                    { 
+                        e: document.querySelector('.queue .demo1'), 
+                        p: { translateX: 100 }, 
+                        o: { duration: 1000 } 
+                    },
+                    { 
+                        e: document.querySelector('.queue .demo2'), 
+                        p: { translateX: 200 }, 
+                        o: { duration: 1000 } 
+                    },
+                    { 
+                        e: document.querySelector('.queue .demo3'), 
+                        p: { translateX: 300 }, 
+                        o: { duration: 1000 } 
+                    }
+                ]
+                Animation.runSequence(mySequence)
+            }
+            /***************
+                预定义动画
+             **************/
+            document.querySelector('#pre_animation_start').onclick = function () {
+                const animateEl = new Animation(document.querySelector('.preanimation .demo1'))
+                animateEl.effect('transition.slideLeftIn')
+            }
+            /***************
+                reverse
+             **************/
+            document.querySelector('#reverse_btn').onclick = function () {
+                const animateEl = new Animation(document.querySelector('.reverse .demo1'))
+                animateEl.animated({
+                    translateX: '300px'
+                }).reverse()
+            }
+            /***************
+                finish
+             **************/
+            document.querySelector('#finish_btn').onclick = function () {
+                const animateEl = new Animation(document.querySelector('.finish .demo1'))
+                animateEl.animated({
                     translateX: '300px'
                 }, {
                     duration: 4000
@@ -44,42 +133,36 @@
                 setTimeout(() => {
                     animateEl.finish()
                 }, 1000)
-                // 任务队列
-                // var mySequence = [
-                //     { 
-                //         e: document.querySelector('.demo1'), 
-                //         p: { translateX: 100 }, 
-                //         o: { duration: 1000 } 
-                //     },
-                //     { 
-                //         e: document.querySelector('.demo2'), 
-                //         p: { translateX: 200 }, 
-                //         o: { duration: 1000 } 
-                //     },
-                //     { 
-                //         e: document.querySelector('.demo3'), 
-                //         p: { translateX: 300 }, 
-                //         o: { duration: 1000 } 
-                //     }
-                // ]
-                // Animation.runSequence(mySequence)
-                // 预定义动画
-                // animateEl.animated({
-                //     opacity: [1, 0],
-                //     translateX: [0, -20],
-                //     rotateZ: '90deg'
-                // })
-                // animateEl.effect('transition.slideLeftIn')
             }
-            document.querySelector('#slideup').onclick = function () {
-                animateEl.slideUp()
+            /***************
+                transform 动画
+             **************/
+            document.querySelector('#transform_btn').onclick = function () {
+                const animateEl = new Animation(document.querySelector('.transform .demo1'))
+                animateEl.animated({
+                    // 只支持这两个 tranform 属性
+                    translateX: '300px',
+                    translateY: '-200px'
+                })
             }
-            document.querySelector('#slidedown').onclick = function () {
-                animateEl.slideDown()
+            /***************
+                color 动画
+             **************/
+            document.querySelector('#color_btn').onclick = function () {
+                const animateEl = new Animation(document.querySelector('.color .demo1'))
+                animateEl.animated({
+                    // 只支持这 backgroundColor
+                    backgroundColor: '#00ff00'
+                })
             }
-            document.querySelector('#stop').onclick = function () {
-                animateEl.stop()
-            }
+            // 重置按钮
+            ;[].slice.call(document.querySelectorAll('.reset')).forEach(btn => {
+                btn.onclick = function (e) {
+                    ;[].slice.call(e.target.parentElement.children).forEach(box => {
+                        box.style = ''
+                    })
+                }
+            })
         }
     </script>
 </body>
