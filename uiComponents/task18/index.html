@@ -10,7 +10,6 @@
             width: 300px;
             height: 180px;
             background-color: red;
-            transform: translate(100px);
         }
     </style>
 </head>
@@ -37,8 +36,14 @@
                 // 颜色变化
                 animateEl.animated({
                     backgroundColor: '#00ff00',
+                    // 仅仅支持 translateX 和 translateY，似乎源码也无法在css设置rotateZ 初始值的情况下正确动画
                     translateX: '300px'
-                }).reverse()
+                }, {
+                    duration: 4000
+                })
+                setTimeout(() => {
+                    animateEl.finish()
+                }, 1000)
                 // 任务队列
                 // var mySequence = [
                 //     { 

@@ -203,14 +203,15 @@
                 timeStart = timeCurrent - 16
             }
             // 检测动画是否执行完毕
-            const percentComplete = Math.min((timeCurrent - timeStart) / opts.duration, 1) 
+            let percentComplete = Math.min((timeCurrent - timeStart) / opts.duration, 1) 
             // 遍历要改变的属性值并一一改变
             for(let property in propertiesContainer) {
                 // 拿到该属性当前值，一开始是 startValue
                 const tween = propertiesContainer[property]
                 // 如果动画执行完成
-                if (percentComplete === 1) {
+                if (percentComplete === 1 || _this.isEnd) {
                     currentValue = tween.endValue
+                    percentComplete = 1
                 } else {
                     // 如果是颜色值
                     if (Hooks[property]) {
@@ -308,6 +309,10 @@
     // 恢复初始状态
     Animation.prototype.reverse = function () {
         this.animated(this.originProperties)
+    }
+    // 提取结束动画
+    Animation.prototype.finish = function () {
+        this.isEnd = true
     }
     // 暴露至全局
     window.Animation = Animation
