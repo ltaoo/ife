@@ -2,7 +2,7 @@
     /********************
       声明需要额外处理的属性
     *********************/
-    const transformProperties = [ "translateX", "translateY", "translateZ", "scale", "scaleX", "scaleY", "scaleZ", "skewX", "skewY", "rotateX", "rotateY", "rotateZ" ]
+    const transformProperties = [ "translateZ", "scale", "scaleX", "scaleY", "translateX", "translateY", "scaleZ", "skewX", "skewY", "rotateX", "rotateY", "rotateZ" ]
     const Normalizations = {
         registered: {}
     }
@@ -10,13 +10,17 @@
     for(let i = 0, len = transformProperties.length; i < len; i++) {
         const transformName = transformProperties[i]
         Normalizations.registered[transformName] = function (propertyValue) {
-            return transformName + '(' + propertyValue + ')'
+            // 额外处理矩阵的情况
+            if (/matrix/.test(propertyValue)) {
+                return propertyValue.split(', ')[i]
+            } else {
+                return transformName + '(' + propertyValue + ')'
+            }
         }
     }
     // 处理颜色值的方法
     const Hooks = {
         backgroundColor: function (rgb) {
-            console.log(rgb)
             const result = /rgb\(([0-9]+), ?([0-9]+), ?([0-9]+)\)/.exec(rgb)
             return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])]
         }
@@ -45,7 +49,17 @@
     }
     // 获取指定 dom 的指定属性值
     function getPropertyValue (element, property) {
-        return window.getComputedStyle(element, null)[property]
+        const style = window.getComputedStyle(element, null)
+        let value = style[property] ? style[property] : style.getPropertyValue(property)
+        // 如果是 transform 属性，上面肯定获取不到正确的值
+        if (transformProperties.indexOf(property) > -1 && value === '') {
+            // transformValue 如果是计算开始值肯定是有所有的值 translateX translateY rotateZ 等等
+            let transformValue = style['transform'] ? style['transform'] : style.getPropertyValue('transform')
+            // transformValue 是矩阵
+            console.log(transformValue)
+            value = Normalizations.registered[property](transformValue)
+        }
+        return value
     }
     // 给指定 dom 设置值
     function setPropertyValue (element, property, value) {
@@ -112,6 +126,8 @@
     =========================*/
     function Animation (element) {
         this.element = element
+        // 保存初始属性的对象
+        this.originProperties = {}
         // 初始化动画队列
         this.queueList = []
     }
@@ -123,24 +139,24 @@
     }
     // 暴露的动画接口
     Animation.prototype.animation = function ( propertiesMap, options={}) {
-        console.log(options)
         const element = this.element
         // 使用配置项覆盖默认参数
         const opts = Object.assign({
-            duration: 4000,
+            duration: 400,
             easing: 'swing'
         }, options)
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
             const valueAry = parsePropertyValue(propertiesMap[property])
-            console.log(valueAry)
             let endValue = valueAry[0]
             let startValue = valueAry[1]
             // 拿到开始值
             if (startValue === undefined) {
                 startValue = getPropertyValue(element, property)
             }
+            this.originProperties[property] = startValue
+            console.log(this.originProperties)
             const startSeparatedValue = separateValue(property, startValue)
             // 额外处理颜色值
             if (Object.prototype.toString.call(startSeparatedValue[0]) === '[object Array]') {
@@ -148,6 +164,7 @@
             } else {
                 startValue = parseFloat(startSeparatedValue[0]) || 0
             }
+            // 保存初始状态
             const startValueUnitType = startSeparatedValue[1]
             // 结束值
             const endSeparatedValue = separateValue(property, endValue)
@@ -163,7 +180,7 @@
                 const ratios = calculateUnitRatios(element, property)
                 startValue *= 1 / ratios
             }
-
+            console.log(startValue, endValue)
             propertiesContainer[property] = {
                 startValue,
                 endValue,
@@ -212,7 +229,6 @@
                 if (Hooks[property]) {
                     currentValue = 'rgb(' + currentValue.join(', ') + ')'
                 }
-                console.log(currentValue)
                 const adjustedSetData = setPropertyValue(element, property, currentValue + tween.unitType)
                 if (adjustedSetData[0] === 'transform') {
                     transformPropertyExists = true
@@ -288,6 +304,10 @@
     // 终止动画
     Animation.prototype.stop = function () {
         this.isTicking = false
+    }
+    // 恢复初始状态
+    Animation.prototype.reverse = function () {
+        this.animated(this.originProperties)
     }
     // 暴露至全局
     window.Animation = Animation

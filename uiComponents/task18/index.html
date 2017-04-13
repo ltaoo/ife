@@ -10,6 +10,7 @@
             width: 300px;
             height: 180px;
             background-color: red;
+            transform: translate(100px);
         }
     </style>
 </head>
@@ -17,13 +18,13 @@
     <div class="demo demo1"></div>
     <!-- <div class="demo demo2"></div>
     <div class="demo demo3"></div> -->
-    <button id="run">点击执行动画</button>
+    <button id="run" style="margin-top: 300px;">点击执行动画</button>
     <button id="slideup">滑动隐藏</button>
     <button id="slidedown">滑动展示</button>
     <button id="stop">终止动画</button>
     <script>
         window.onload = function () {
-            animateEl = new Animation(document.querySelector('.demo1'))
+            const animateEl = new Animation(document.querySelector('.demo1'))
             document.querySelector('#run').onclick = function () {
                 // 链式调用
                 // animateEl.animated({
@@ -35,8 +36,9 @@
                 // })
                 // 颜色变化
                 animateEl.animated({
-                    backgroundColor: '#00ff00'
-                })
+                    backgroundColor: '#00ff00',
+                    translateX: '300px'
+                }).reverse()
                 // 任务队列
                 // var mySequence = [
                 //     { 
