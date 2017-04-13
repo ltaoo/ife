@@ -73,9 +73,10 @@
             singer.className = 'music__singer'
             fragmentContainer.appendChild(singer)
             // 创建真正的播放器，audio 标签
-            const audio = this.audio = document.createElement('audio')
-            audio.className = 'player__source'
-            fragmentContainer.appendChild(audio)
+            // const audio = this.audio = document.createElement('audio')
+            // audio.className = 'player__source'
+            // fragmentContainer.appendChild(audio)
+            const audio = this.audio = new Audio()
             // 时间显示
             const time = this.time = document.createElement('span')
             time.className = 'music__currenttime'
