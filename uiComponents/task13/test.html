@@ -2,28 +2,47 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>测试</title>
-    <link rel="stylesheet" href="./lib/css/main.css">
     <link rel="stylesheet" type="text/css" href="./lib/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./lib/css/main.css">
 </head>
 <body>
-    <div class="music"></div>
+    <div class="container">
+        <div class="musics">
+            <!-- <div class="musics__search">
+                <input type="text" id="keyword">
+                <button id="search">点击搜索</button>
+            </div> -->
+            <ol class="musics__list"></ol>
+        </div>
+        <div class="music"></div>
+    </div>
     <script src="./lib/jquery.min.js"></script>
-    <script src="./src/main.js"></script>
     <script src="./src/utils.js"></script>
+    <script src="./src/main.js"></script>
+    <script src="./src/musics.js"></script>
     <script>
         window.onload = function () {
-            const player = new DoubanAudio({
-                el: '.music'
-            })
+            // 播放器
+            const player = new DoubanAudio({ el: '.music' })
             // 显示 loading 动画
             player.showLoading()
+            // 以河图为关键字进行搜索
             Utils.searchMusic('河图')
                 .then(res => {
                     // 搜索成功，隐藏 loading 动画
                     player.hideLoading()
-                    // console.log(res)
-                    player.change(res[0])
+                    // 渲染音乐列表
+                    const list = renderMusics(document.querySelector('.musics__list'), res)
+                    // 给播放器设置音乐列表
+                    player.setMusics(res)
+                    // 音乐列表点击切换音乐
+                    list.forEach((item, i) => {
+                        item.onclick = () => {
+                            player.change(res[i])
+                        }
+                    })
                 })
                 .catch(err => {
                     console.log(err)

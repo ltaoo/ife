@@ -1,7 +1,11 @@
 ;(function (window) {
     const console = window.console
+    const Utils = window.Utils
+    if (!Utils) {
+        console.log('请引入 utils.js 文件')
+    }
     /*********************
-        start main.js
+      播放器，只负责播放音乐，尽量低耦合
     *********************/
     class DoubanAudio {
         constructor(options) {
@@ -26,15 +30,40 @@
                 this.audio.volume = volume
                 this.volumeBar.style.width = volume * 100 + '%'
             })
+            // 快进事件
+            this.speedBtn.addEventListener('click', () => {
+                this.audio.currentTime += 5
+            })
+            // 播放下一首
+            this.nextBtn.addEventListener('click', () => {
+                this.next()
+            })
+            // 初始化播放类型
+            this.playStyle = 1
+            // 切换播放类型
+            this.typeBtn.addEventListener('click', () => {
+                this.playStyle = this.playStyle === 1 ? 0 : 1
+            })
+            // 监听播放结束
+            this.audio.addEventListener('ended', (e) => {
+                // 如果是顺序播放
+                if (this.playStyle === 1) {
+                    this.next()
+                } else {
+                    // 如果是循环播放
+                    this.audio.currentTime = 0
+                    this.play()
+                }
+            })
         }
         // 初始化页面结构
         _initDOM () {
             // 创建容器
             const fragmentContainer = document.createDocumentFragment()
             // 创建播放器容器
-            const player = this.player = document.createElement('div')
+            const player = document.createElement('div')
             player.className = 'music__player'
-            fragmentContainer.appendChild(player)
+            // fragmentContainer.appendChild(player)
             // 创建标题标签
             const title = this.title = document.createElement('h2')
             title.className = 'music__title'
@@ -85,12 +114,20 @@
             nextBtn.innerHTML = '<i class="fa fa-step-forward" aria-hidden="true"></i>'
             fragmentContainer.appendChild(nextBtn)
             // 切换播放模式按钮
-            const styleBtn = this.styleBtn = document.createElement('span')
-            styleBtn.className = 'player__style'
-            styleBtn.innerHTML = '<i class="fa fa-random" aria-hidden="true"></i>'
-            fragmentContainer.appendChild(styleBtn)
+            const typeBtn = this.typeBtn = document.createElement('span')
+            typeBtn.className = 'player__style'
+            typeBtn.innerHTML = '<i class="fa fa-random" aria-hidden="true"></i>'
+            fragmentContainer.appendChild(typeBtn)
 
-            this.container.appendChild(fragmentContainer)
+            player.appendChild(fragmentContainer)
+            this.container.appendChild(player)
+            // 专辑封面
+            const albumContainer = document.createElement('div')
+            albumContainer.className = 'music__album'
+            const album = this.album = document.createElement('img')
+            album.className = 'music__img'
+            albumContainer.appendChild(album)
+            this.container.appendChild(albumContainer)
         }
         // 展示 loading 动画
         showLoading () {
@@ -98,7 +135,7 @@
             if (!loading) {
                 loading = this.loading = document.createElement('div')
             }
-            loading.style = ';position: absolute;left: 0;top: 0;bottom: 0;right: 0;background-color: #fff;display: flex;align-items: center;justify-content: center;'
+            loading.style = ';position: absolute;left: 0;top: 0;bottom: 0;right: 0;background-color: rgba(250, 250, 250, 1);display: flex;align-items: center;justify-content: center;'
             loading.innerText = '正在加载中...'
             this.container.style.position = 'relative'
             this.container.appendChild(loading)
@@ -106,6 +143,13 @@
         // 隐藏 loading 动画
         hideLoading () {
             this.container.removeChild(this.loading)
+        }
+        // 设置播放列表
+        setMusics (ary) {
+            const index = this.index = 0
+            this.musics = ary
+            // 播放第一首
+            this.change(ary[index])
         }
         // 切换播放音乐
         change (music) {
@@ -123,13 +167,8 @@
             this.audio.src = music.audiourl
             // 音量
             this.volumeBar.style.width = (this.audio.volumn || 1) * 100 + '%'
-
-            // 总时长
-            // let duration = 0
-            // this.audio.addEventListener('canplay', (e) => {
-            //     this.currentMusic.duration = parseInt(e.target.duration)
-            // })
-
+            // 封面
+            this.album.src = `https://y.gtimg.cn/music/photo_new/T002R300x300M000${music.albummid}.jpg?max_age=2592000`
             // 都切换好了后，开始播放
             this.play()
         }
@@ -162,13 +201,18 @@
                 const duration = player.duration || 0
                 time.innerText = Utils.formatSeconds(current) + '/' + Utils.formatSeconds(duration)
                 // 计算播放百分比
-                // console.log(typeof current, typeof duration, current, duration, current / duration)
                 let per = current / duration * 100 + '%'
                 progressBar.style.right = `calc(100% - ${per})`
             }
             this.timer = setInterval(() => {
                 progress()
             }, 1000)
+        }
+        // 播放下一首
+        next() {
+            this.index += 1
+            if (this.index > this.musics.length) this.index = this.musics.length
+            this.change(this.musics[this.index])
         }
     }
     /*********************
