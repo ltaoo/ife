@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+    <link rel="stylesheet" href="./lib/css/main.css">
+    <link rel="stylesheet" type="text/css" href="./lib/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="music"></div>
+    <script src="./lib/jquery.min.js"></script>
+    <script src="./src/main.js"></script>
+    <script src="./src/utils.js"></script>
+    <script>
+        window.onload = function () {
+            const player = new DoubanAudio({
+                el: '.music'
+            })
+            // 显示 loading 动画
+            player.showLoading()
+            Utils.searchMusic('河图')
+                .then(res => {
+                    // 搜索成功，隐藏 loading 动画
+                    player.hideLoading()
+                    // console.log(res)
+                    player.change(res[0])
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+            // const keywordElement = document.querySelector('#keyword')
+            // document.querySelector('#search').onclick = function () {
+            //     Utils.searchMusic(keywordElement.value)
+            //         .then(res => {
+            //             player.play(res[0])
+            //         })
+            // }
+        }
+    </script>
+</body>
+</html>
