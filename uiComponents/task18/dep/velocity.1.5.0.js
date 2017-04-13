@@ -3394,7 +3394,7 @@
                             if (Type.isFunction(startValue)) {
                                 startValue = startValue.call(element, elementArrayIndex, elementsLength);
                             }
-
+                            console.log(endValue, easing, startValue)
                             /* Allow startValue to be left as undefined to indicate to the ensuing code that its value was not forcefed. */
                             return [endValue || 0, easing, startValue];
                         };
@@ -3408,7 +3408,7 @@
                                     easing = valueData[1],
                                     startValue = valueData[2],
                                     pattern;
-
+                            console.log(valueData)
                             /**************************
                              Start Value Sourcing
                              **************************/
@@ -3497,10 +3497,11 @@
                                 if (!unitType) {
                                     unitType = CSS.Values.getUnitType(property);
                                 }
-
+                                console.log([numericValue, unitType])
                                 return [numericValue, unitType];
                             };
 
+                                console.log(startValue, endValue)
                             if (startValue !== endValue && Type.isString(startValue) && Type.isString(endValue)) {
                                 pattern = "";
                                 var iStart = 0, // index in startValue
@@ -3511,6 +3512,7 @@
                                         inRGB = 0, // Keep track of being inside an RGB as we can't use fractional values
                                         inRGBA = 0; // Keep track of being inside an RGBA as we must pass fractional for the alpha channel
 
+                                console.log(startValue, endValue)
                                 startValue = CSS.Hooks.fixColors(startValue);
                                 endValue = CSS.Hooks.fixColors(endValue);
                                 while (iStart < startValue.length && iEnd < endValue.length) {
@@ -3644,7 +3646,6 @@
                                 startValueUnitType = separatedValue[1];
 
                                 /* Separate endValue, and extract a value operator (e.g. "+=", "-=") if one exists. */
-                                console.log(endValue)
                                 separatedValue = separateValue(property, endValue);
                                 endValue = separatedValue[0].replace(/^([+-\/*])=/, function(match, subMatch) {
                                     operator = subMatch;
@@ -3657,7 +3658,6 @@
                                 /* Parse float values from endValue and startValue. Default to 0 if NaN is returned. */
                                 startValue = parseFloat(startValue) || 0;
                                 endValue = parseFloat(endValue) || 0;
-
                                 /***************************************
                                  Property-Specific Value Conversion
                                  ***************************************/
@@ -3917,7 +3917,7 @@
                              but we then use its camelCase styling to normalize it for manipulation. */
                             var propertyName = CSS.Names.camelCase(property),
                                     valueData = parsePropertyValue(propertiesMap[property]);
-
+                            console.log(valueData)
                             /* Find shorthand color properties that have been passed a hex string. */
                             /* Would be quicker to use CSS.Lists.colors.includes() if possible */
                             if (_inArray(CSS.Lists.colors, propertyName)) {
@@ -3943,7 +3943,7 @@
                                         if (startValueRGB !== undefined) {
                                             dataArray.push(startValueRGB[i]);
                                         }
-
+                                        console.log(dataArray)
                                         fixPropertyValue(propertyName + colorComponents[i], dataArray);
                                     }
                                     /* If we have replaced a shortcut color value then don't update the standard property name */

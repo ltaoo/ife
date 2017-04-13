@@ -1872,7 +1872,6 @@ The biggest cause of both codebase bloat and codepath obfuscation in Velocity is
                         }
 
                         /* Add the current call plus its associated metadata (the element set and the call's options) onto the page-wide call container. Anything on this call container is subjected to tick() processing. */
-                        console.log(call, elements, opts)
                         $.velocity.State.calls.push([ call, elements, opts ]);
 
                         /* If the animation tick isn't currently running, start it. (Velocity shuts the tick off when there are no active calls to process.) */

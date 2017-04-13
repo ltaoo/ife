@@ -13,6 +13,25 @@
             return transformName + '(' + propertyValue + ')'
         }
     }
+    // 处理颜色值的方法
+    const Hooks = {
+        backgroundColor: function (rgb) {
+            console.log(rgb)
+            const result = /rgb\(([0-9]+), ?([0-9]+), ?([0-9]+)\)/.exec(rgb)
+            return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])]
+        }
+    }
+    // 十六进制转 rgb
+    function hexToRgb (hex) {
+        var shortformRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
+            longformRegex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i,
+            rgbParts
+        hex = hex.replace(shortformRegex, function (m, r, g, b) {
+            return r + r + g + g + b + b
+        })
+        rgbParts = longformRegex.exec(hex)
+        return rgbParts ? 'rgb(' + (parseInt(rgbParts[1], 16) + ', ' + parseInt(rgbParts[2], 16) + ', ' + parseInt(rgbParts[3], 16)) + ')' : 'rgb(0 0 0)'
+    }
     // 解析属性值，主要是处理属性值可能是数组的情况
     function parsePropertyValue (value) {
         let endValue, startValue
@@ -26,7 +45,7 @@
     }
     // 获取指定 dom 的指定属性值
     function getPropertyValue (element, property) {
-        return window.getComputedStyle(element, null).getPropertyValue(property)
+        return window.getComputedStyle(element, null)[property]
     }
     // 给指定 dom 设置值
     function setPropertyValue (element, property, value) {
@@ -43,7 +62,6 @@
         return [propertyName, propertyValue]
     }
     function flushTransformCache (element, transformCache) {
-        console.log(element, transformCache)
         setPropertyValue(element, 'transform', transformCache.join(' '))
     }
     // 分割值与单位
@@ -52,21 +70,30 @@
         let unitType,
             numericValue
         // replace 是字符串的方法，如果是数值类型则没有 replace 方法
-        numericValue = value.toString().replace(/[%A-z]+$/, function(match) {
-            unitType = match
-            return ""
-        })
+        if (Hooks[property]) {
+            if (/#/.test(value)) {
+                value = hexToRgb(value)
+            }
+            const result = Hooks[property].call(null, value)
+            numericValue = result
+            unitType = ''
+        } else {
+            numericValue = value.toString().replace(/[%A-z]+$/, function(match) {
+                unitType = match
+                return ''
+            })
+        }
         // 如果没有获取到单位，就根据属性来获取
         function getUnitType (property) {
             if (/^(rotate|skew)/i.test(property)) {
                 // 这两个属性值单位是 deg ，有点特殊
-                return "deg"
+                return 'deg'
             } else if (/(^(scale|scaleX|scaleY|scaleZ|opacity|alpha|fillOpacity|flexGrow|flexHeight|zIndex|fontWeight)$)|color/i.test(property)) {
                 // 这些属性值都是没有单位的
-                return ""
+                return ''
             } else {
                 // 如果都没有匹配到，就默认是 px
-                return "px"
+                return 'px'
             }
         }
         if (!unitType) {
@@ -100,12 +127,12 @@
         const element = this.element
         // 使用配置项覆盖默认参数
         const opts = Object.assign({
-            duration: 400
+            duration: 4000,
+            easing: 'swing'
         }, options)
         // 保存要改变的属性集合
         let propertiesContainer = {}
         for(let property in propertiesMap) {
-            console.log(property, propertiesMap)
             const valueAry = parsePropertyValue(propertiesMap[property])
             console.log(valueAry)
             let endValue = valueAry[0]
@@ -115,19 +142,27 @@
                 startValue = getPropertyValue(element, property)
             }
             const startSeparatedValue = separateValue(property, startValue)
-            startValue = parseFloat(startSeparatedValue[0]) || 0
+            // 额外处理颜色值
+            if (Object.prototype.toString.call(startSeparatedValue[0]) === '[object Array]') {
+                startValue = startSeparatedValue[0]
+            } else {
+                startValue = parseFloat(startSeparatedValue[0]) || 0
+            }
             const startValueUnitType = startSeparatedValue[1]
             // 结束值
             const endSeparatedValue = separateValue(property, endValue)
-            endValue = parseFloat(endSeparatedValue[0]) || 0
+            // 额外处理颜色值
+            if (Object.prototype.toString.call(endSeparatedValue[0]) === '[object Array]') {
+                endValue = endSeparatedValue[0]
+            } else {
+                endValue = parseFloat(endSeparatedValue[0]) || 0
+            }
             const endValueUnitType = endSeparatedValue[1]
 
             if (startValueUnitType !== endValueUnitType) {
                 const ratios = calculateUnitRatios(element, property)
                 startValue *= 1 / ratios
             }
-
-            console.log(startValue, endValue)
 
             propertiesContainer[property] = {
                 startValue,
@@ -160,10 +195,24 @@
                 if (percentComplete === 1) {
                     currentValue = tween.endValue
                 } else {
-                    currentValue = parseFloat(tween.startValue) + ((tween.endValue - tween.startValue) * Animation.easing['swing'](percentComplete))
+                    // 如果是颜色值
+                    if (Hooks[property]) {
+                        const tempValue = [] 
+                        for(let i = 0, len = tween.startValue.length; i < len; i++) {
+                            const value = tween.startValue[i] + ((tween.endValue[i] - tween.startValue[i]) * Animation.easing[opts.easing](percentComplete))
+                            tempValue.push(parseInt(value))
+                        }
+                        currentValue = tempValue
+                    } else {
+                        currentValue = tween.startValue + ((tween.endValue - tween.startValue) * Animation.easing[opts.easing](percentComplete))
+                    }
                     tween.currentValue = currentValue
                 }
                 // 改变 dom 的属性值
+                if (Hooks[property]) {
+                    currentValue = 'rgb(' + currentValue.join(', ') + ')'
+                }
+                console.log(currentValue)
                 const adjustedSetData = setPropertyValue(element, property, currentValue + tween.unitType)
                 if (adjustedSetData[0] === 'transform') {
                     transformPropertyExists = true

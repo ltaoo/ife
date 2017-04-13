@@ -11,9 +11,9 @@
         }
     </style>
     <script src="./dep/jquery.min.js"></script>
-    <!-- <script src="./dep/velocity.1.5.0.js"></script> -->
+    <script src="./dep/velocity.1.5.0.js"></script>
     <!-- <script src="./dep/velocity.ui.js"></script> -->
-    <script src="./dep/jquery.velocity.js"></script>
+    <!-- <script src="./dep/jquery.velocity.js"></script> -->
 </head>
 <body>
     <div class="demo demo1"></div>
@@ -32,8 +32,7 @@
                 // $.Velocity.RunSequence(mySequence);
                 // $('.demo1').velocity("transition.slideLeftIn")
                 $('.demo1').velocity({
-                    translateX: '20px',
-                    rotateZ: '90deg'
+                    backgroundColor: '#00ff00'
                 })
             })
                 // $('.demo1').velocity({opacity: [1, 0], translateX: [0, -20], translateZ: 0})
