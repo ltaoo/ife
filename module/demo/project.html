@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>require.js 使用示例</title>
+    <!-- data-main attribute tells require.js to load
+     scripts/main.js after require.js loads. -->
+    <script data-main="scripts/main" src="scripts/require.js"></script>
+</head>
+<body>
+    <h1>简单的 require.js 示例</h1>
+    <p>main.js</p>
+    <pre><code>
+require(['helper/util'], function (util) {
+    console.log(util)
+})
+    </code></pre>
+    <p>helper/util.js</p>
+    <pre><code>
+define({
+    color: 'black',
+    size: 'unisize'
+})
+    </code></pre>
+    <p>打开控制台可以看到打印出了`util.js`文件中`define`函数的参数。</p>
+</body>
+</html>
