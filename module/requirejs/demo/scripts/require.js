@@ -1762,7 +1762,7 @@ var requirejs, require, define;
      * name for minification/local scope use.
      */
     req = requirejs = function (deps, callback, errback, optional) {
-
+        console.log('统计次数')
         //Find the right context, use default
         var context, config,
             contextName = defContextName;
@@ -1793,7 +1793,7 @@ var requirejs, require, define;
         if (config) {
             context.configure(config);
         }
-
+        // 到这里应该就是完成了上下文的初始化
         return context.require(deps, callback, errback);
     };
 
