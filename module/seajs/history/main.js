@@ -1,3 +1,3 @@
-module.load(['say'], function (say) {
-    say()
+module.load(['./say.js'], function (module) {
+    module.say()
 })

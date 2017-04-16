@@ -1,3 +1,5 @@
-module.declare('say', function () {
-    alert('hello')
+module.declare(function (exports) {
+    exports.say = function () {
+        alert('hello')
+    }
 })
