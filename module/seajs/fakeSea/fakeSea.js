@@ -106,14 +106,12 @@ var module = {}
     /**
      * createRequire，应该是最核心的函数了吧，该函数提供 require、exports 和 module 三个参数
      */
-    function createRequire (sandbox) {
+    function createRequire () {
         // 该函数用来获取依赖
         function require(id) {
             var mod = providedMods[id + '.js']
             if (!mod.exports) {
-                setExports(mod, {
-                    parent: sandbox
-                })
+                setExports(mod)
             }
 
             return mod.exports
@@ -121,12 +119,12 @@ var module = {}
 
         return require
     }
-    function setExports (mod, sandbox) {
+    function setExports (mod) {
         var factory = mod.factory
         mod.exports = {}
 
         if (typeof factory === 'function') {
-            factory(createRequire(sandbox), mod.exports, mod)
+            factory(createRequire(), mod.exports, mod)
         }
     }
 

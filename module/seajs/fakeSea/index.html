@@ -6,6 +6,10 @@
 </head>
 <body>
     <script src="./fakeSea.js"></script>
-    <script src="./scripts/main.js"></script>
+    <script>
+        module.load(['./scripts/util'], function (util) {
+            util.sayHello()
+        })
+    </script>
 </body>
 </html>
