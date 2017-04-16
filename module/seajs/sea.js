@@ -248,8 +248,8 @@ module.seajs = '@VERSION@';
             factory = deps;
             deps = id;
             id = '';
-        } else if (!isString(id)) {
-            factory = id;
+        } else if (!isString(id)) { // id 不是字符串
+            factory = id; // 就认为是 factory 函数
             if (isFunction(factory)) {
                 deps = parseDeps(factory.toString());
             }
