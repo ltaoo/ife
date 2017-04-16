@@ -169,6 +169,7 @@ module.seajs = '@VERSION@';
                     args.push(arg);
                 }
             }
+            console.log(args)
             callback && callback.apply(global, args);
         });
     }
@@ -214,11 +215,11 @@ module.seajs = '@VERSION@';
 
         function cb() {
             if (callback) {
-                callback(noRequire ?
-                    undefined :
-                    createRequire.call(that, {
-                        deps: originalUris
-                    })
+                var _temp = createRequire.call(that, {
+                    deps: originalUris
+                })
+                console.log(_temp)
+                callback(noRequire ? undefined : _temp
                 );
             }
         }
@@ -448,13 +449,13 @@ module.seajs = '@VERSION@';
         //   prefix: {},
         //   parent: sandbox
         // }
-
         // Call from module factory.
         if (this !== global) {
             sandbox.uri = this.uri;
         }
 
         function require(id) {
+            console.log(sandbox)
             var uri = id2Uri(id, sandbox.uri, sandbox.prefix);
             var deps = parsePackage(sandbox.deps);
             var mod;

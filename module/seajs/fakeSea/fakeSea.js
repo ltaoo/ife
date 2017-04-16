@@ -1,29 +1,40 @@
 // 暴露全局接口
 var module = {}
 ;(function () {
-    var scripts = [].slice.call(document.getElementsByTagName('script'))
-    for(var i = 0, len = scripts.length; i < len; i++) {
-        var script = scripts[i]
-        var dataMain = script.getAttribute('data-main')
-        if (dataMain) {
-            console.log('找到入口文件')
-            // 将 data-main 作为第一个脚本文件载入
-            load([dataMain])
-            break
-        }
-    }
     // 保存已经声明，但还未 provided 的模块
     var pendingMods = []
-    // 载入脚本函数
+    // 保存已经插入页面中正在下载中的 js 脚本
+    var fetchingMods = {}
+    // 已经加载好可以使用的模块
+    var providedMods = {}
+
+    // 载入脚本函数，重点在于，何时调用 callback
     function load (ids, callback) {
         // 根据 id 获取对应的 uri 地址以便载入 js 文件
         var originalUris = getUris(ids)
-        // 遍历 ids 去 fetch
-        for(var i = 0, len = originalUris.length; i < len; i++) {
-            // 这个闭包有什么含义？
+        // 筛选掉已经加载的，只 fetch 未加载的 js
+        var uris = originalUris
+        // 如果依赖都已经加载，就直接调用回调
+        if (uris.length === 0) {
+            return loadCallback()
+        }
+        // 遍历 uris 去 fetch
+        for(var i = 0, len = uris.length; i < len; i++) {
             (function (uri){
-                fetch(uri, callback)
-            })(originalUris[i])
+                fetch(uri, loadCallback)
+            })(uris[i])
+        }
+        // 该回调，肯定是要拿到依赖作为参数毫无疑问
+        function loadCallback () {
+            // load(['util'], function (require, exports) {...}) 如何获取到参数
+            var require = createRequire({
+                deps: originalUris
+            })
+            var deps = []
+            for(var i = 0, len = ids.length; i < len; i++) {
+                deps.push(require(ids[i]))
+            }
+            callback && callback.apply(null, deps)
         }
     }
     /**
@@ -38,7 +49,16 @@ var module = {}
      * 
      */
     function fetch (url, callback) {
-        getScript(url, callback)
+        fetchingMods[url] = getScript(url, fetchCallback)
+        // fetch 函数内声明的回调，会在 script 标签加载完成后调用
+        function fetchCallback () {
+            // 标签加载完成，就将该模块加入 providedMods 中
+            for(var i = 0, len = pendingMods.length; i < len; i++) {
+                providedMods[url] = pendingMods[i]
+            }
+            pendingMods = []
+            callback && callback()
+        }
     }
     /**
      * 根据 uri 创建 script 标签
@@ -46,12 +66,15 @@ var module = {}
     function getScript (url, cb) {
         var node = document.createElement('script')
         // 注册监听事件，当脚本载入成功后，才执行对应的回调函数
-        node.addEventListener('load', cb)
+        node.addEventListener('load', function () {
+            cb && cb()
+        })
         node.async = true 
         node.src = url
 
         var head = document.getElementsByTagName('head')[0]
-        head.insertBefore(node, head.firstChild)
+        // 返回 node
+        return head.insertBefore(node, head.firstChild)
     }
     /**
      * 声明模块
@@ -65,6 +88,7 @@ var module = {}
             factory: factory
         }
         // 将模块加入 pendingMods 数组中，不过疑问就是，代码能够执行到这里，表示这个文件已经加载成功了
+        // 所以应该在 onload 事件中检查何时才执行回调
         pendingMods.push(mod)
     }
     /**
@@ -78,6 +102,32 @@ var module = {}
             if (match[1]) ret.push(match[1])
         }
         return ret
+    }
+    /**
+     * createRequire，应该是最核心的函数了吧，该函数提供 require、exports 和 module 三个参数
+     */
+    function createRequire (sandbox) {
+        // 该函数用来获取依赖
+        function require(id) {
+            var mod = providedMods[id + '.js']
+            if (!mod.exports) {
+                setExports(mod, {
+                    parent: sandbox
+                })
+            }
+
+            return mod.exports
+        }
+
+        return require
+    }
+    function setExports (mod, sandbox) {
+        var factory = mod.factory
+        mod.exports = {}
+
+        if (typeof factory === 'function') {
+            factory(createRequire(sandbox), mod.exports, mod)
+        }
     }
 
     // 暴露接口

@@ -1,3 +1,3 @@
-module.load('./util', function (util) {
+module.load(['./util'], function (util) {
     util.sayHello()
 })
