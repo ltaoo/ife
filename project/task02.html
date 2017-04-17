@@ -275,6 +275,8 @@
 			function checkName (event) {
 				const nameInput = $('#name_input')
 				const nameTip = $('#name_tip')
+				// 校验前将 tip__success 以及 tip__error 去掉
+				reset(nameInput, nameTip)
 				// 为空校验
 				if (isEmpty(nameInput)) {
 					renderTip(nameInput, nameTip, '姓名不能为空', 'error')
@@ -293,6 +295,7 @@
 			function checkPassword (event) {
 				const passwordInput = $('#password_input')
 				const passwordTip = $('#password_tip')
+				reset(passwordInput, passwordTip)
 				// 为空校验
 				if (isEmpty(passwordInput)) {
 					renderTip(passwordInput, passwordTip, '密码不能为空', 'error')
@@ -311,6 +314,7 @@
 			function checkRepassword(event) {
 				const repasswordInput = $('#repassword_input')
 				const repasswordTip = $('#repassword_tip')
+				reset(repasswordInput, repasswordTip)
 				// 为空校验
 				if (isEmpty(repasswordInput)) {
 					renderTip(repasswordInput, repasswordTip, '密码不能为空', 'error')
