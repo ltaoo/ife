@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>学习 jQuery 源码</title>
+    <style>
+        .selector__name {
+            display: inline-block;
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h2>选择器</h2>
+    <ul>
+        <li>
+            <p><span class="selector__name">标签选择器</span> $('p')</p>
+        </li>
+        <li>
+            <p id="id"><span class="selector__name">id 选择器</span> $('#id')</p>
+        </li>
+        <li>
+            <p class="class"><span class="selector__name">类名选择器</span> $('.class')</p>
+        </li>
+        <li class="parent">
+            <div>
+                <p class="child"><span class="selector__name">后代选择器</span> $('.parent .child')</p>
+            </div>
+        </li>
+        <li class="parent">
+            <p class="child"><span class="selector__name">子选择器</span> $('.parent > .child')</p>
+        </li>
+    </ul>
+    <h2>事件</h2>
+    <script src="../node_modules/jquery/external/sizzle/dist/sizzle.js"></script>
+    <script src="./src/select.js"></script>
+    <script>
+        // // 标签选择器
+        // Sizzle('p')
+        // // id 选择器
+        // Sizzle('#id')
+        // // 类名选择器
+        // Sizzle('.class')
+        // 后代选择器
+        // console.log(Sizzle('.parent .child'))
+        Select('.parent .child')
+        Select('.parent > .child')
+        Select('#parent + child')
+        Select('.parent ~ #child')
+        // 子选择器
+        // Sizzle('.parent > .child')
+    </script>
+</body>
+</html>
