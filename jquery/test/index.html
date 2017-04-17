@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>测试用例</title>
+</head>
+<body>
+    <h2>后代选择器</h2>
+    <ul>
+        <li class="parent"><div><p class="child">$('.parent .child')</p></div></li>
+        <li class="parent"><div><p id="child">$('.parent #child')</p></div></li>
+        <li class="parent"><div><p>$('.parent p')</p></div></li>
+        <li id="parent"><div><p class="child">$('#parent .child')</p></div></li>
+        <li><p>$('li p')</p></li>
+        <li><p class="child">$('li .child')</p></li>
+        <li><p id="child">$('li #child')</p></li>
+    </ul>
+    <script src="../src/select.js"></script>
+    <script>
+        var nodes
+        nodes = Select('.parent .child')
+        console.log(nodes)
+        nodes = Select('.parent #child')
+        console.log(nodes)
+        nodes = Select('.parent p')
+        console.log(nodes)
+        nodes = Select('#parent .child')
+        console.log(nodes)
+        nodes = Select('li p')
+        console.log(nodes)
+        nodes = Select('li .child')
+        console.log(nodes)
+        nodes = Select('li #child')
+        console.log(nodes)
+    </script>
+</body>
+</html>

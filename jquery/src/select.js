@@ -1,6 +1,14 @@
 function Select (selector) {
     var tokens = tokenize(selector)
-    console.log(tokens)
+    var context = [document]
+
+    for(var i = 0, len = tokens.length; i < len; i++) {
+        var token = tokens[i]
+        if (token.matchs) {
+            context = find[token.type](token.value, context)
+        }
+    }
+    return context
 }
 
 function tokenize (selector) {
@@ -47,7 +55,6 @@ function tokenize (selector) {
         if (matchs = rcombinators.exec(selector)) {
             tokens.push({
                 type: 'COMBINATOR',
-                matchs: matchs,
                 value: matchs[1]
             })
             selector = selector.replace(matchs[0], '')
@@ -58,4 +65,27 @@ function tokenize (selector) {
     }
 
     return tokens
+}
+
+var find = {
+    CLASS: function (s, context) {
+        var result = []
+        for(var i = 0, len = context.length; i < len; i++) {
+            result = result.concat([].slice.call(context[i].getElementsByClassName(s)))
+        }
+        return result
+    },
+    ID: function (s) {
+        var result = []
+        // id 是唯一的，所以直接找就 ok
+        result = document.getElementById(s)
+        return result ? [result] : []
+    },
+    TAG: function (s, context) {
+        var result = []
+        for(var i = 0, len = context.length; i < len; i++) {
+            result = result.concat([].slice.call(context[i].getElementsByTagName(s)))
+        }
+        return result
+    }
 }
