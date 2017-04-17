@@ -8,7 +8,7 @@
 	<div id="app">
 	    <p v-model = "user.name"></p>
 	    <p v-model = "school"></p>
-	    <input type="text">
+	    <input type="text" v-model="school">
 	</div>
 	<script src="./lib/Emitter.js"></script>
 	<script>
@@ -97,7 +97,11 @@
 						// console.log(name, typeof attrs[name])
 						if (key === 'v-model') {
 							// 表示这是我们自定义的属性
-							node.innerText = render(value, this.$data)
+                            if (node.tagName === 'INPUT') {
+                                node.value = render(value, this.$data)
+                            } else {
+                                node.innerText = render(value, this.$data)
+                            }
 						}
 					})
 				}
@@ -207,6 +211,10 @@
 		   		school: 'hunst'
 		 	}
 		})
+        // 监听输入框的值发生改变，这里应该是在源码内部实现的。
+        $('#app input').oninput = function (event) {
+            app.$data.school = event.target.value
+        }
 	</script>
 </body>
 </html>
