@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ltaoo/front_end_study.git"
+    "url": "git+https://github.com/ltaoo/ife.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ltaoo/front_end_study/issues"
+    "url": "https://github.com/ltaoo/ife/issues"
   },
-  "homepage": "https://github.com/ltaoo/front_end_study#readme",
+  "homepage": "https://github.com/ltaoo/ife/#readme",
   "dependencies": {
     "jquery": "^3.1.1",
     "three.js": "^0.77.1"
