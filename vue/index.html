@@ -1,1 +1,33 @@
-index.html
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>实现数据监听</title>
+</head>
+<body>
+    <!-- 先引入工具方法 -->
+    <script src="./src/lib/util.js"></script>
+    <!-- 引入监听方法 -->
+    <script src="./src/lib/Emitter.js"></script>
+    <script src="./src/observe/array-augmentations.js"></script>
+    <script src="./src/observe/object-augmentations.js"></script>
+    <script src="./src/observe/Observer.js"></script>
+    <!-- 原型方法 -->
+    <script src="./src/internal/init.js"></script>
+    <!-- 最后引入构造函数 -->
+    <script src="./src/vue.js"></script>
+    <script>
+        var demo = new Vue({
+            data: {
+                name: 'ltaoo',
+                school: {
+                    name: 'hunst',
+                    adderss: 'hunan'
+                },
+                skills: ['code']
+            }
+        })
+        console.log(demo)
+    </script>
+</body>
+</html>

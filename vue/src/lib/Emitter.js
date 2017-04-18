@@ -133,5 +133,5 @@ p.applyEmit = function (event) {
 
   return this
 }
-
-module.exports = Emitter
+// 暂时直接暴露至全局
+// module.exports = Emitter
