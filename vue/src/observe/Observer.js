@@ -8,16 +8,18 @@ var OBJECT = 1
 function Observer(value, type) {
     // 实现继承 1
     Emitter.call(this)
-        // 声明一个 parents 属性，用来存放该层级下所有属性的监听器
+    // 声明一个 parents 属性，用来存放该层级下所有属性的监听器
     this.parents = null
     this.value = value
     this.type = type
     if (value) {
         // 先增加 $observer 属性
         _.define(value, '$observer', this)
-            // 再根据类型进一步处理
+        // 再根据类型进一步处理
         if (type === ARRAY) {
-            // 如果是数组
+            // 如果是数组，就替换原型，新原型对数组方法做了拦截处理，增加了广播
+            _.augment(value, arrayAugmentations)
+            this.link(value)
         } else if (type === OBJECT) {
             // 如果是对象，就用 objectAugmentations 作为该值的原型，其实就是添加了 $add 和 $delete 方法
             // console.log(objectAugmentations)
@@ -37,6 +39,9 @@ Observer.create = function (value, options) {
     }
     if (_.isObject(value)) {
         return new Observer(value, OBJECT, options)
+    }
+    if (_.isArray(value)) {
+        return new Observer(value, ARRAY, options)
     }
 }
 // 实现继承 2
@@ -58,6 +63,7 @@ p.walk = function(obj) {
  * 监听属性
  */
 p.observe = function(key, val) {
+    console.log(key, val)
     // 新实例化一个 observer
     var ob = Observer.create(val)
     // 如果 val 是基本类型，则不会创建 $observer ，所以这里是 undefined
@@ -68,6 +74,15 @@ p.observe = function(key, val) {
                 ob: this,
                 key: key
             })
+    }
+}
+/**
+ * 监听数组的每一个元素
+ */
+p.link = function (items, index) {
+    index = index || 0
+    for(var i = 0, len = items.length; i < len; i++) {
+        this.observe(i + index, items[i])
     }
 }
 /**
@@ -87,7 +102,7 @@ p.convert = function(key, val) {
         get: function() {
             // 广播 get 事件
             console.log('get', key)
-            ob.nofify('get', key)
+            ob.notify('get', key)
             return val
         },
         set: function(newVal) {
@@ -98,7 +113,7 @@ p.convert = function(key, val) {
             // 监听新值
             ob.observe(key, newVal)
             // 广播 set 事件
-            ob.nofify('set', newVal)
+            ob.notify('set', newVal)
             val = newVal
         }
     })
@@ -109,7 +124,7 @@ Observer.pathDelimiter = '\b'
 /**
  * 广播事件
  */
-p.nofify = function(event, path, val, mutation) {
+p.notify = function(event, path, val, mutation) {
     this.emit(event, path, val, mutation)
         // 如果该监听器有父监听器，就往上冒泡
     if (!this.parents) return
@@ -120,7 +135,7 @@ p.nofify = function(event, path, val, mutation) {
         var key = parent.key
         // 重点来了，这里是获取到 "路径"
         var parentPath = path ? (key + Observer.pathDelimiter + path) : key
-        ob.nofify(event, parentPath, val, mutation)
+        ob.notify(event, parentPath, val, mutation)
     }
 }
 
