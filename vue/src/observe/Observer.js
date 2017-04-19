@@ -20,8 +20,9 @@ function Observer(value, type) {
             // 如果是数组
         } else if (type === OBJECT) {
             // 如果是对象，就用 objectAugmentations 作为该值的原型，其实就是添加了 $add 和 $delete 方法
-            _.define(value, objectAugmentations)
-            // 递归处理值
+            // console.log(objectAugmentations)
+            _.augment(value, objectAugmentations)
+            // 遍历处理每一个值，将每一个值都调用 Object.create() 实现遍历整棵树
             this.walk(value)
         }
     }
@@ -59,6 +60,7 @@ p.walk = function(obj) {
 p.observe = function(key, val) {
     // 新实例化一个 observer
     var ob = Observer.create(val)
+    // 如果 val 是基本类型，则不会创建 $observer ，所以这里是 undefined
     if (ob) {
         if (ob.findParent(this) > -1) return
             // 实现事件冒泡的核心代码在这里，给每个监听器一个 parent 属性，存放着父监听器

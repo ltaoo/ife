@@ -27,6 +27,19 @@ var _ = {
         }
     },
     /**
+     * 使用指定原型替换对象的原型
+     * @param {Object}    target
+     * @param {Prototype} prototype
+     */
+    augment: function (target, prototype) {
+        // 如果浏览器支持 __protot__ 属性，直接替换该值即可
+        if ('__proto__' in {}) {
+            target.__proto__ = prototype
+        } else {
+            // 暂时不处理
+        }
+    },
+    /**
      * 判断是否是数组
      * @param {Any} val 要判断的值
      */
