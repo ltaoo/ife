@@ -71,6 +71,8 @@ p.observe = function(key, val) {
     }
 }
 /**
+ * 取消对值的监听，主要目的是考虑到如果
+/**
  * 真正设置 set 和 get 的函数
  */
 p.convert = function(key, val) {
@@ -91,11 +93,11 @@ p.convert = function(key, val) {
         set: function(newVal) {
             console.log('set', key, newVal)
             if (val === newVal) return
-                // 取消旧值的监听
-            ob.unobserve(key)
-                // 监听新值
+            // 取消旧值的监听，我是觉得没有必要
+            // ob.unobserve(key)
+            // 监听新值
             ob.observe(key, newVal)
-                // 广播 set 事件
+            // 广播 set 事件
             ob.nofify('set', newVal)
             val = newVal
         }
@@ -123,7 +125,7 @@ p.nofify = function(event, path, val, mutation) {
 }
 
 /**
- * 寻找父监听器
+ * 寻找父监听器，第二个参数为 true 时移除该父监听器
  */
 p.findParent = function(parent, remove) {
     var parents = this.parents
