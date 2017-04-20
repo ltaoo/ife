@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>事件机制测试</title>
+</head>
+<body>
+    <button id="btn">click it</button>
+    <div class="delegate">
+        <p>额外元素，该元素不能触发点击事件</p>
+        <ul>
+            <li class="item">item 1</li>
+            <li class="item">item 2</li>
+            <li class="item">item 3</li>
+            <li class="item">item 4</li>
+            <li class="item">
+                <p>假设是点击了目标元素的子元素</p>
+            </li>
+        </ul>
+    </div>
+    <script src="../src/event.js"></script>
+    <script>
+        var btn = document.getElementById('btn') 
+        bind(btn, 'click', function (event) {
+            console.log(event)
+        })
+        delegate(document.querySelector('.delegate'), 'li', 'click', function (event) {
+            console.log(event.target.innerText)
+        })
+    </script>
+</body>
+</html>

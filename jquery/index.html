@@ -32,10 +32,24 @@
         </li>
     </ul>
     <h2>事件</h2>
-    <script src="../node_modules/jquery/external/sizzle/dist/sizzle.js"></script>
-    <script src="./src/select.js"></script>
+    <button id="btn">click it</button>
+    <div class="delegate">
+        <p>额外元素，该元素不能触发点击事件</p>
+        <ul>
+            <li class="item">item 1</li>
+            <li class="item">item 2</li>
+            <li class="item">item 3</li>
+            <li class="item">item 4</li>
+            <li class="item">
+                <p>假设是点击了目标元素的子元素</p>
+            </li>
+        </ul>
+    </div>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script>
-        // // 标签选择器
+        /**
+         * 标签选择器
+         */
         // Sizzle('p')
         // // id 选择器
         // Sizzle('#id')
@@ -43,11 +57,14 @@
         // Sizzle('.class')
         // 后代选择器
         // console.log(Sizzle('.parent .child'))
-        Select('.parent .child')
-        Select('.parent #child')
-        Select('.parent p')
         // 子选择器
         // Sizzle('.parent > .child')
+        /**
+         * 事件
+         */
+        $('.delegate').delegate('li', 'click', function (e) {
+            console.log(e.target.innerText)
+        }, true)
     </script>
 </body>
 </html>
