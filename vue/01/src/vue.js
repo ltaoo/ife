@@ -13,6 +13,6 @@ var p = Vue.prototype
 /**
  * 私有方法
  */
-_.mixin(p, {_init: _init })
-_.mixin(p, {_initScope: _initScope })
-_.mixin(p, {_initData: _initData })
+_.mixin(p, {
+    _init: _init
+})

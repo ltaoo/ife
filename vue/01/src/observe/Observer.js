@@ -63,6 +63,7 @@ p.walk = function(obj) {
  * 监听属性
  */
 p.observe = function(key, val) {
+    console.log(key, val)
     // 新实例化一个 observer
     var ob = Observer.create(val)
     // 如果 val 是基本类型，则不会创建 $observer ，所以这里是 undefined

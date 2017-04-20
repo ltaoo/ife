@@ -2,13 +2,9 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>实现数据渲染</title>
+    <title>实现数据监听</title>
 </head>
 <body>
-    <div id="app">
-        <p>{{name}}</p>
-        <input type="text" v-model="name">
-    </div>
     <!-- 先引入工具方法 -->
     <script src="./src/lib/util.js"></script>
     <!-- 引入监听方法 -->
@@ -17,8 +13,7 @@
     <script src="./src/observe/object-augmentations.js"></script>
     <script src="./src/observe/Observer.js"></script>
     <!-- 原型方法 -->
-    <script src="./src/instance/scope.js"></script>
-    <script src="./src/instance/init.js"></script>
+    <script src="./src/internal/init.js"></script>
     <!-- 最后引入构造函数 -->
     <script src="./src/vue.js"></script>
     <script>
@@ -32,6 +27,7 @@
                 }
             }
         })
+        console.log(demo)
     </script>
 </body>
 </html>

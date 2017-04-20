@@ -31,7 +31,7 @@ var _ = {
      * @param {Object}    target
      * @param {Prototype} prototype
      */
-    augment: function(target, prototype) {
+    augment: function (target, prototype) {
         // 如果浏览器支持 __protot__ 属性，直接替换该值即可
         if ('__proto__' in {}) {
             target.__proto__ = prototype
@@ -43,31 +43,14 @@ var _ = {
      * 判断是否是数组
      * @param {Any} val 要判断的值
      */
-    isArray: function(val) {
+    isArray: function (val) {
         return Object.prototype.toString.call(val) === '[object Array]'
     },
     /**
      * 判断是否是对象
      * @param {Any} val 要判断的值
      */
-    isObject: function(val) {
+    isObject: function (val) {
         return Object.prototype.toString.call(val) === '[object Object]'
-    },
-    /**
-     * to 代理 from 上的 key 属性，即 vm.$data.name === vm.name
-     */
-    proxy: function(to, from, key) {
-        // 如果已经存在该属性，就表示已经代理过了
-        if (to.hasOwnProperty(key)) return
-        Object.defineProperty(to, key, {
-            enumerable: true,
-            configurable: true,
-            get: function() {
-                return from[key]
-            },
-            set: function(val) {
-                from[key] = val
-            }
-        })
     }
 }
