@@ -4,7 +4,7 @@
 function _compile () {
     if (this._isBlock) {
         // 如果 this 是 block ，表示存在 blockFragment
-        _.toArray(this._blockFragment.childNodes).forEach(this._compileNode, this)
+        // _.toArray(this._blockFragment.childNodes).forEach(this._compileNode, this)
     } else {
         // 否则就直接编译
         this._compileNode(this.$el)
@@ -45,7 +45,7 @@ function _compileElement (node) {
         node.value = this.$interpolate(node.value)
     }
     // 是否有属性
-    var hasAttributes = node.hasAttributes()
+    // var hasAttributes = node.hasAttributes()
     // 先检查属性并提取指令
     // if (hasAttributes) {
     //     if (this._checkPriorityDirectives(node)) return
@@ -126,14 +126,14 @@ function _compileTextNode (node) {
         if (token.tag) {
             if (token.oneTime) {
                 // 最终该函数被挂载到 Vue 原型上，所以 this 指的是 vue 实例
-                value = this.$get(token.value)
-                el = token.html
-                    ? templateParser.parse(value, true)
-                    : document.createTextNode(value)
-                // 将 el 放在 node 的前面
-                _.before(el, node)
+                // value = this.$get(token.value)
+                // el = token.html
+                //     ? templateParser.parse(value, true)
+                //     : document.createTextNode(value)
+                // // 将 el 放在 node 的前面
+                // _.before(el, node)
             } else {
-                // 如果没有 oneTime
+                // 如果 oneTime 是 false，这是大部分情况
                 value = token.value
                 if (token.html) {
                     el = document.createComment('vue-html')
@@ -141,9 +141,10 @@ function _compileTextNode (node) {
                     // 绑定指令
                     this._bindDirective('html', value, el)
                 } else {
+                    // 大部分情况会走这里
                     el = document.createTextNode('')
                     _.before(el, node)
-                    // 绑定指令
+                    // 绑定指令，这是重点
                     this._bindDirective('text', value, el)
                 }
             }
@@ -207,12 +208,14 @@ function _checkPriorityDirectives (node) {
 
 /**
  * 绑定指令
- * @param {String} name
- * @param {String} value
- * @param {Element} node
+ * @param {String} name  指令名
+ * @param {String} value 指令对应的值
+ * @param {Element} node 节点
  */
 function _bindDirective (name, value, node) {
+    // 解析指令值，得到 AST {{name}} 就是一个普通的表达式
     var descriptors = dirParser.parse(value)
+    // 内部实际指令，指从节点中解析到的指令
     var dirs = this._directives
     for(var i = 0, len = descriptors.length; i < len; i++) {
         // 添加到指令列表中

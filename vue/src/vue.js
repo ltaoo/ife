@@ -25,17 +25,17 @@ _.extend(p, { _updateAdd: _updateAdd })
 _.extend(p, { _collectDep: _collectDep })
 // element.js 文件
 _.extend(p, { _initElement: _initElement })
-_.extend(p, { _initTemplate: _initTemplate })
+// _.extend(p, { _initTemplate: _initTemplate })
 _.extend(p, { _collectRawContent: _collectRawContent })
-_.extend(p, { _initContent: _initContent })
+// _.extend(p, { _initContent: _initContent })
 // compile.js 文件
 _.extend(p, { _compile: _compile })
 _.extend(p, { _compileNode: _compileNode })
 _.extend(p, { _compileElement: _compileElement })
-_.extend(p, { _compileAttrs: _compileAttrs })
+// _.extend(p, { _compileAttrs: _compileAttrs })
 _.extend(p, { _compileTextNode: _compileTextNode })
-_.extend(p, { _bindAttr: _bindAttr })
-_.extend(p, { _checkPriorityDirectives: _checkPriorityDirectives })
+// _.extend(p, { _bindAttr: _bindAttr })
+// _.extend(p, { _checkPriorityDirectives: _checkPriorityDirectives })
 _.extend(p, { _bindDirective: _bindDirective })
 /**
  * 生命周期

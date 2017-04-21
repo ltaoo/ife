@@ -1,14 +1,14 @@
 var expParser = {}
 var keywords =
-  'Math,break,case,catch,continue,debugger,default,' +
-  'delete,do,else,false,finally,for,function,if,in,' +
-  'instanceof,new,null,return,switch,this,throw,true,try,' +
-  'typeof,var,void,while,with,undefined,abstract,boolean,' +
-  'byte,char,class,const,double,enum,export,extends,' +
-  'final,float,goto,implements,import,int,interface,long,' +
-  'native,package,private,protected,public,short,static,' +
-  'super,synchronized,throws,transient,volatile,' +
-  'arguments,let,yield'
+    'Math,break,case,catch,continue,debugger,default,' +
+    'delete,do,else,false,finally,for,function,if,in,' +
+    'instanceof,new,null,return,switch,this,throw,true,try,' +
+    'typeof,var,void,while,with,undefined,abstract,boolean,' +
+    'byte,char,class,const,double,enum,export,extends,' +
+    'final,float,goto,implements,import,int,interface,long,' +
+    'native,package,private,protected,public,short,static,' +
+    'super,synchronized,throws,transient,volatile,' +
+    'arguments,let,yield'
 
 var wsRE = /\s/g
 var newlineRE = /\n/g
@@ -18,8 +18,8 @@ var pathTestRE = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\])*$/
 var pathReplaceRE = /[^\w$\.]([A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\])*)/g
 var keywordsRE = new RegExp('^(' + keywords.replace(/,/g, '\\b|') + '\\b)')
 var rootPathRE = /^[\w$]+/ // this is only used on valid
-                           // paths so no need to exclude
-                           // number for first char
+    // paths so no need to exclude
+    // number for first char
 
 /**
  * Save / Rewrite / Restore
@@ -42,10 +42,10 @@ var has = null
  * @return {String} - placeholder with index
  */
 
-function save (str) {
-  var i = saved.length
-  saved[i] = str.replace(newlineRE, '\\n')
-  return '"' + i + '"'
+function save(str) {
+    var i = saved.length
+    saved[i] = str.replace(newlineRE, '\\n')
+    return '"' + i + '"'
 }
 
 /**
@@ -55,26 +55,24 @@ function save (str) {
  * @return {String}
  */
 
-function rewrite (raw) {
-  var c = raw.charAt(0)
-  var path = raw.slice(1)
-  if (keywordsRE.test(path)) {
-    return raw
-  } else {
-    path = path.indexOf('"') > -1
-      ? path.replace(restoreRE, restore)
-      : path
-    // we store root level paths e.g. "a"
-    // so that the owner directive can add
-    // them as default dependencies.
-    var match = path.match(rootPathRE)
-    var rootPath = match && match[0]
-    if (rootPath && !has[rootPath]) {
-      paths.push(rootPath)
-      has[rootPath] = true
+function rewrite(raw) {
+    var c = raw.charAt(0)
+    var path = raw.slice(1)
+    if (keywordsRE.test(path)) {
+        return raw
+    } else {
+        path = path.indexOf('"') > -1 ? path.replace(restoreRE, restore) : path
+            // we store root level paths e.g. "a"
+            // so that the owner directive can add
+            // them as default dependencies.
+        var match = path.match(rootPathRE)
+        var rootPath = match && match[0]
+        if (rootPath && !has[rootPath]) {
+            paths.push(rootPath)
+            has[rootPath] = true
+        }
+        return c + 'scope.' + path
     }
-    return c + 'scope.' + path
-  }
 }
 
 /**
@@ -85,8 +83,8 @@ function rewrite (raw) {
  * @return {String}
  */
 
-function restore (str, i) {
-  return saved[i]
+function restore(str, i) {
+    return saved[i]
 }
 
 /**
@@ -98,31 +96,29 @@ function restore (str, i) {
  * @return {Function}
  */
 
-function compileExpFns (exp, needSet) {
-  // reset state
-  saved.length = 0
-  paths = []
-  has = Object.create(null)
-  // save strings and object literal keys
-  var body = exp
-    .replace(saveRE, save)
-    .replace(wsRE, '')
-  // rewrite all paths
-  // pad 1 space here becaue the regex matches 1 extra char
-  body = (' ' + body)
-    .replace(pathReplaceRE, rewrite)
-    .replace(restoreRE, restore)
-  var getter = makeGetter(body)
-  if (getter) {
-    return {
-      get   : getter,
-      body  : body,
-      paths : paths,
-      set   : needSet
-        ? makeSetter(body)
-        : null
+function compileExpFns(exp, needSet) {
+    // reset state
+    saved.length = 0
+    paths = []
+    has = Object.create(null)
+        // save strings and object literal keys
+    var body = exp
+        .replace(saveRE, save)
+        .replace(wsRE, '')
+        // rewrite all paths
+        // pad 1 space here becaue the regex matches 1 extra char
+    body = (' ' + body)
+        .replace(pathReplaceRE, rewrite)
+        .replace(restoreRE, restore)
+    var getter = makeGetter(body)
+    if (getter) {
+        return {
+            get: getter,
+            body: body,
+            paths: paths,
+            set: needSet ? makeSetter(body) : null
+        }
     }
-  }
 }
 
 /**
@@ -132,26 +128,26 @@ function compileExpFns (exp, needSet) {
  * @return {Function}
  */
 
-function compilePathFns (exp) {
-  var getter, path
-  if (exp.indexOf('[') < 0) {
-    // really simple path
-    path = exp.split('.')
-    getter = Path.compileGetter(path)
-  } else {
-    // do the real parsing
-    path = Path.parse(exp)
-    getter = path.get
-  }
-  return {
-    get: getter,
-    // always generate setter for simple paths
-    set: function (obj, val) {
-      Path.set(obj, path, val)
-    },
-    // save root path segment
-    paths: [exp.match(rootPathRE)[0]]
-  }
+function compilePathFns(exp) {
+    var getter, path
+    if (exp.indexOf('[') < 0) {
+        // really simple path
+        path = exp.split('.')
+        getter = Path.compileGetter(path)
+    } else {
+        // do the real parsing
+        path = Path.parse(exp)
+        getter = path.get
+    }
+    return {
+        get: getter,
+        // always generate setter for simple paths
+        set: function(obj, val) {
+            Path.set(obj, path, val)
+        },
+        // save root path segment
+        paths: [exp.match(rootPathRE)[0]]
+    }
 }
 
 /**
@@ -164,15 +160,15 @@ function compilePathFns (exp) {
  * @return {Function|undefined}
  */
 
-function makeGetter (body) {
-  try {
-    return new Function('scope', 'return ' + body + ';')
-  } catch (e) {
-    _.warn(
-      'Invalid expression. ' + 
-      'Generated function body: ' + body
-    )
-  }
+function makeGetter(body) {
+    try {
+        return new Function('scope', 'return ' + body + ';')
+    } catch (e) {
+        _.warn(
+            'Invalid expression. ' +
+            'Generated function body: ' + body
+        )
+    }
 }
 
 /**
@@ -189,16 +185,16 @@ function makeGetter (body) {
  * @return {Function|undefined}
  */
 
-function makeSetter (body) {
-  try {
-    return new Function(
-      'scope',
-      'value',
-      body + ' = value;'
-    )
-  } catch (e) {
-    _.warn('Invalid setter function body: ' + body)
-  }
+function makeSetter(body) {
+    try {
+        return new Function(
+            'scope',
+            'value',
+            body + ' = value;'
+        )
+    } catch (e) {
+        _.warn('Invalid setter function body: ' + body)
+    }
 }
 
 /**
@@ -207,10 +203,10 @@ function makeSetter (body) {
  * @param {Function} hit
  */
 
-function checkSetter (hit) {
-  if (!hit.set) {
-    hit.set = makeSetter(hit.body)
-  }
+function checkSetter(hit) {
+    if (!hit.set) {
+        hit.set = makeSetter(hit.body)
+    }
 }
 
 /**
@@ -221,22 +217,20 @@ function checkSetter (hit) {
  * @return {Function}
  */
 
-expParser.parse = function (exp, needSet) {
-  exp = exp.trim()
-  // try cache
-  // var hit = expressionCache.get(exp)
-  // if (hit) {
-  //   if (needSet) {
-  //     checkSetter(hit)
-  //   }
-  //   return hit
-  // }
-  // we do a simple path check to optimize for them.
-  // the check fails valid paths with unusal whitespaces,
-  // but that's too rare and we don't care.
-  var res = pathTestRE.test(exp)
-    ? compilePathFns(exp)
-    : compileExpFns(exp, needSet)
-  // expressionCache.put(exp, res)
-  return res
+expParser.parse = function(exp, needSet) {
+    exp = exp.trim()
+        // try cache
+        // var hit = expressionCache.get(exp)
+        // if (hit) {
+        //   if (needSet) {
+        //     checkSetter(hit)
+        //   }
+        //   return hit
+        // }
+        // we do a simple path check to optimize for them.
+        // the check fails valid paths with unusal whitespaces,
+        // but that's too rare and we don't care.
+    var res = pathTestRE.test(exp) ? compilePathFns(exp) : compileExpFns(exp, needSet)
+        // expressionCache.put(exp, res)
+    return res
 }

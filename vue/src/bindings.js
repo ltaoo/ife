@@ -5,7 +5,8 @@ function Binding () {
 var p = Binding.prototype
 
 /**
- * 添加 child，指定属性与值
+ * 添加子 Binding，指定属性与值
+ * @param {String} key
  * @param {Binding} child
  */
 p._addChild = function (key, child) {
@@ -33,8 +34,9 @@ p._removeSub = function (sub) {
 /**
  * 广播事件，通知所有指令订阅者
  */
-p.notify = function () {
+p._notify = function () {
     for(var i = 0, len = this._subs.length; i < len; i++) {
+        console.log(this._subs[i])
         this._subs[i].update()
     }
 }

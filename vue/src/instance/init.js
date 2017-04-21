@@ -15,9 +15,9 @@ function _init (options) {
     // 组件有指令
     this._directives = []
 
-    this._isBlock = false
-    this.blockStart = null
-    this.blockEnd = null
+    // this._isBlock = false
+    // this.blockStart = null
+    // this.blockEnd = null
 
     // 是否编译
     this._isCompiled = false

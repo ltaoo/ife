@@ -9,7 +9,7 @@ function _initElement (el) {
     }
     this.$el = el
     // 初始化模板
-    this._initTemplate()
+    // this._initTemplate()
     // 初始化内容
     // this._initContent()
     this.$el.__vue__ = this

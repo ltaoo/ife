@@ -2,7 +2,7 @@ var argRE = /^[\w\$-]+$|^'[^']*'$|^"[^"]*"$/
 var filterTokenRE = /[^\s'"]+|'[^']+'|"[^"]+"/g
 
 /**
- * Parser state
+ * 解析器状态
  */
 
 var str
@@ -22,8 +22,8 @@ var argC
 
 /**
  * Push a directive object into the result Array
+ * 将指令对象放入结果数组中
  */
-
 function pushDir() {
     dir.raw = str.slice(begin, i).trim()
     if (dir.expression === undefined) {
@@ -55,9 +55,9 @@ function pushFilter() {
     lastFilterIndex = i + 1
 }
 
+var dirParser = {}
 /**
- * Parse a directive string into an Array of AST-like
- * objects representing directives.
+ * 解析指令字符串为类似于 AST 的语法树
  *
  * Example:
  *
@@ -73,16 +73,12 @@ function pushFilter() {
  * @param {String} str
  * @return {Array<Object>}
  */
-
-var dirParser = {}
 dirParser.parse = function(s) {
-
     // var hit = cache.get(s)
     // if (hit) {
     //     return hit
     // }
-
-    // reset parser state
+    // 开始解析，重置所有全局变量
     str = s
     inSingle = inDouble = false
     curly = square = paren = begin = argIndex = 0
@@ -90,26 +86,28 @@ dirParser.parse = function(s) {
     dirs = []
     dir = {}
     arg = null
-
+    // 遍历字符串的每一个字符
     for (i = 0, l = str.length; i < l; i++) {
         c = str.charCodeAt(i)
         if (inSingle) {
-            // check single quote
+            // 检查单引号 
             if (c === 0x27) inSingle = !inSingle
         } else if (inDouble) {
-            // check double quote
+            // 检查双引号
             if (c === 0x22) inDouble = !inDouble
         } else if (
+            // 逗号
             c === 0x2C && // comma
             !paren && !curly && !square
         ) {
-            // reached the end of a directive
+            // 如果遇到"," 表示一个指令结束,开始下一个指令的解析
             pushDir()
-                // reset & skip the comma
+            // reset & skip the comma
             dir = {}
             begin = argIndex = lastFilterIndex = i + 1
         } else if (
-            c === 0x3A && // colon
+            // 冒号
+            c === 0x3A &&
             !dir.expression &&
             !dir.arg
         ) {
@@ -125,7 +123,8 @@ dirParser.parse = function(s) {
                 dir.arg = argC === 0x22 || argC === 0x27 ? arg.slice(1, -1) : arg
             }
         } else if (
-            c === 0x7C && // pipe
+            // 管道符，这里是过滤指令
+            c === 0x7C &&
             str.charCodeAt(i + 1) !== 0x7C &&
             str.charCodeAt(i - 1) !== 0x7C
         ) {

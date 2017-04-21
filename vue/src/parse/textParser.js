@@ -40,6 +40,7 @@ function compileRegex (){
 var textParser = {
     parse: function (text) {
         if (config._delimitersChanged) {
+            // 生成解析用的正则
             compileRegex()
         }
         // 首先尝试从缓存中命中
@@ -51,18 +52,19 @@ var textParser = {
         }
         // 正式开始解析
         var tokens = []
-        // 上一次的序号，从 0 开始
+        // 从位置 0 开始进行解析
         var lastIndex = tagRE.lastIndex = 0
         var match, index, value, oneTime
         while (match = tagRE.exec(text)) {
             index = match.index
             if (index > lastIndex) {
-                // 这是普通文本
+                // 如果第一个位置不是 {{ 开始标签，表示前面还有普通文本
                 tokens.push({
                     value: text.slice(lastIndex, index)
                 })
             }
-            oneTime = match[1].charCodeAt(0) === 0x2A // ? 完全不明白什么含义
+            // console.log('*'.charCodeAt(0), 42 .toString(16))
+            oneTime = match[1].charCodeAt(0) === 0x2A // 如果第一个符号是 *
             value = oneTime
                 ? match[1].slice(1)
                 : match[1]
@@ -72,6 +74,7 @@ var textParser = {
                 html: htmlRE.test(match[0]),
                 oneTime: oneTime
             })
+            // 匹配完成一个，就将序号往前移动
             lastIndex = index + match[0].length
         }
         // 结束遍历后，检查后面是否还有文本

@@ -5,7 +5,10 @@
     <title>实现数据渲染</title>
 </head>
 <body>
-    <div id="app">{{name}}</div>
+    <div id="app">
+        <p>有其他值也没问题：{{name}}</p>
+    </div>
+    <button id="btn">click it</button>
     <!-- 引入配置项，主要是配置指令前缀以及插入值的分隔符 -->
     <script src="./src/config.js"></script>
     <!-- 先引入工具方法 -->
@@ -53,6 +56,9 @@
                 }
             }
         })
+        document.querySelector('#btn').onclick = function () {
+            demo.$scope.name = 'hello'
+        }
     </script>
 </body>
 </html>

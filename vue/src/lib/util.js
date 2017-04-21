@@ -110,6 +110,30 @@ var _ = {
     }
 }
 
+var toString = Object.prototype.toString
+var inBrowser =
+    typeof window !== 'undefined' &&
+    toString.call(window) !== '[object Object]'
+
+/**
+ * Defer a task to the start of the next event loop
+ *
+ * @param {Function} cb
+ * @param {Object} ctx
+ */
+
+var defer = inBrowser ? (window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    setTimeout) : setTimeout
+
+_.nextTick = function(cb, ctx) {
+    if (ctx) {
+        defer(function() { cb.call(ctx) }, 0)
+    } else {
+        defer(cb, 0)
+    }
+}
+
 _.resolveFilters = function(vm, filters, target) {
     if (!filters) {
         return
