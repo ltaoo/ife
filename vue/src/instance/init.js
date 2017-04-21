@@ -13,7 +13,7 @@ function _init (options) {
     this._watchers = {}
     this._activeWatcher = null
     // 组件有指令
-    this._direcitves = []
+    this._directives = []
 
     this._isBlock = false
     this.blockStart = null
@@ -35,6 +35,21 @@ function _init (options) {
     //     options,
     //     this
     // )
+    this.$options = Object.assign(options, {
+        directives    : directives,
+        partials      : {},
+        effects       : {},
+        components    : {},
+        inheritScope  : true
+    })
     this._initScope()
     this._initData(this._data, true)
+
+    // 初始化绑定树，创建 this._rootBinding
+    this._initBindings()
+
+    // 渲染数据
+    if (options.el) {
+        this.$mount(options.el)
+    }
 }

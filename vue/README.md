@@ -15,3 +15,45 @@ b1654d5e024b523650c60df8f4c8e89f59d47b63
 ### bindings.js
 
 新增 Binding 类
+
+### api/lifecycle.js
+
+在`_init`函数内，最后，如果传了`el`值，就调用`$mount`。
+
+```javascript
+function $mount (el) {
+    // 调用生命周期钩子
+    this._callHook('beforeMount')
+    // 初始化节点
+    this._initElement(el)
+    // 编译
+    this._compile()
+    // 调用生命周期钩子
+    this._callHook('ready')
+}
+```
+
+先调用生命周期钩子，再进行后续操作。`instance/events.js`。
+
+#### instance/element.js
+
+```javascript
+function _initElement (el) {
+    if (typeof el === 'string') {
+        el = document.querySelector(el)
+        // 错误提示
+        if (!el) console.log('没有找到该节点')
+    }
+    this.$el = el
+    // 初始化模板
+    this._initTemplate()
+    // 初始化内容
+    this._initContent()
+}
+```
+
+#### instance/compile.js
+
+
+
+

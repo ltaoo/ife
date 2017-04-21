@@ -5,10 +5,9 @@
     <title>实现数据渲染</title>
 </head>
 <body>
-    <div id="app">
-        <p>{{name}}</p>
-        <input type="text" v-model="name">
-    </div>
+    <div id="app">{{name}}</div>
+    <!-- 引入配置项，主要是配置指令前缀以及插入值的分隔符 -->
+    <script src="./src/config.js"></script>
     <!-- 先引入工具方法 -->
     <script src="./src/lib/util.js"></script>
     <!-- 引入监听方法 -->
@@ -16,13 +15,35 @@
     <script src="./src/observe/array-augmentations.js"></script>
     <script src="./src/observe/object-augmentations.js"></script>
     <script src="./src/observe/Observer.js"></script>
+    <!-- 生命周期 -->
+    <script src="./src/api/lifecycle.js"></script>
+    <!-- 解析器 -->
+    <script src="./src/parse/textParser.js"></script>
+    <script src="./src/parse/dirParser.js"></script>
+    <!-- <script src="./src/parse/templateParser.js"></script> -->
+    <script src="./src/parse/expParser.js"></script>
+    <script src="./src/parse/path.js"></script>
+    <!-- 计数器类 -->
+    <script src="./src/batcher.js"></script>
+    <!-- 观察者类 -->
+    <script src="./src/watcher.js"></script>
+    <!-- 指令类 -->
+    <script src="./src/directive.js"></script>
+    <!-- 绑定类 -->
+    <script src="./src/bindings.js"></script>
+    <!-- 预定义指令 -->
+    <script src="./src/directives/index.js"></script>
     <!-- 原型方法 -->
+    <script src="./src/instance/bindings.js"></script>
+    <script src="./src/instance/compile.js"></script>
     <script src="./src/instance/scope.js"></script>
+    <script src="./src/instance/element.js"></script>
     <script src="./src/instance/init.js"></script>
     <!-- 最后引入构造函数 -->
     <script src="./src/vue.js"></script>
     <script>
         var demo = new Vue({
+            el: '#app',
             data: {
                 name: 'ltaoo',
                 skills: ['code'],

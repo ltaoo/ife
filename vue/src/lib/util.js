@@ -19,7 +19,7 @@ var _ = {
      * @param {Object} to   目标对象
      * @param {Object} from 源对象
      */
-    mixin: function(to, from) {
+    extend: function(to, from) {
         for (var key in from) {
             if (to[key] !== from[key]) {
                 to[key] = from[key]
@@ -69,5 +69,92 @@ var _ = {
                 from[key] = val
             }
         })
+    },
+    /**
+     * 将类数组对象转换为数组
+     */
+    toArray: function(ary) {
+        return Array.prototype.slice.call(ary)
+    },
+    guard: function(value) {
+        return value === undefined ? '' : value
+    },
+    /**
+     * 获取 node 上 attr 属性的值
+     * @param {Element} node
+     * @param {String} attr
+     */
+    attr: function(node, attr) {
+        attr = config.prefix + attr
+        var val = node.getAttribute(attr)
+        if (val !== null) {
+            // 如果存在该指令并且有值
+            node.removeAttribute(attr)
+        }
+        return val
+    },
+    /**
+     * 将 target 放到 el 的后面
+     * @param {Element} el
+     * @param {Element} el
+     */
+    before: function(el, target) {
+        target.parentNode.insertBefore(el, target)
+    },
+    /**
+     * 移除指定节点
+     * @param {Element} el
+     */
+    remove: function(el) {
+        el.parentNode.removeChild(el)
     }
+}
+
+_.resolveFilters = function(vm, filters, target) {
+    if (!filters) {
+        return
+    }
+    var res = target || {}
+    var registry = vm.$options.filters
+    filters.forEach(function(f) {
+        var def = registry[f.name]
+        var args = f.args
+        var reader, writer
+        if (!def) {
+            _.warn('Failed to resolve filter: ' + f.name)
+        } else if (typeof def === 'function') {
+            reader = def
+        } else {
+            reader = def.read
+            writer = def.write
+        }
+        if (reader) {
+            if (!res.read) {
+                res.read = []
+            }
+            res.read.push(function(value) {
+                return args ? reader.apply(vm, [value].concat(args)) : reader.call(vm, value)
+            })
+        }
+        // only watchers needs write filters
+        if (target && writer) {
+            if (!res.write) {
+                res.write = []
+            }
+            res.write.push(function(value) {
+                return args ? writer.apply(vm, [value, res.value].concat(args)) : writer.call(vm, value, res.value)
+            })
+        }
+    })
+    return res
+}
+
+_.applyFilters = function(value, filters) {
+    if (!filters) {
+        return value
+    }
+    for (var i = 0, l = filters.length; i < l; i++) {
+        value = filters[i](value)
+    }
+    return value
 }
