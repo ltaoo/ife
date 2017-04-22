@@ -49,11 +49,11 @@
 [代码地址](https://github.com/ltaoo/ife/blob/master/uiComponents/task02.html)
 [demo 地址](https://ltaoo.github.io/ife/uiComponents/task02.html)
 
-### UI 组件之图片裁剪器（未完善)
+### UI 组件之图片裁剪器
 
 [代码地址](https://github.com/ltaoo/ife/tree/master/uiComponents/task03)
 [demo 地址](https://ltaoo.github.io/ife/uiComponents/task03/views/index.html)
-> 由于该任务需要自己搭建后端，所以`demo`仅能选择图片以及展示图片。
+> 由于该任务需要自己搭建后端，所以线上`demo`仅能选择图片以及展示图片，可以将项目文件拷贝至本地搭建后端。
 
 ### 无限滚动效果
 
@@ -163,6 +163,22 @@
 [代码地址](https://github.com/ltaoo/ife/blob/master/fakeVue/vue05.html)
 [demo 地址](https://ltaoo.github.io/ife/fakeVue/vue05.html)
 
+### 网页抓取分析服务系列之一（基础分析）
+
+[代码地址](https://github.com/ltaoo/ife/blob/master/phantomJs/task01.js)
+
+### 网页抓取分析服务系列之二（设备模拟）
+
+[代码地址](https://github.com/ltaoo/ife/blob/master/phantomJs/task02.js)
+
+### 网页抓取分析服务系列之三（服务封装）
+
+[代码地址](https://github.com/ltaoo/ife/blob/master/phantomJs/task03)
+
+### 网页抓取分析服务系列之四（数据交互）
+
+[代码地址](https://github.com/ltaoo/ife/blob/master/phantomJs/task04)
+
 ## ECharts & WebVR 学院
 
 ### WebGL No.1 - Three.js 入门
@@ -235,5 +251,13 @@
 [代码地址](https://github.com/ltaoo/ife/blob/master/echarts/task07.html)
 [demo 地址](https://ltaoo.github.io/ife/echarts/task07.html)
 
+## 轮子
 
+### CMD 规范模块加载器
+
+[代码地址](https://github.com/ltaoo/ife/tree/master/module/seajs)
+
+### vue 源码阅读过程
+
+[代码地址](https://github.com/ltaoo/ife/tree/master/vue)
 
