@@ -40,16 +40,11 @@
 
 <body>
     <div id="cropper"></div>
-    <!-- <input id="uploadImage" class="upload__btn" type="file" accept="image/*" >
-    <div class="upload__preview">
-        <img id="uploadPreview" class="upload__img" src="" alt="Image preview" >
-        <canvas id="img" width="600" height="360"></canvas>
-    </div>
     <input id="width" type="text" placeholder="请输入宽度">
     <input id="height" type="text" placeholder="请输入高度">
     <button id="size">裁剪</button>
     <canvas id="result" width="300" height="240"></canvas>
-    <button id="upload">上传图片到服务器</button> -->
+    <button id="upload">上传图片到服务器</button>
     <script type="text/javascript">
         /* 裁剪框构造函数
          */
@@ -149,6 +144,8 @@
                 selector.style.cursor = cursorTable[4]
                 this.x = event.x
                 this.y = event.y
+                this.size.width = selector.clientWidth
+                this.size.height = selector.clientHeight
             }
             document.body.onmouseup = () => {
                 this.changeable = false
@@ -177,7 +174,7 @@
                     this.renderAnchor()
 
                     // 调用外部传过来的方法
-                    this.renderCanvas.call(null, width, height)
+                    // this.renderCanvas.call(null, width, height)
                 }
             }
         }
@@ -236,7 +233,6 @@
                     y = event.pageY - this.imgContainer.offsetTop - layerY
 
                     // 做超出范围的处理
-                    // console.log(x, this.imgContainer.offsetLeft, this.imgContainer.clientWidth)
                     if (x < 0 || 
                         x + selector.clientWidth > this.imgContainer.clientWidth ||
                         y < 0 ||
@@ -246,7 +242,7 @@
                     selector.style.left = x + 'px'
                     selector.style.top = y + 'px'
                     // 移动的时候要重新渲染预览区
-                    // draw(img, ctx, x, y, w, h)
+                    this.updatePreview(x, y, 100, 60)
                 }
             }
             this.imgContainer.onmouseout = function () {
@@ -258,7 +254,7 @@
             this.fileReader.onload = (event) => {
                 // ctx.drawImage(img, 0, 0, 200, 200) 前 4 个参数是原图片，后四个参数是canvas
                 // 创建一个图片标签
-                const _image = new Image()
+                const _image = this.source = new Image()
                 _image.src = event.target.result
                 // 当图片加载完成，就将图片渲染到 canvas 上
                 _image.onload = () => {
@@ -275,12 +271,20 @@
                         width = _width / _height * 360
                         height = 360
                     }
+                    this.imgSize = {
+                        width: width,
+                        height: height
+                    }
                     // 清除
                     // console.log(_image.width, _image.height, width, height)
                     // 计算，不拉伸显示图片
                     this.imgCtx.clearRect(0, 0, _image.width, _image.height)
                     this.renderBackground()
+                    // 渲染要上传的图片
                     this.imgCtx.drawImage(_image, 0, 0, _image.width, _image.height, 0, 0, width, height)
+                    // 创建预览区域
+                    this.createPreview()
+                    this.updatePreview(0, 0, 100, 60)
                     this.imgContainer.appendChild(this.selector)
                 }
                 // 创建图片区
@@ -319,7 +323,8 @@
             imgContainer.className = 'cropper__img'
             this.tempContainer.appendChild(imgContainer)
         }
-        /* imgCanvas 用来显示选择的图片的 canvas
+        /** 
+         * imgCanvas 用来显示选择的图片的 canvas
          */
         Cropper.prototype.createImg = function () {
             const imgCanvas = this.imgCanvas = document.createElement('canvas')
@@ -329,17 +334,19 @@
             // 绘制黑白背景
             const imgCtx = this.imgCtx = imgCanvas.getContext('2d')
         }
-        /* previewCanvas 裁剪预览区域
+        /** 
+         * previewCanvas 裁剪预览区域
          */
         Cropper.prototype.createPreview = function () {
             const previewCanvas = this.previewCanvas = document.createElement('canvas')
             previewCanvas.width = 100
             previewCanvas.height = 60
-            // this.container.appendChild(imgCanvas)
-            // 绘制黑白背景
+            previewCanvas.className = 'cropper__preview'
+            this.container.appendChild(previewCanvas)
             this.previewCtx = previewCanvas.getContext('2d')
         }
-        /* 绘制表示透明的背景
+        /** 
+         * 绘制表示透明的背景
          */
         Cropper.prototype.renderBackground = function () {
             const imgCtx = this.imgCtx
@@ -361,90 +368,39 @@
             imgCtx.fillStyle = 'rgba(0, 0, 0, 0.1)'
             imgCtx.fillRect(0, 0, 600, 360)
         }
+        /**
+         * 更新预览区域
+         * @param {Number} x 要渲染源图片的 x
+         * @param {Number} y 要渲染源图片的 y
+         */
+        Cropper.prototype.updatePreview = function (x, y) {
+            var img = this.source
+            var width = this.selector.clientWidth
+            var height = this.selector.clientHeight
+            this.previewCanvas.width = width
+            this.previewCanvas.height = height
+            var clientWidth = this.imgSize.width
+            var clientHeight = this.imgSize.height
+            var naturalWidth = img.width
+            var naturalHeight = img.height
+            this.previewCtx.drawImage(
+                // 图片源
+                img,
+                // 图片源 x、y
+                x / clientHeight * naturalWidth,
+                y / clientWidth * naturalHeight,
+                // 图片源 宽高
+                naturalWidth * width / clientWidth,
+                naturalHeight * height / clientHeight,
+                0, 0,
+                // 渲染出来的宽高，和裁剪框保持一致
+                width, height
+            )
+        }
         /*
          * ========= 页面代码 ============
          */
         document.body.onload = function () {
-            // const oFReader = new FileReader()
-            // const canvas = document.querySelector('#result')
-            // const ctx = canvas.getContext('2d')
-
-            // const img = document.getElementById("uploadPreview")
-            // oFReader.onload = function(oFREvent) {
-            //     img.src = oFREvent.target.result
-            //     img.style.display = 'unset'
-            //     // naturalHeight
-            //     // ctx.drawImage(img, 0, 0, 200, 200) 前 4 个参数是原图片，后四个参数是canvas
-            //     draw(img, ctx, 0, 0, 100, 60)
-            // }
-            // /* 将指定图片渲染到 canvas 中
-            //  * @param <Element> img
-            //  * @param <> ctx
-            //  * @param <Number> x
-            //  * @param <Number> y
-            //  * @param <Number> width
-            //  * @param <Number> height
-            //  */
-            // function draw (img, ctx, x, y, width, height) {
-            //     // 计算比例
-            //     ctx.drawImage(img, x / img.clientWidth * img.naturalWidth, y / img.clientWidth * img.naturalHeight, img.naturalWidth * width / img.clientWidth, img.naturalHeight * height / img.clientHeight , 0, 0, 300, 300 * height / width)
-            // }
-            
-            
-            // const previewContainer = document.querySelector('.upload__preview')
-            // // 创建裁剪框
-            // let w = 100, h = 60
-            // const selectorObject = new Selector({
-            //     size: {
-            //         width: w,
-            //         height: h
-            //     }
-            // })
-            // let x = 0, y = 0
-            // // 增加方法
-            // selectorObject.renderCanvas = function (width, height) {
-            //     w = width
-            //     h = height
-            //     draw(img, ctx, x, y, w, h)
-            // }
-            // // 获取到裁剪框本身
-            // const selector = selectorObject.getElement()
-            // /* 上传图片事件
-            //  */
-            // function loadImageFile(event) {
-            //     // 如果上传的图片数为 0，则返回
-            //     if (event.target.files.length === 0) {
-            //         return
-            //     }
-            //     // 获取到上传的图片
-            //     const oFile = event.target.files[0]
-            //     oFReader.readAsDataURL(oFile)
-            //     previewContainer.appendChild(selector)
-            // }
-            // document.querySelector('#uploadImage').onchange = loadImageFile
-            // // 裁剪框拖动
-            // let dragable = false
-            // let layerX = 0
-            // let layerY = 0
-            // // 点击下去，就可以移动了
-            // selector.onmousedown = function (event) {
-            //     layerX = event.layerX
-            //     layerY = event.layerY
-            //     dragable = true
-            // }
-            // previewContainer.onmouseup = function (event) {
-            //     dragable = false
-            // }
-            // previewContainer.onmousemove = function (event) {
-            //     if (dragable && !selectorObject.changeable) {
-            //         x = event.pageX - previewContainer.offsetLeft - layerX
-            //         y = event.pageY - previewContainer.offsetTop - layerY
-            //         selector.style.left = x + 'px'
-            //         selector.style.top = y + 'px'
-            //         // 移动的时候要重新渲染 canvas
-            //         draw(img, ctx, x, y, w, h)
-            //     }
-            // }
             // // 点击裁剪按钮根据用户定义宽高裁剪
             // const widthInput = document.querySelector('#width')
             // const heightInput = document.querySelector('#height')
@@ -456,46 +412,47 @@
 
             //     draw(img, ctx, 0, 0, widhtValue, heightValue)
             // }
-            // 上传图片
-            // document.querySelector('#upload').onclick = function (event) {
-            //     let data = canvas.toDataURL()
-            //     data = data.split(',')[1]
-            //     data = window.atob(data)
-            //     let ia = new Uint8Array(data.length)
-            //     for (var i = 0; i < data.length; i++) {
-            //         ia[i] = data.charCodeAt(i)
-            //     }
-            //     const blob = new Blob([ia], {
-            //         type:"image/png",
-            //         endings:'transparent'
-            //     })
-            //     // 组建要 post 的数据
-            //     const fd = new FormData()
-            //     fd.append('filename', blob, 'image.png')
-
-            //     fetch('/upload', {
-            //         method: 'POST',
-            //         body: fd
-            //         // 'content-type': 'multipart/form-data',
-            //     })
-            //     .then(response => {
-            //         console.log(response)
-            //         alert('上传成功')
-            //     })
-            //     .catch(err => {
-            //         console.log(err)
-            //         alert('上传失败')
-            //     })
-            // }
-            new Cropper({
+            // 初始化裁剪器
+            var cropper = new Cropper({
                 el: '#cropper',
                 size: {
                     width: 100,
                     height: 60
                 }
             })
+            // 上传图片
+            document.querySelector('#upload').onclick = function (event) {
+                let data = canvas.toDataURL()
+                data = data.split(',')[1]
+                data = window.atob(data)
+                let ia = new Uint8Array(data.length)
+                for (var i = 0; i < data.length; i++) {
+                    ia[i] = data.charCodeAt(i)
+                }
+                const blob = new Blob([ia], {
+                    type:"image/png",
+                    endings:'transparent'
+                })
+                // 组建要 post 的数据
+                const fd = new FormData()
+                fd.append('filename', blob, 'image.png')
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: fd
+                    // 'content-type': 'multipart/form-data',
+                })
+                .then(response => {
+                    console.log(response)
+                    alert('上传成功')
+                })
+                .catch(err => {
+                    console.log(err)
+                    alert('上传失败')
+                })
+            }
+            
         }
-        
     </script>
 </body>
 
