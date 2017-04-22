@@ -43,7 +43,6 @@
     <input id="width" type="text" placeholder="请输入宽度">
     <input id="height" type="text" placeholder="请输入高度">
     <button id="size">裁剪</button>
-    <canvas id="result" width="300" height="240"></canvas>
     <button id="upload">上传图片到服务器</button>
     <script type="text/javascript">
         /* 裁剪框构造函数
@@ -242,7 +241,7 @@
                     selector.style.left = x + 'px'
                     selector.style.top = y + 'px'
                     // 移动的时候要重新渲染预览区
-                    this.updatePreview(x, y, 100, 60)
+                    this.updatePreview(x, y)
                 }
             }
             this.imgContainer.onmouseout = function () {
@@ -284,7 +283,7 @@
                     this.imgCtx.drawImage(_image, 0, 0, _image.width, _image.height, 0, 0, width, height)
                     // 创建预览区域
                     this.createPreview()
-                    this.updatePreview(0, 0, 100, 60)
+                    this.updatePreview(0, 0)
                     this.imgContainer.appendChild(this.selector)
                 }
                 // 创建图片区
@@ -373,10 +372,10 @@
          * @param {Number} x 要渲染源图片的 x
          * @param {Number} y 要渲染源图片的 y
          */
-        Cropper.prototype.updatePreview = function (x, y) {
+        Cropper.prototype.updatePreview = function (x, y, w, h) {
             var img = this.source
-            var width = this.selector.clientWidth
-            var height = this.selector.clientHeight
+            var width = w || this.selector.clientWidth
+            var height = h || this.selector.clientHeight
             this.previewCanvas.width = width
             this.previewCanvas.height = height
             var clientWidth = this.imgSize.width
@@ -401,17 +400,6 @@
          * ========= 页面代码 ============
          */
         document.body.onload = function () {
-            // // 点击裁剪按钮根据用户定义宽高裁剪
-            // const widthInput = document.querySelector('#width')
-            // const heightInput = document.querySelector('#height')
-            // document.querySelector('#size').onclick = function (event) {
-            //     let widhtValue = parseInt(widthInput.value)
-            //     let heightValue = parseInt(widthInput.value)
-
-            //     console.log(widhtValue, heightValue)
-
-            //     draw(img, ctx, 0, 0, widhtValue, heightValue)
-            // }
             // 初始化裁剪器
             var cropper = new Cropper({
                 el: '#cropper',
@@ -420,9 +408,18 @@
                     height: 60
                 }
             })
+            // 点击裁剪按钮根据用户定义宽高裁剪
+            const widthInput = document.querySelector('#width')
+            const heightInput = document.querySelector('#height')
+            document.querySelector('#size').onclick = function (event) {
+                let widhtValue = parseInt(widthInput.value)
+                let heightValue = parseInt(widthInput.value)
+                console.log(widhtValue, heightValue)
+                cropper.updatePreview(0, 0, widhtValue, heightValue)
+            }
             // 上传图片
             document.querySelector('#upload').onclick = function (event) {
-                let data = canvas.toDataURL()
+                let data = cropper.previewCanvas.toDataURL()
                 data = data.split(',')[1]
                 data = window.atob(data)
                 let ia = new Uint8Array(data.length)
