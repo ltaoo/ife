@@ -43,7 +43,6 @@ function _initBindings() {
  */
 
 function _getBindingAt(path) {
-    console.log('_getBindingAt')
     return Path.getFromObserver(this._rootBinding, path)
 }
 
@@ -77,10 +76,10 @@ function _createBindingAt(path) {
 function _updateBindingAt(path) {
     // root binding updates on any change
     this._rootBinding._notify()
-    var binding = this._getBindingAt(path, true)
-    if (binding) {
-        binding._notify()
-    }
+    // var binding = this._getBindingAt(path, true)
+    // if (binding) {
+    //     binding._notify()
+    // }
 }
 
 /**
