@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Promise 源码测试</title>
+</head>
+<body>
+    <script src="./origin/lib/browser-raw.js"></script>
+    <script src="./origin/lib/browser-asap.js"></script>
+    <script src="./origin/index.js"></script>
+    <script>
+        window.onload = function () {
+            /**
+             * 测试 Promise
+             * @return {Promise}
+             */
+            function fetch() {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve('hello world');
+                    }, 3000);
+                })
+            }
+            // 调用
+            fetch()
+                .then(res => {
+                    console.log(res);
+                })
+        }
+    </script>
+</body>
+</html>
