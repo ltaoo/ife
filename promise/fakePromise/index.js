@@ -1,4 +1,3 @@
-var asap = require('asap/raw');
 /**
  * 一个仅用以创建空 Promise 的函数
  */
@@ -36,6 +35,14 @@ function Handler(onFlufilled, onRejected, promise) {
 
 // 重点在于 handle 函数？这里是把 new Handler 称作 deferred
 function handle(self, deferred) {
+    if (self._state === 0) {
+        if (self._deferredState === 0) {
+            self._deferredState = 1;
+            self._deferreds = deferred;
+            // 到这里就结束了代码的调用，等待异步代码执行完成
+            return;
+        }
+    }
     handleResolve(self, deferred);
 }
 
@@ -49,10 +56,19 @@ function handleResolve(self, deferred) {
 }
 
 function resolve(self, newValue) {
-    // 这里打印了两次，第二次 newValue 为需要的值，这个很重要
-    // console.log(self, newValue);
     self._state = 1;
     self._value = newValue;
+    // 关键代码，不能缺少
+    finale(self);
+}
+/**
+ * 结束？是哪里结束
+ */
+function finale(self) {
+    if (self._deferredState === 1) {
+        handle(self, self._deferreds);
+        self._deferreds = null;
+    }
 }
 /**
  * 执行 resolve ?
@@ -64,7 +80,7 @@ function doResolve(fn, promise) {
     var done = false;
     var res = tryCallTwo(
         fn, 
-        // value 即 resolve('xxx') 中的 value
+        // 当异步代码是 resolve 状态，就到了这里，value 即 resolve('xxx') 中的 value
         function (value) {
             if (done) return;
             done = true;
@@ -97,5 +113,3 @@ function tryCallTwo(fn, a, b) {
 function getThen(obj) {
     return obj.then;
 }
-
-module.exports = Promise;
