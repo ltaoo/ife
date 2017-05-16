@@ -1,11 +1,9 @@
-const Promise = require('promise');
-
 const fetch = function () {
     return new Promise((resolve, reject) => {
-        resolve('hello');
+        setTimeout(() => {
+            resolve('hello');
+        }, 3000);
     });
 }
 
-fetch()
-    .then(res => console.log(res))
-    .catch(err => console.log(err));
+fetch();
