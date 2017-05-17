@@ -10,20 +10,19 @@ function Promise(fn) {
     this._value = null; // 值
     doResolve(fn, this);
 }
-
 /**
  * flufill 满足
  * @param {Function} onFlufilled 满足条件时调用的函数
  * @param {Function} onRejected  不满足条件时调用的函数
  */
-Promise.prototype.then = function (onFlufilled, onRejected) {
-    handle(this, new Handler(onFlufilled, onRejected));
+Promise.prototype.then = function (onFulfilled, onRejected) {
+    handle(this, new Handler(onFulfilled, onRejected));
 }
 /**
  * Hanlder 顾名思义是处理器，当调用了 then 方法就有了处理器
  */
-function Handler(onFlufilled, onRejected) {
-    this.onFlufilled = onFlufilled;
+function Handler(onFulfilled, onRejected) {
+    this.onFulfilled = onFulfilled;
     this.onRejected = onRejected;
 }
 
@@ -41,15 +40,24 @@ function handle(self, deferred) {
 }
 
 function handleResolve(self, deferred) {
-    // deferred.onFlufilled 就是我们在 then 的第一个参数
-    var cb = deferred.onFlufilled;
+    var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
     tryCallOne(cb, self._value);
 }
-
+/**
+ *
+ */
 function resolve(self, newValue) {
     self._state = 1;
     self._value = newValue;
     // 关键代码，不能缺少
+    finale(self);
+}
+/**
+ *
+ */
+function reject(self, newValue) {
+    self._state = 2;
+    self._value = newValue;
     finale(self);
 }
 /**
@@ -80,6 +88,7 @@ function doResolve(fn, promise) {
         function (reson) {
             if (done) return;
             done = true;
+            reject(promise, reson);
         }
     );
 }

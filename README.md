@@ -261,3 +261,6 @@
 
 [代码地址](https://github.com/ltaoo/ife/tree/master/vue)
 
+### Promise
+[代码地址](https://github.com/ltaoo/ife/tree/master/promise)
+

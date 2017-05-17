@@ -17,7 +17,12 @@
             function fetch() {
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
-                        resolve('hello world');
+                        const randomNumber = Math.random();
+                        if (randomNumber < 0.5) {
+                            resolve(randomNumber);
+                        } else {
+                            reject(randomNumber);
+                        }
                     }, 3000);
                 })
             }
@@ -25,7 +30,9 @@
             fetch()
                 .then(res => {
                     console.log(res);
-                })
+                }, err => {
+                    console.log(err);
+                });
         }
     </script>
 </body>
