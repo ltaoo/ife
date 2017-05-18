@@ -18,11 +18,12 @@
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
                         const randomNumber = Math.random();
-                        if (randomNumber < 0.5) {
-                            resolve(randomNumber);
-                        } else {
-                            reject(randomNumber);
-                        }
+                        // if (randomNumber < 0.5) {
+                        //     resolve(randomNumber);
+                        // } else {
+                        //     reject(randomNumber);
+                        // }
+                        resolve('hello world');
                     }, 3000);
                 })
             }
@@ -30,8 +31,10 @@
             fetch()
                 .then(res => {
                     console.log(res);
-                }, err => {
-                    console.log(err);
+                    return fetch();
+                })
+                .then(res => {
+                    console.log(res);
                 });
         }
     </script>

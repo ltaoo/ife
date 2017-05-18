@@ -1,3 +1,4 @@
+function noop () {}
 /**
  * 构造函数
  * 0 - pending
@@ -8,6 +9,7 @@ function Promise(fn) {
     this._deferredState = 0; // 延迟状态
     this._state = 0; // 状态
     this._value = null; // 值
+    if (fn === noop) return;
     doResolve(fn, this);
 }
 /**
@@ -16,14 +18,17 @@ function Promise(fn) {
  * @param {Function} onRejected  不满足条件时调用的函数
  */
 Promise.prototype.then = function (onFulfilled, onRejected) {
-    handle(this, new Handler(onFulfilled, onRejected));
+    const res = new Promise(noop);
+    handle(this, new Handler(onFulfilled, onRejected, res));
+    return res;
 }
 /**
  * Hanlder 顾名思义是处理器，当调用了 then 方法就有了处理器
  */
-function Handler(onFulfilled, onRejected) {
+function Handler(onFulfilled, onRejected, promise) {
     this.onFulfilled = onFulfilled;
     this.onRejected = onRejected;
+    this.promise = promise;
 }
 
 // 重点在于 handle 函数？这里是把 new Handler 称作 deferred
@@ -41,12 +46,22 @@ function handle(self, deferred) {
 
 function handleResolve(self, deferred) {
     var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
-    tryCallOne(cb, self._value);
+    var ret = tryCallOne(cb, self._value);
+    resolve(deferred.promise, ret);
 }
 /**
  *
  */
 function resolve(self, newValue) {
+    // 实现链式调用的代码
+    if (
+        newValue &&
+        (typeof newValue === 'object' || typeof newValue === 'function')
+    ) {
+        var then = getThen(newValue);
+        doResolve(then.bind(newValue), self);
+        return;
+    }
     self._state = 1;
     self._value = newValue;
     // 关键代码，不能缺少
@@ -104,4 +119,10 @@ function tryCallOne(fn, a) {
  */
 function tryCallTwo(fn, a, b) {
     fn(a, b);
+}
+/**
+ * 返回指定对象的 then 方法
+ */
+function getThen(obj) {
+    return obj.then;
 }
