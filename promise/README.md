@@ -101,6 +101,30 @@ resolve(self.promise, ret); // ret === fetch()
 
 但是，现在的`resolve`函数仅仅是调用，没有处理上面这种情况，所以就要增加代码了。
 
+## catch 语法糖
+
+规范的`Promise`成功与失败的处理函数都是放在`then`方法内的：
+
+```javascript
+fetch()
+    .then(res => {
+        console.log(res);
+    }, err => {
+        console.error(err);
+    });
+```
+
+不过可以使用`catch`让代码更加清晰：
+
+```javascript
+fetch()
+    .then(res => {
+        console.log(res);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+```
 
 
 

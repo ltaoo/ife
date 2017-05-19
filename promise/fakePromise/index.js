@@ -1,4 +1,4 @@
-function noop () {}
+function noop() {}
 /**
  * 构造函数
  * 0 - pending
@@ -17,11 +17,19 @@ function Promise(fn) {
  * @param {Function} onFlufilled 满足条件时调用的函数
  * @param {Function} onRejected  不满足条件时调用的函数
  */
-Promise.prototype.then = function (onFulfilled, onRejected) {
-    const res = new Promise(noop);
-    handle(this, new Handler(onFulfilled, onRejected, res));
-    return res;
-}
+Promise.prototype.then = function(onFulfilled, onRejected) {
+        const res = new Promise(noop);
+        this._handler = new Handler(onFulfilled, onRejected, res);
+        handle(this, this._handler);
+        return res;
+    }
+/**
+ * then 方法的语法糖
+ */
+Promise.prototype['catch'] = function (onRejected) {
+    return this.then(undefined, onRejected);
+};
+
 /**
  * Hanlder 顾名思义是处理器，当调用了 then 方法就有了处理器
  */
@@ -46,6 +54,14 @@ function handle(self, deferred) {
 
 function handleResolve(self, deferred) {
     var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
+    if (cb === undefined) {
+        if (self._state === 1) {
+            resolve(deferred.promise, self._value);
+        } else {
+            reject(deferred.promise, self._value);
+        }
+        return;
+    }
     var ret = tryCallOne(cb, self._value);
     resolve(deferred.promise, ret);
 }
@@ -93,21 +109,26 @@ function doResolve(fn, promise) {
     // 是否完成的标志
     var done = false;
     var res = tryCallTwo(
-        fn, 
+        fn,
         // 当异步代码是 resolve 状态，就到了这里，value 即 resolve('xxx') 中的 value
-        function (value) {
+        function(value) {
             if (done) return;
             done = true;
             resolve(promise, value);
-        }, 
-        function (reson) {
+        },
+        function(reson) {
             if (done) return;
             done = true;
             reject(promise, reson);
         }
     );
 }
-
+/**
+ * 调用指定函数并传入第二个参数作为函数的参数
+ * @param {Function} fn 要调用的函数
+ * @param {Any} a 调用 fn 时的参数
+ * @return {Any}
+ */
 function tryCallOne(fn, a) {
     return fn(a);
 }
@@ -125,4 +146,10 @@ function tryCallTwo(fn, a, b) {
  */
 function getThen(obj) {
     return obj.then;
+}
+/**
+ *
+ */
+function getCatch(obj) {
+    return obj.catch;
 }

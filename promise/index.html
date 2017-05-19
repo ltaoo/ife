@@ -17,18 +17,29 @@
             function fetch() {
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
-                        resolve('hello world');
+                        // resolve('hello world');
+                        const random = Math.random();
+                        if (random < 0.5) {
+                            resolve(random);
+                        } else {
+                            reject(random);
+                        }
                     }, 3000);
                 })
             }
             // 调用
+            // fetch()
+            //     .then(res => {
+            //         console.log(res);
+            //     }, err => {
+            //         console.error(err);
+            //     });
             fetch()
                 .then(res => {
                     console.log(res);
-                    return fetch();
                 })
-                .then(res => {
-                    console.log(res);
+                .catch(err => {
+                    console.error(err);
                 });
         }
     </script>
