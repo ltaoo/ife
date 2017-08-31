@@ -1,6 +1,6 @@
 <template>
     <div>
-        <cInput v-model="inputValue" />
+        <cInput v-model="inputValue" placeholder="请输入用户名" />
         <p>{{inputValue}}</p>
     </div>
 </template>
@@ -18,7 +18,7 @@
         },
         data() {
             return {
-                inputValue: 'hello world',
+                inputValue: '',
             };
         },
     };
