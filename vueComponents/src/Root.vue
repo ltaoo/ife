@@ -1,6 +1,7 @@
 <template>
     <div>
-        <Input />
+        <cInput v-model="inputValue" />
+        <p>{{inputValue}}</p>
     </div>
 </template>
 
@@ -8,12 +9,17 @@
     import '@/assets/reset.css';
     import '@/assets/common.css';
 
-    import Input from '@/components/Input';
+    import cInput from '@/components/Input';
 
     export default {
         name: 'app',
         components: {
-            Input,
+            cInput,
+        },
+        data() {
+            return {
+                inputValue: 'hello world',
+            };
         },
     };
 </script>
