@@ -1,23 +1,9 @@
-// import 'promise-polyfill';
-// import 'isomorphic-fetch';
-import { h, render } from 'preact';
-import './style';
+import freact, { h } from './lib/freact';
 
-let root;
-function init() {
-	let App = require('./components/app').default;
-	root = render(<App />, document.body, root);
-}
+console.log(freact);
 
-// register ServiceWorker via OfflinePlugin, for prod only:
-if (process.env.NODE_ENV==='production') {
-	require('./pwa');
-}
+const App = h('div', {
+	className: 'container'
+}, 'hello world');
 
-// in development, set up HMR:
-if (module.hot) {
-	//require('preact/devtools');   // turn this on if you want to enable React DevTools!
-	module.hot.accept('./components/app', () => requestAnimationFrame(init) );
-}
-
-init();
+console.log(App);
