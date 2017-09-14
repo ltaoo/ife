@@ -1,9 +1,12 @@
 import h from './h';
+import render from './render';
 
 export default {
-	h
+	h,
+	render
 };
 
 export {
-	h
+	h,
+	render
 };
