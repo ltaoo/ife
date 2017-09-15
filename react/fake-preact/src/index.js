@@ -1,11 +1,8 @@
 import freact, { h, render } from './lib/freact';
 
-const App = h('div', {
-	className: 'container'
-}, 'hello world');
-console.log(App);
+import App from './components/app';
 
-const realNode = render(App);
+const realNode = render(h(App));
 console.log(realNode);
 
 document.body.appendChild(realNode);

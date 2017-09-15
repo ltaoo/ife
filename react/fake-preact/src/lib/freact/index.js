@@ -1,12 +1,18 @@
+/**
+ * https://jasonformat.com/wtf-is-jsx/
+ */
 import h from './h';
 import render from './render';
+import Component from './Component';
 
 export default {
 	h,
-	render
+	render,
+  Component
 };
 
 export {
 	h,
-	render
+	render,
+  Component
 };
