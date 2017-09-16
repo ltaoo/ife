@@ -1,9 +1,30 @@
 import { h, Component } from '../lib/freact';
 
-export default class App extends Component {
+class Person extends Component {
 	render() {
-		return h('div', {
-			id: 'test'
-		}, 'App component');
+		return <div>person</div>;
+	}
+}
+
+export default class App extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			name: 'ltaoo',
+		};
+	}
+	handleClick() {
+		console.log('click');
+		this.setState({
+			name: 'wuya',
+		});
+	}
+
+	render() {
+		const { name } = this.state;
+		return <div>
+			<p>{name}</p>
+			<button onClick={this.handleClick}>click</button>
+		</div>;
 	}
 }

@@ -1,13 +1,13 @@
-function Component() {
+export default class Component {
+	constructor(props) {
+		this.props = props;
+	}
 
+	render() {
+		console.log('render');
+	}
+
+	setState(newState) {
+		console.log('setState');
+	}
 }
-
-Component.prototype.render = function () {
-
-};
-
-Component.prototype.setState = function () {
-  this.render();
-};
-
-export default Component;

@@ -10,7 +10,9 @@ export default function render(vnode) {
   // 如果是自定义组件
   if (typeof vnode.nodeName === 'function') {
     return buildComponentFromVNode(vnode);
-  }
+	}
+
+	//
 	const dom = document.createElement(vnode.nodeName);
 
 	const attributes = vnode.attributes || {};
