@@ -1,3 +1,4 @@
+import { createNode, setAccessor } from './dom';
 import { buildComponentFromVNode } from './vdom/component';
 
 /**
@@ -12,11 +13,9 @@ export default function render(vnode) {
     return buildComponentFromVNode(vnode);
 	}
 
-	//
-	const dom = document.createElement(vnode.nodeName);
-
+  const dom = createNode(vnode.nodeName);
 	const attributes = vnode.attributes || {};
-	Object.keys(attributes).forEach(k => dom.setAttribute(k, attributes[k]));
+	Object.keys(attributes).forEach(k => setAccessor(dom, k, attributes[k]));
 
 	(vnode.children || []).forEach(c => dom.appendChild(render(c)));
 

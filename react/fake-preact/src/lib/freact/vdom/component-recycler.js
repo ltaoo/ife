@@ -4,6 +4,5 @@
  */
 export function createComponent(Ctor, props) {
 	const component = new Ctor(props);
-	console.log(component);
 	return component;
 }
