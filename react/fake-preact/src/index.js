@@ -1,12 +1,11 @@
-import freact, { h, render } from './lib/freact';
+// import freact, { h, render } from './lib/freact';
+import preact, { h, render } from './lib/preact/preact';
 
 import App from './components/app';
 
 const button = <button onClick={() => console.log('click')}>click</button>;
-console.log(button);
-console.log(render(button));
 
-const realNode = render(<App />);
-console.log(realNode);
+// const realElement = render(<App />);
+// document.body.appendChild(realElement);
 
-document.body.appendChild(realNode);
+render(<App />, document.getElementById('app'));

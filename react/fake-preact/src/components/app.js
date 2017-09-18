@@ -1,4 +1,5 @@
-import { h, Component } from '../lib/freact';
+// import { h, Component } from '../lib/freact';
+import { h, Component } from '../lib/preact/preact';
 
 class Person extends Component {
 	render() {
@@ -12,9 +13,10 @@ export default class App extends Component {
 		this.state = {
 			name: 'ltaoo',
 		};
+		this.handleClick = this.handleClick.bind(this);
 	}
+
 	handleClick() {
-		console.log('click');
 		this.setState({
 			name: 'wuya',
 		});
