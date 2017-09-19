@@ -50,15 +50,15 @@ export function renderComponent(component, isChild) {
   } else {
     cbase = component.base;
     // base = diff(cbase, rendered, initialBase && initialBase.parentNode);
-    base = diff(cbase, rendered, component._parent);
+    base = diff(cbase, rendered);
   }
 
-  if (initialBase && base !== initialBase) {
-    let baseParent = initialBase.parentNode;
-    if (baseParent && base !== baseParent) {
-      baseParent.replaceChild(base, initialBase);
-    }
-  }
+  // if (initialBase && base !== initialBase) {
+  //   let baseParent = initialBase.parentNode;
+  //   if (baseParent && base !== baseParent) {
+  //     baseParent.replaceChild(base, initialBase);
+  //   }
+  // }
   component.base = base;
 
   console.log('==== renderComponent function end ===\n', component);
