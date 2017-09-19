@@ -1,5 +1,5 @@
-// import freact, { h, render } from './lib/freact';
-import preact, { h, render } from './lib/preact/preact';
+import freact, { h, render } from './lib/freact';
+// import preact, { h, render } from './lib/preact/preact';
 
 import App from './components/app';
 

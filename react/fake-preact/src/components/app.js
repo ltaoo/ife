@@ -1,5 +1,5 @@
-// import { h, Component } from '../lib/freact';
-import { h, Component } from '../lib/preact/preact';
+import { h, Component } from '../lib/freact';
+// import { h, Component } from '../lib/preact/preact';
 
 class Person extends Component {
 	render() {

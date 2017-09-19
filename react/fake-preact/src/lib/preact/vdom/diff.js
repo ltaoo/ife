@@ -62,7 +62,6 @@ export function diff(dom, vnode, context, mountAll, parent, componentRoot) {
 
 /** Internals of `diff()`, separated to allow bypassing diffLevel / mount flushing. */
 function idiff(dom, vnode, context, mountAll, componentRoot) {
-	console.log(dom, vnode);
 	let out = dom,
 		prevSvgMode = isSvgMode;
 
