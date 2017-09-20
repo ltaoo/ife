@@ -19,14 +19,26 @@ export function diff(dom, vnode, parent) {
    * }
    * parent = div#app
    */
-  const ret = idiff(dom, vnode, parent);
+  const ret = idiff(dom, vnode, {}, false, false);
   if (parent && ret.parentNode !== parent) parent.appendChild(ret);
 
   return ret;
 }
 
 function idiff(dom, vnode, context, mountAll, componentRoot) {
-  console.log('==== diff function start ====\n', dom, vnode, parent);
+  /**
+   * dom = undefined
+   * vnode = {
+   *    nodeName: f,
+   *    key: undefined,
+   *    attributes: undefined,
+   *    children: []
+   * }
+   * context = false
+   * mountAll = false
+   * componentRoot = false
+   */
+  console.log('==== diff function start ====\n', dom, vnode);
 
   let out = dom;
   // 如果传入的是字符串，就返回文本节点，因为会递归调用 render 处理子节点，而子节点可能是纯文本
@@ -45,7 +57,7 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
   // 如果是自定义组件
   if (typeof vnodeName === 'function') {
     console.log(vnodeName, 'is component');
-    return buildComponentFromVNode(vnode);
+    return buildComponentFromVNode(dom, vnode, context, mountAll);
   }
 
   // 原生 element

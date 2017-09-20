@@ -5,7 +5,18 @@ import { createComponent } from './component-recycler';
 /**
  * 根据 vnode 创建自定义组件
  */
-export function buildComponentFromVNode(vnode) {
+export function buildComponentFromVNode(dom, vnode, context, mountAll) {
+  /**
+   * dom = undefined
+   * vnode = {
+   *    nodeName: f,
+   *    key: undefined,
+   *    attributes: undefined,
+   *    children: []
+   * }
+   * context = false
+   * mountAll = false
+   */
   const c = createComponent(vnode.nodeName, vnode.attributes);
   setComponentProps(c);
 
