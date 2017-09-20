@@ -1,5 +1,5 @@
-import { h, Component } from '../lib/freact';
-// import { h, Component } from '../lib/preact/preact';
+// import { h, Component } from '../lib/freact';
+import { h, Component } from '../lib/preact/preact';
 
 class Person extends Component {
 	render() {
@@ -25,7 +25,7 @@ export default class App extends Component {
 	render() {
 		const { name } = this.state;
 		return <div>
-			<p>{name}</p>
+			<p>my name is: {name}</p>
 			<button onClick={this.handleClick}>click</button>
 		</div>;
 	}

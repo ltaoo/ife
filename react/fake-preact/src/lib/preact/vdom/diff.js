@@ -62,6 +62,7 @@ export function diff(dom, vnode, context, mountAll, parent, componentRoot) {
 
 /** Internals of `diff()`, separated to allow bypassing diffLevel / mount flushing. */
 function idiff(dom, vnode, context, mountAll, componentRoot) {
+	console.dir(dom);
 	let out = dom,
 		prevSvgMode = isSvgMode;
 
@@ -76,6 +77,7 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
 		if (dom && dom.splitText!==undefined && dom.parentNode && (!dom._component || componentRoot)) {
 			/* istanbul ignore if */ /* Browser quirk that can't be covered: https://github.com/developit/preact/commit/fd4f21f5c45dfd75151bd27b4c217d8003aa5eb9 */
 			if (dom.nodeValue!=vnode) {
+				console.log('update dom 1');
 				dom.nodeValue = vnode;
 			}
 		}
@@ -83,6 +85,7 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
 			// it wasn't a Text node: replace it with one and recycle the old Element
 			out = document.createTextNode(vnode);
 			if (dom) {
+				console.log('update dom 2');
 				if (dom.parentNode) dom.parentNode.replaceChild(out, dom);
 				recollectNodeTree(dom, true);
 			}
@@ -135,6 +138,7 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
 	// Optimization: fast-path for elements containing a single TextNode:
 	if (!hydrating && vchildren && vchildren.length===1 && typeof vchildren[0]==='string' && fc!=null && fc.splitText!==undefined && fc.nextSibling==null) {
 		if (fc.nodeValue!=vchildren[0]) {
+			console.log('update dom 3');
 			fc.nodeValue = vchildren[0];
 		}
 	}

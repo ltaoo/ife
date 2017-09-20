@@ -5,9 +5,9 @@ import { createComponent } from './component-recycler';
 /**
  * 根据 vnode 创建自定义组件
  */
-export function buildComponentFromVNode(vnode, parent) {
+export function buildComponentFromVNode(vnode) {
   const c = createComponent(vnode.nodeName, vnode.attributes);
-  setComponentProps(c, parent);
+  setComponentProps(c);
 
   // c.base 是原生 DOM
   return c.base;
@@ -16,8 +16,7 @@ export function buildComponentFromVNode(vnode, parent) {
 /**
  *
  */
-export function setComponentProps(component, parent) {
-  component._parent = parent;
+export function setComponentProps(component) {
   const el = renderComponent(component);
   component._component = el;
 }
@@ -49,16 +48,8 @@ export function renderComponent(component, isChild) {
 
   } else {
     cbase = component.base;
-    // base = diff(cbase, rendered, initialBase && initialBase.parentNode);
     base = diff(cbase, rendered);
   }
-
-  // if (initialBase && base !== initialBase) {
-  //   let baseParent = initialBase.parentNode;
-  //   if (baseParent && base !== baseParent) {
-  //     baseParent.replaceChild(base, initialBase);
-  //   }
-  // }
   component.base = base;
 
   console.log('==== renderComponent function end ===\n', component);

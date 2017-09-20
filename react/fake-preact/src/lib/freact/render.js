@@ -7,5 +7,15 @@ import { diff } from './vdom/diff';
  * @param {Element} merge  要更新的节点
  */
 export default function render(vnode, parent, merge) {
+  /**
+   * vnode = {
+   *    nodeName: f,
+   *    key: undefined,
+   *    attributes: undefined,
+   *    children: []
+   * }
+   * parent = div#app
+   * merge = undefined
+   */
   diff(merge, vnode, parent);
 }

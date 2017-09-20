@@ -9,13 +9,23 @@ function isNamedNode(node, nodeName) {
 }
 
 export function diff(dom, vnode, parent) {
+  /**
+   * dom = undefined
+   * vnode = {
+   *    nodeName: f,
+   *    key: undefined,
+   *    attributes: undefined,
+   *    children: []
+   * }
+   * parent = div#app
+   */
   const ret = idiff(dom, vnode, parent);
   if (parent && ret.parentNode !== parent) parent.appendChild(ret);
 
   return ret;
 }
 
-function idiff(dom, vnode, parent) {
+function idiff(dom, vnode, context, mountAll, componentRoot) {
   console.log('==== diff function start ====\n', dom, vnode, parent);
 
   let out = dom;
@@ -35,7 +45,7 @@ function idiff(dom, vnode, parent) {
   // 如果是自定义组件
   if (typeof vnodeName === 'function') {
     console.log(vnodeName, 'is component');
-    return buildComponentFromVNode(vnode, parent);
+    return buildComponentFromVNode(vnode);
   }
 
   // 原生 element
@@ -50,6 +60,7 @@ function idiff(dom, vnode, parent) {
       while (dom.firstChild) out.appendChild(dom.firstChild);
 
       // if the previous Element was mounted into the DOM, replace it inline
+      console.log('update dom');
       if (dom.parentNode) dom.parentNode.replaceChild(out, dom);
     }
   }
@@ -68,6 +79,7 @@ function idiff(dom, vnode, parent) {
     && fc.nextSibling === null
   ) {
     if (fc.nodeValue !== vchildren[0]) {
+      console.log('update text');
       fc.nodeValue = vchildren[0];
     }
   }
