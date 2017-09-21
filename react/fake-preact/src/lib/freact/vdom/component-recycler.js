@@ -14,5 +14,10 @@ export function createComponent(Ctor, props, context) {
   if (Ctor.prototype && Ctor.prototype.render) {
     inst = new Ctor(props, context);
   }
-	return component;
+
+  if (list) {
+
+  }
+  
+	return inst;
 }

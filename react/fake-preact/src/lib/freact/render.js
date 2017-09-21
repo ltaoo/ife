@@ -17,5 +17,5 @@ export default function render(vnode, parent, merge) {
    * parent = div#app
    * merge = undefined
    */
-  diff(merge, vnode, parent);
+  diff(merge, vnode, {}, false, parent, false);
 }
