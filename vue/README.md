@@ -12,4 +12,4 @@
 
 ## 03
 
-正在阅读，实现改变`data`页面上对应值也发生改变。
+正在阅读，实现改变`data`页面上对应值也发生改变。https://github.com/vuejs/vue/commits/0.11?after=d257c81a5889d45012f6df39873fba3f8697f0cc+489

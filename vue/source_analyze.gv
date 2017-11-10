@@ -1,0 +1,184 @@
+digraph G {
+	concentrate = true;
+
+	subgraph legend{
+		rank = min;
+		label = "legend";
+	}
+
+	Vue [
+		splines=ortho 
+		shape = "rect" 
+		style = "rounded,filled" 
+		fillcolor = "coral" 
+		label = "new Vue"
+		url = "main.js:12"
+	];
+
+	_init [
+		shape = "rect" 
+		label = "this._init" 
+		url = "init.js:16"
+	];
+
+	isComponent [
+		label = "vm._isCompnent" 
+		shape=diamond
+		url = "init.js:32"
+	]
+
+	initInternalComponet [
+		shape = "rect"
+	]
+
+	mergeOptions [
+		shape = "rect"
+	]
+	// 初始化生命周期
+	initLifecycle [
+		shape = "rect"
+	]
+	// 初始化事件
+	initEvents [
+		shape = "rect"
+	]
+	initRender [
+		shape = "rect"
+	]
+
+	// 1、开始
+	Vue -> _init
+	// 2、init
+	subgraph cluster_init {
+		label="_init";
+		style=filled;
+		color=black;
+		graph[style=dotted];
+		_init -> isComponent
+		isComponent -> initInternalComponet [label = "是"]
+		isComponent -> mergeOptions [label = "否"]
+		initInternalComponet -> initLifecycle
+		mergeOptions -> initLifecycle
+		initLifecycle -> initEvents
+		initEvents -> initRender
+		initRender -> callHook
+		callHook -> initInjections
+		initInjections -> initState
+		initState -> initProvide
+		// initProvide -> callHook
+
+		// 3、call initLifecycle
+		// 4、call initEvents
+		subgraph cluster_initEvent {
+			initEvents,
+			ifParentHasListeners,
+			updateCompnentListeners
+			label="initEvents"
+			graph[style=dotted]
+		}
+		initEvents -> ifParentHasListeners [color="blue"]
+		ifParentHasListeners -> updateCompnentListeners [label = "是"]
+		// 5、call initRender
+		subgraph cluster_initRender {
+			label="initRender"
+			graph[style=dotted]
+			initRender,
+			resolveSlots
+		}
+
+		resolveSlots [
+			label="resolveSlots"
+			url="render.js:19"
+			shape="rect"
+		]
+		initRender -> resolveSlots [color="blue" penwidth="1"];
+		// 6、call hook
+		subgraph cluster_callhook {
+			label="callhook"
+			graph[style=dotted]
+			callHook,
+			emit
+		}
+		emit [
+			shape="rect"
+			lable="this.$emit"
+			url="lifecylce.js:326"
+		]
+		callHook -> emit [color="blue"]
+		// 7、initInjections resolve injections before data/props
+		subgraph cluster_initInject {
+			label="initInjection"
+			graph[style=dotted]
+			initInjections,
+			resolveInject
+		}
+		initInjections -> resolveInject [color="blue"];
+		// 8、initState
+		subgraph cluster_initState {
+			label="initInitState"
+			graph[style=dotted]
+			initState -> initProps	
+			initProps -> validateProp [color="blue"]
+			initProps -> initMethods
+			initMethods -> initData
+			initData -> initComputed
+			initComputed -> initWatch
+			subgraph cluster_initProp {
+				graph[style=dotted]
+				initProps,
+				validateProp
+			}
+			subgraph cluster_initData {
+				graph[style=dotted]
+				initData -> observe [color="blue"]
+			}
+			subgraph cluster_initComputed {
+				graph[style=dotted]
+				initComputed -> defineComputed [color="blue"]
+			}
+		}
+		// 9、initProvide
+		provide [
+			label="provide.call"
+		]
+		subgraph cluster_initProvide {
+			graph[style=dotted]
+			initProvide -> provide
+		}
+	}
+
+	mount [
+		label="vm.$mount"
+	]
+	subgraph cluster_mount {
+		graph[style=dotted]
+		Vue -> mount
+		mount -> query
+		ifTemplateIsId [
+			label="template使用id"
+			shape=diamond
+		]
+		query -> ifTemplateIsId
+		ifTemplateIsId -> idToTemplate [label="是"]
+		ifTemplateIsId -> compileToFunctions [label="否"]
+		subgraph cluster_compile {
+			graph[style=dotted]
+
+			compileToFunctions -> compile
+			subgraph cluster_compile2 {
+				graph[style=dotted]
+				compile -> baseCompile
+				subgraph cluster_compile2 {
+					graph[style=dotted]
+					baseCompile -> parse [color="blue"]
+					subgraph cluster_compile2 {
+						graph[style=dotted]
+						parse -> parseHTML [color="blue"]
+					}
+					parse -> optimize
+					optimize -> generate
+				}
+			}
+		}
+	}
+}
