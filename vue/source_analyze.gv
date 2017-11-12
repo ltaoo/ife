@@ -150,35 +150,67 @@ digraph G {
 	mount [
 		label="vm.$mount"
 	]
+	Vue -> mount
 	subgraph cluster_mount {
 		graph[style=dotted]
-		Vue -> mount
 		mount -> query
-		ifTemplateIsId [
-			label="template使用id"
-			shape=diamond
-		]
-		query -> ifTemplateIsId
-		ifTemplateIsId -> idToTemplate [label="是"]
-		ifTemplateIsId -> compileToFunctions [label="否"]
-		subgraph cluster_compile {
+		subgraph cluster_query {
 			graph[style=dotted]
-
-			compileToFunctions -> compile
-			subgraph cluster_compile2 {
+			ifTemplateIsId [
+				label="template使用id"
+				shape=diamond
+			]
+			query -> ifTemplateIsId
+			ifTemplateIsId -> idToTemplate [label="是"]
+			ifTemplateIsId -> compileToFunctions [label="否"]
+			subgraph cluster_compile {
 				graph[style=dotted]
-				compile -> baseCompile
+				compileToFunctions [
+					label="compileToFunctions"
+					text="调用后返回了 render 函数"
+				]
+				compileToFunctions -> compile
 				subgraph cluster_compile2 {
 					graph[style=dotted]
-					baseCompile -> parse [color="blue"]
+					compile -> baseCompile
 					subgraph cluster_compile2 {
 						graph[style=dotted]
-						parse -> parseHTML [color="blue"]
+						baseCompile -> parse [color="blue"]
+						subgraph cluster_compile2 {
+							graph[style=dotted]
+							parse -> parseHTML [color="blue"]
+						}
+						parse -> optimize
+						optimize -> generate
+						CodegenState [
+							label="new CodegenState"
+						]
+						generate -> CodegenState
+						CodegenState -> genElement
 					}
-					parse -> optimize
-					optimize -> generate
 				}
+				compile -> createFunction
 			}
+			realMount [
+				label="mount.call"
+			]
+			compileToFunctions -> realMount
 		}
+		query -> mountComponent
+		beforeMountHook [
+			label="call beforeMount hook"
+		]
+		mountedHook [
+			label="call mounted hook"
+		]
+		subgraph cluster_mountComponent {
+			graph[style=dotted]
+			mountComponent -> beforeMountHook
+			Watcher [
+				label="new Watcher"
+			]
+			beforeMountHook -> Watcher
+			Watcher -> mountedHook
+		}	
 	}
 }
