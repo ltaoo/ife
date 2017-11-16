@@ -1,0 +1,116 @@
+digraph G {
+    // 画图方向
+    // rankdir=LR;
+    label="initEvents(vm)"
+
+    setEvents [
+        label="vm._events = Object.create(null)"
+    ]
+
+    setHasHookEvent [
+        label="vm._hasHookEvent = false"
+    ]
+
+    setEvents -> setHasHookEvent
+
+    getListeners [
+        label="listeners = vm.$options._parentListeners"
+    ]
+
+    setHasHookEvent -> getListeners
+
+    hasListeners [
+        shape=diamond
+    ]
+
+    getListeners -> hasListeners
+    hasListeners -> updateComopnentListeners [label="yes"]
+
+
+    subgraph cluster_updateComponentListeners {
+        graph[style=dotted]
+
+        label="updateComponentListeners(vm, listeners, oldListeners)"
+
+        setTarget [
+            label="target = vm"
+        ]
+
+        setTarget -> updateListeners 
+
+        resetTarget [
+            label="target = undefined"
+        ]
+
+        updateListeners -> resetTarget
+
+        updateListeners -> initVar [label="内部" style=dashed]
+    }
+    subgraph cluster__updateListeners {
+        graph[style=dotted]
+
+        label="updateListeners(on, oldOn, add, remove, vm)"
+        initVar [
+            label="let name, cur, old, event"
+        ]
+
+        forInOn [
+            label="for(name in on)"
+        ]
+
+        initVar -> forInOn
+    }
+    subgraph cluster__for {
+        label="for in listeners"
+        graph[style=dotted]
+
+        getCurrentEvent [
+            label="cur = on[name]"
+        ]
+
+        forInOn -> getCurrentEvent
+        getOldEvent [
+            label="old = oldOn[name]"
+        ]
+
+        getCurrentEvent -> getOldEvent
+
+        normalizeEvent [
+            label="event=normalizeEvent(name)"
+        ]
+
+        getOldEvent -> normalizeEvent
+
+        curIsUndef [
+            shape=diamond
+            label="处理"
+        ]
+
+        normalizeEvent -> curIsUndef
+
+        throwError [
+            label="warn(Invalid handler for)"
+        ]
+        curIsUndef -> throwError [label="isUndef(cur)"]
+        oldIsUndef [
+            shape=diamond
+            label="isUndef(old)"
+        ]
+        curIsUndef -> oldIsUndef [label="isUndef(old)"]
+        curFnsIsUndef [
+            shape=diamond
+            label="isUndef(cur.fns)"
+        ]
+        oldIsUndef -> curFnsIsUndef [label="yes"]
+        curFnsIsUndef -> createFnInvoker [label="yes"]
+        oldIsUndef -> add
+        setEvent [
+            label="on[name]=old"
+        ]
+        curIsUndef -> setEvent [label="cur!==old"]
+    }
+
+    throwError -> removeEvent
+    add -> removeEvent
+    setEvent -> removeEvent
+}

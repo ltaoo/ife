@@ -31,3 +31,12 @@
 - _isBeingDestroyed = false
 
 ![initLifecycle](./initLifecycle.png)
+
+### initEvent
+
+顾名思义，初始化事件，主要就是将`_parentListeners`上的事件，注册到`vm`上？并将旧事件（如果有）就更新或者移除掉。
+
+由于是使用`vm.$on`或者`vm.$once`添加事件，不过有个疑问就是为什么`vm`有这些方法，是在哪里添加的？
+
+![initEvents](./initEvents.png)
+
