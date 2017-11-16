@@ -130,6 +130,8 @@ digraph G {
 			}
 			subgraph cluster_initData {
 				graph[style=dotted]
+				// 通过 observe 对数据注册监听
+				// 新数据也是通过该函数
 				initData -> observe [color="blue"]
 			}
 			subgraph cluster_initComputed {
@@ -212,5 +214,99 @@ digraph G {
 			beforeMountHook -> Watcher
 			Watcher -> mountedHook
 		}	
+	}
+	// 在改变 data 上的值时，由于之前监听了
+	// 所以会调用对应的 setter
+	click [
+		splines=ortho 
+		shape = "rect" 
+		style = "rounded,filled" 
+		fillcolor = "coral" 
+		label = "改变 data"
+	];
+	click -> proxy
+	proxy -> proxySetter
+	proxySetter -> setter
+	subgraph cluster_setter {
+		graph[style=dotted]
+		setter -> observe
+		notify [
+			label="dep.notify"
+		]
+		observe -> notify
+		subgraph cluster_notify {
+			graph[style=dotted]
+			subUpdate [
+				label="sub i update"
+			]
+			notify -> subUpdate
+			subgraph cluster_update {
+				graph[style=dotted]
+				isLazy [
+					shape=diamond
+				]
+
+				isSync [
+					shape=diamond
+				]
+				update -> isLazy
+				isLazy -> isSync [label="no"]
+				isSync -> run [label="yes"]
+				isSync -> queueWatch [label="no"]
+				subgraph cluster_queueWatch {
+					graph[style=dotted]
+
+					queueWatch -> nextTick
+
+					subgraph cluster_nextTick {
+						graph[style=dotted]
+						push [
+							label="callbacks push"
+						]
+						nextTick -> push
+						ifUseMacroTask [
+							shape=diamond
+						]
+						push -> ifUseMacroTask
+						ifUseMacroTask -> macroTimerFunc [label="yes"]
+						ifUseMacroTask -> microTimerFunc [label="no"]
+
+						subgraph cluster_macro {
+							graph[style=dotted]
+							postMessage [
+								url: "next-tick.js 51"
+							]
+							macroTimerFunc -> postMessage
+						}
+					}
+				}
+			}
+		}
+	}
+	click -> bind
+	// 在 flushCallbacks 里面会调用之前在 nextTick 保存的 callbacks
+	flushCallbacks -> callbacks
+	callbacks -> _render
+	isMounted [
+		shape=diamond
+	]
+	_render -> isMounted
+	isMounted -> cloneVNodes [label="yes"]
+	isMounted -> callRenderFunction
+	callRenderFunction -> updateCompnent
+	vmUpdate [
+		label="vm._update"
+		url="lifecycle:51"
+	]	
+	// 调用 _update 时传入 _render
+	updateCompnent -> vmUpdate
+	subgraph cluster_vmupdate {
+		graph[style=dotted]
+		vmUpdate -> callUpdateHook
+		patch [
+			label="vm.__patch__"
+			url="patch.js:632"
+		]
+		callUpdateHook -> patch
 	}
 }

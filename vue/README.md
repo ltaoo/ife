@@ -1,15 +1,16 @@
 # vue 源码阅读过程
 
-虽然说知道读源码要从旧版本开始，但是如果从第一个`commit`看起也是非常累的，所以找到关键的`commit`，重点阅读这些关键点。
+## _init
 
-## 01
+调用`this._init`发生了什么？
 
-实现数据监听功能。
+主要来说，就是给`vm`添加了
 
-## 02
+- _uid
+- _isVue
+- $options
+- _self
 
-实现渲染插值，即在页面中的`{{name}}`能够被替换为`data`上对应的值。
+以及调用了`beforeCreated`钩子和`created`钩子。
 
-## 03
-
-正在阅读，实现改变`data`页面上对应值也发生改变。https://github.com/vuejs/vue/commits/0.11?after=d257c81a5889d45012f6df39873fba3f8697f0cc+489
+![this._init](./init.png)
