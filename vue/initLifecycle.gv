@@ -1,0 +1,62 @@
+digraph G {
+    label="initLifecycle(vm)"
+
+    getOptions [
+        label="options = vm.$options"
+    ]
+
+    hasParent [
+        label="parent && !options.abstract"
+        shape=diamond
+    ]
+
+    getParent [
+        label="parent = options.parent"
+    ]
+    getOptions -> getParent
+    getParent -> hasParent
+    resetParent [
+        label="parent = parent.$parent;parent.$children.push(vm)"
+    ]
+    hasParent -> resetParent [label="yes"]
+    setParent [
+        label="vm.$parent = parent"
+    ]
+    hasParent -> setParent
+    setRoot [
+        label="vm.$root = parent ? parent.$root : vm"
+    ]
+    setParent -> setRoot
+    initChildren [
+        label="vm.$children = []"
+    ]
+    setRoot -> initChildren
+    initRefs [
+        label="vm.$refs = {}"
+    ]
+    initChildren -> initRefs
+    initWatcher [
+        label="vm._watcher = null"
+    ]
+    initRefs -> initWatcher
+    initInactive [
+        label="vm._inactive = null"
+    ]
+    initWatcher -> initInactive
+    initDirectInactive [
+        label="vm._directInactive = false"
+    ]
+    initInactive -> initDirectInactive
+    initIsMounted [
+        label="vm._isMounted = false"
+    ]
+    initDirectInactive -> initIsMounted
+    initIsDestroyed [
+        label="vm._isDestroyed = false"
+    ]
+    initIsMounted -> initIsDestroyed
+    initIsBeingDestroyed [
+        label="vm._isBeingDestroyed = false"
+    ]
+    initIsDestroyed -> initIsBeingDestroyed
+}
