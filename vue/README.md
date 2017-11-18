@@ -98,3 +98,13 @@
 但，为什么函数体内的值发生变化的时候，会触发到自身调用呢？
 
 - vm._computedWatchers  保存了很多个 Watcher 实例，用在获取值的时候
+
+![initComputed](./initComputed.png)
+
+#### initWatch
+
+初始化监听，很简单，遍历`watch`并给每个键调用`createWatcher`，而在`createWatcher`中其实就是调用了`vm.$watch`，而在`vm.$watch`中，其实最终还是实例化`Watcher`。
+
+![initWatch](./initWatch.png)
+
+

@@ -1,0 +1,113 @@
+digraph G {
+    label="initWatch(vm, watch)"
+
+    walkWatch [
+        label="for (const key in watch)"
+    ]
+
+    getHandler [
+        label="handler = watch[key]"
+    ]
+
+    walkWatch -> getHandler
+    isArray [
+        label="Array.isArray[handler]"
+        shape=diamond
+    ]
+
+    getHandler -> isArray
+    walk [
+        label="for (let i = 0; i < handler.length; i++)"
+    ]
+    isArray -> walk [label="yes"]
+    subgraph cluster_walk {
+        graph[style=dotted]
+        createWatcher [
+            label="createWatcher(vm, key, handler[i])"
+        ]
+        walk -> createWatcher
+    }
+    createWatcherSingle [
+        label="createWatcher(vm, key, handler)"
+    ]
+    isArray -> createWatcherSingle [label="no"]
+
+    subgraph cluster_createWatcher {
+        graph[style=dotted]
+        label="createWatcher(vm, keyOrFn, handler, options)" 
+        isObject [
+            label="isPlainObject(handler)"
+            shape=diamond
+        ]
+        start -> isObject
+
+        resetOptions [
+            label="options = handler; handler = handler.handler"
+        ]
+
+        isObject -> resetOptions [label="yes"]
+        handlerIsString [
+            label="typeof handler === 'string'"
+            shape=diamond
+        ]
+        start -> handlerIsString
+        resetHandler [
+            label="handler = vm[handler]"
+        ]
+        handlerIsString -> resetHandler [label="yes"]
+
+        return [
+            label="return vm.$watch(keyOrFn, handler, options)"
+        ]
+        handlerIsString -> return
+        isObject -> return
+        resetOptions -> return
+        resetHandler -> return
+    }
+
+    subgraph cluster_watch {
+        graph[style=dotted]
+        label="Vue.prototype.$watch(expOrFn, cb, options)"
+
+        getVm [
+            label="vm = this"
+        ]
+
+        cbIsObj [
+            label="isPlainObject(cb)"
+            shape=diamond
+        ]
+
+        getVm -> cbIsObj
+        returnWatcher [
+            label="return createWatcher(vm, expOrFn, cb, options)" 
+        ]
+        cbIsObj -> returnWatcher [label="yes"]
+
+        getOptions [
+            label="options = options || {}"
+        ]
+        cbIsObj -> getOptions
+        setUser [
+            label="options.user = true"
+        ]
+        getOptions -> setUser
+        getWatcher [
+            label="watcher = new Watcher(vm, expOrFn, cb, options)"
+        ]
+        setUser -> getWatcher
+        isImmediate [
+            label="options.immediate"
+            shape=diamond
+        ]
+        getWatcher -> isImmediate
+        call [
+            label="cb.call(vm, watcher.value)"
+        ]
+        isImmediate -> call [label="yes"]
+        returnFn [
+            label="return function unwatchFn ()"
+        ]
+        isImmediate -> returnFn
+    }
+}
