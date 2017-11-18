@@ -78,3 +78,8 @@
 ![initProps](./initProps.png)
 
 #### initMethods
+
+这是最简单的函数了，在开发环境会做一些错误提示，比如该方法值是`null`，或者已经是一个`props`之类的，在生产环境就直接会将该方法放到`vm`上，如果是`null`就变成一个空函数。
+
+![initMethods](./initMethods.png)
+

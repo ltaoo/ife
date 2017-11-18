@@ -1,0 +1,48 @@
+digraph G {
+    label="initMethods(vm, opts.methods)"
+
+    getProps [
+        label="props = vm.$options.props"
+    ]
+
+    walkMethods [
+        label="for(const key in methods)"
+    ]
+
+    getProps -> walkMethods
+
+    subgraph cluster_walk {
+        graph[style=dotted]
+
+        isProduction [
+            label="process.env.NODE_ENV !== 'production'"
+            shape=diamond
+        ]
+
+        walkMethods -> isProduction
+        isNull [
+            label="methods[key] === null"
+            shape=diamond
+        ]
+        isProduction -> isNull [label="yes"]
+
+        methodIsProp [
+            label="props && hasOwn(props, key)"
+            shape=diamond
+        ]
+        isProduction -> methodIsProp [label="yes"]
+        isReserved [
+            label="(key in vm) && isReserved(key)"
+            shape=diamond
+        ]
+        isProduction -> isReserved [label="yes"]
+        isNull -> warn [label="yes"]
+        methodIsProp -> warn [label="yes"]
+        isReserved -> warn [label="yes"]
+
+        bindMethod [
+            label="vm[key] = methods[key] == null ? noop : bind(methods[key], vm)"
+        ]
+        isProduction -> bindMethod [label="no"]
+    }
+}
