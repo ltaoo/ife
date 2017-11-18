@@ -1,0 +1,201 @@
+digraph G {
+    label="initComputed(vm, opts.computed)"
+
+    getWatchers [
+        label="watchers = vm._computedWatchers = Object.create(null)"
+    ]
+
+    isSSR [
+        label="isSSR = isServerRendering()"
+    ]
+
+    getWatchers -> isSSR
+
+    walkComputed [
+        label="for(const key in computed)"
+    ]
+
+
+    isSSR -> walkComputed
+    subgraph cluster_walk {
+        graph[style=dotted]
+
+        getUserDef [
+            label="userDef = computed[key]"
+        ]
+
+        walkComputed -> getUserDef
+
+        getGetter [
+            label="getter = typeof userDef === 'function' ? userDef : userDef.get"
+        ]
+        getUserDef -> getGetter
+        getGetter -> warn [label="getter === null"]
+
+        newWatcher [
+            label="watchers[key] = new Watcher(vm, getter || noop, noop, computedWatcherOptions)"
+        ]
+
+        isSsr [
+            label="isSSR"
+            shape=diamond
+        ]
+        getGetter -> isSsr
+        warn -> isSsr
+        isSsr -> newWatcher [label="no"]
+
+        keyInVm [
+            label="!(key in vm)"
+            shape=diamond
+        ]
+        newWatcher -> keyInVm
+        isSsr -> keyInVm
+        defineComputed [
+            label="defineComputed(vm, key, userDef)"
+        ]
+        keyInVm -> defineComputed [label="yes"]
+        tip [
+            label="warn"
+        ]
+        keyInVm -> tip [label="notProduction"]
+    }
+
+    subgraph cluster_defineComputed {
+        graph[style=dotted]
+
+        label="defineComputed(target, key, userDef)"
+
+        shouldCache [
+            label="shouldCache = !isServerRendering()"
+        ]
+
+        userDefIsFunction [
+            label="typeof userDef === 'function'"
+            shape=diamond
+        ]
+
+        shouldCache -> userDefIsFunction
+
+        createComputedGetter [
+            label="sharedPropertyDefinition.get = createComputedGetter(key)"
+        ]
+
+        shouldCache1 [
+            label="shouldCache"
+            shape=diamond
+        ]
+        userDefIsFunction -> shouldCache1 [label="yes"]
+
+        shouldCache1 -> createComputedGetter [label="yes"]
+        setGet [
+            label="sharedPropertyDefinition.get = userDef"
+        ]
+        shouldCache1 -> setGet [label="no"]
+
+        setSet0 [
+            label="sharedPropertyDefinition.set = noop"
+        ]
+        createComputedGetter -> setSet0
+        setGet -> setSet0
+        userGetExist [
+            label="userDef.get"
+            shape=diamond
+        ]
+        userDefIsFunction -> userGetExist [label="no"]
+
+        setGetBeNoop [
+            label="sharedPropertyDefinition.get = noop"
+        ]
+        userGetExist -> setGetBeNoop [label="no"]
+
+        cache [
+            label="shouldCache && userDef.cache !== false"
+            shape=diamond
+        ]
+        userGetExist -> cache [label="yes"]
+        setGet1 [
+            label="sharedPropertyDefinition.get = createComputedGetter(key)"
+        ]
+        cache -> setGet1 [label="yes"]
+        setGet2 [
+            label="sharedPropertyDefinition.get = userDef.get"
+        ]
+        cache -> setGet2 [label="no"]
+
+        userDefSet [
+            label="userDef.set"
+            shape=diamond
+        ]
+        setGetBeNoop -> userDefSet
+        setGet1 -> userDefSet
+        setGet2 -> userDefSet
+
+        setSet1 [
+            label="sharedPropertyDefinition.set = userDef.set"
+        ]
+
+        setSet2 [
+            label="sharedPropertyDefinition.set = noop"
+        ]
+
+        userDefSet -> setSet1 [label="yes"]
+        userDefSet -> setSet2 [label="no"]
+
+        def [
+            label="Object.defineProperty(target, key, sharedPropertyDefinition)"
+        ]
+        setSet0 -> def
+        setSet1 -> def
+        setSet2 -> def
+    }
+
+    subgraph cluster_createComputedGetter {
+        graph[style=dotted]
+
+        label="createComputedGetter(key)"
+
+        returnFunc [
+            label="return function computedGetter () {"
+        ]
+    }
+
+    subgraph cluster_computedGetter {
+        graph[style=dotted]
+
+        getWatcher [
+            label="watcher = this._computedWatchers && this._computedWatchers[key]"
+        ]
+
+
+        watcherExist [
+            label="watcher"
+            shape=diamond
+        ]
+        getWatcher -> watcherExist
+
+        watcherIsDirty [
+            label="watcher.dirty"
+            shape=diamond
+        ]
+        watcherExist -> watcherIsDirty [label="yes"]
+
+        evaluate [
+            label="watcher.evaluate()"
+        ]
+        watcherIsDirty -> evaluate [label="yes"]
+
+        depTarget [
+            label="Dep.target"
+            shape=diamond
+        ]
+        depend [
+            label="warcher.depend()"
+        ]
+        watcherExist -> depTarget [label="yes"]
+        depTarget -> depend [label="yes"]
+        evaluate -> return
+        depend -> return
+        depTarget -> return
+        watcherIsDirty -> return
+    }
+}
