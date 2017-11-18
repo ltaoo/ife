@@ -55,4 +55,10 @@
 
 ![initRender](./initRender.png)
 
+### initInjections
+
+哦，完全不明白这个函数用来做什么，至今为止没有主动用到过`inject`这个配置项，到后面遇到的时候再回过头来看看吧。
+
+![initInjections](./initInjections.png)
+
 
