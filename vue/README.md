@@ -83,3 +83,8 @@
 
 ![initMethods](./initMethods.png)
 
+#### initData
+
+其实在`initData`内并没有做什么，主要还是一些重新属性的错误提示，最主要的工作还是由`observe`来做的，在很多地方出现了这个函数，所以肯定是要独立来分析的。
+
+![initData](./initData.png)
