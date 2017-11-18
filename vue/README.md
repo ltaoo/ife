@@ -61,4 +61,12 @@
 
 ![initInjections](./initInjections.png)
 
+### initState
+
+终于到了我们最熟悉的地方，在`initState`函数内，会对`props`、`methods`、`data`、`computed`以及`watch`进行处理，对，就是我们在日常中最常用到的这些，都在`initState`函数内看到了，泪奔啊。
+
+由于代码量太多，所以又拆开来分析。
+![initState](./initState.png)
+
+#### initProps
 
