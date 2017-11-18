@@ -1,0 +1,106 @@
+digraph G {
+    subgraph cluster_compile{
+        graph[style=dotted]
+        label="compile(template, options)"
+
+        getFinalOptions [
+            label="finalOptions = Object.create(baseOptions)"
+        ]
+        getErrors [
+            label="errors = []"
+        ]
+        getFinalOptions -> getErrors
+        getTips [
+            label="tips = []"
+        ]
+        getErrors -> getTips
+
+        setWarn [
+            label="finalOptions.warn = func"
+        ]
+        getTips -> setWarn
+
+        options [
+            label="options"
+            shape=diamond
+        ]
+
+        setWarn -> options
+        optionsModule [
+            label="options.modules"
+            shape=diamond
+        ]
+        options -> optionsModule [label="yes"]
+        setModules [
+            label="finalOptions.modules = (baseOptions.modules || []).concat(options.modules)"
+        ]
+        optionsModule -> setModules [label="yes"]
+        optionsDirective [
+            label="options.directives"
+            shape=diamond
+        ]
+        optionsModule -> optionsDirective
+        setModules -> optionsDirective
+        setDirectives [
+            label="finalDirectives = extend(Object.create(baseOptions.directives), options.directives)"
+        ]
+        optionsDirective -> setDirectives [label="yes"]
+
+        walk [
+            label="for (const key in options) {"
+        ]
+        setDirectives -> walk
+        optionsDirective -> walk
+        copy [
+            label="finalOptions[key] = options[key]"
+        ]
+        walk -> copy
+
+        getCompiled [
+            label="compiled = baseCompile(template, finalOptions)"
+        ]
+        options -> getCompiled
+        copy -> getCompiled
+
+        setErrors [
+            label="compiled.error = errors"
+        ]
+        getCompiled -> setErrors
+        setTips [
+            label="compiled.tips = tips"
+        ]
+        setErrors -> setTips
+        returnCompiled [
+            label="return compiled"
+        ]
+        setTips -> returnCompiled
+    }
+
+    subgraph cluster_flow {
+        graph[style=dotted]
+        label="首先要明确概念，存在'创造编译器生成器'的函数 createCompilerCreator，
+        然后调用这个函数就会得到'创造编译器'的函数 createCompiler
+        然后再调用这个函数就会得到最终需要的编译器 compile 和 compileToFunctions
+        但是在最后生成编译器 compileToFunctions 的时候还要调用 createCompileToFunctionFn
+        "
+        initCompileFunc [
+            label="1、声明 createCompilerCreator"
+        ]
+        createCompileToFunctionFn [
+            label="2、调用 createCompilerCreator 得到 createCompiler"
+        ]
+
+        initCompileFunc -> createCompileToFunctionFn
+
+        createCompiler [
+            label="3、调用 createCompiler 得到 compile 和 compileToFunctions"
+        ]
+        createCompileToFunctionFn -> createCompiler
+        createCompilerCreator [
+            label="4、compileToFunctions 由 createCompileToFunctionFn 返回"
+        ]
+
+        createCompiler -> createCompilerCreator
+    }
+
+}

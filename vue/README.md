@@ -126,5 +126,22 @@ OK，前面终于完成了初始化，到目前为止都是平台无关的，接
 
 ![mount](./mount.png)
 
-### compileToFunctions
+### compile
+
+额，先来说说`compile`，因为`compileToFunctions`是调用`createCompileToFunctionsFn`时传入`compile`得到的。
+
+![compile](./compile.png)
+
+### createCompileToFunctionFn
+
+其实就是返回了`compileToFunctions`这个函数，额外的处理就是多了`cache`闭包，能够缓存一些重复的编译工作？
+
+重点还是`compileToFunctions`函数：
+
+#### compileToFunctions
+
+调用了传进来的`compile`，就是上面那个函数得到了`compiled`变量，再调用`createFunction`并传入了`compile.render`就得到了`render`函数。
+
+![createCompileToFunctionsFn](./createCompileToFunctionsFn.png)
+
 
