@@ -70,3 +70,11 @@
 
 #### initProps
 
+初始化`props`，虽然听起来很简单，但实际上也是做了很多事情，先对`props`做验证，然后是返回值（如果传入了就用传入的，否则就用默认的）。
+
+- vm._props = {}
+- vm.$options._propKeys = []
+
+![initProps](./initProps.png)
+
+#### initMethods
