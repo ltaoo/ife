@@ -1,0 +1,102 @@
+digraph G {
+    label="Vue.prototype.$mount(el, hydrating)"
+
+    resetEl [
+        label="el = el || query(el)"
+    ]
+
+    getOptions [
+        label="options = this.$options"
+    ]
+
+    resetEl -> getOptions
+
+    renderExist [
+        label="options.render"
+        shape=diamond
+    ]
+
+    getOptions -> renderExist
+
+    getTemplate [
+        label="template = options.template"
+    ]
+    renderExist -> getTemplate [label="yes"]
+
+    templateExist [
+        label="template"
+        shape=diamond
+    ]
+    getTemplate -> templateExist
+    templateIsString [
+        label="typeof template === 'string'"
+        shape=diamond
+    ]
+    templateExist -> templateIsString [label="yes"]
+    templateStartIsByChar [
+        label="template.charAt(0) === '#'"
+        shape=diamond
+    ]
+    templateIsString -> templateStartIsByChar [label="yes"]
+    resetTemp [
+        label="template = idToTemplate(template)"
+    ]
+    templateStartIsByChar -> resetTemp [label="yes"]
+
+    tempIsNode [
+        label="template.nodeType"
+    ]
+    resetTempIsInner [
+        label="template = template.innerHTML"
+        shape=diamond
+    ]
+    templateIsString -> tempIsNode [label="no"]
+    tempIsNode -> resetTempIsInner [label="yes"]
+
+    warn [
+        label="warn; return this"
+    ]
+    tempIsNode -> warn [label="no"]
+
+    elExist [
+        label="else if (el)"
+        shape=diamond
+    ]
+    resetTempIsOut [
+        label="template = getOuterHTML(el)"
+    ]
+    templateExist -> elExist [label="no"]
+    elExist -> resetTempIsOut [label="yes"]
+
+    templateExist1 [
+        label="template"
+        shape=diamond
+    ]
+
+    resetTemp -> templateExist1
+    resetTempIsInner -> templateExist1
+    resetTempIsOut -> templateExist1
+
+    getRenderAndFunc [
+        label="const { render, staticRenderFns } = compileToFunctions("
+    ]
+
+    templateExist1 -> getRenderAndFunc
+
+    setRender [
+        label="options.render = render"
+    ]
+    setStaticRenderFns [
+        label="options.staticRenderFns = staticRenderFns"
+    ]
+
+    getRenderAndFunc -> setRender
+    setRender -> setStaticRenderFns
+
+    renderExist -> returnValue [label="no"]
+
+    returnValue [
+        label="return mount.call(this, el, hydrating)"
+    ]
+    setStaticRenderFns -> returnValue
+}

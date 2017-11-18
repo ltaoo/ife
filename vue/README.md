@@ -113,3 +113,18 @@
 
 ![initProvide](./initProvide.png)
 
+## $mount
+
+
+OK，前面终于完成了初始化，到目前为止都是平台无关的，接下来就和运行的平台有关了，所以是分为了`web`与`weex`两个不同的`$mount`实现，当然这里只会分析`web`端的实现，这部分的入口在`vue/platforms/web/entry-runtime-with-compiler.js"。
+
+开始吧！
+
+在这个函数内，主要是对`el`、`template`做处理，需要将这两个转换为`render`函数，当然如果已经有`render`函数，会忽略上面两个。
+
+由于存在“编译”，所以还是很复杂，主要逻辑在`compileToFunctions`函数内。
+
+![mount](./mount.png)
+
+### compileToFunctions
+
