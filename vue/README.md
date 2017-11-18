@@ -107,4 +107,9 @@
 
 ![initWatch](./initWatch.png)
 
+### initProvide
+
+只是添加了`vm._provide`这一个属性。
+
+![initProvide](./initProvide.png)
 
