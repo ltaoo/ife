@@ -13,7 +13,7 @@
 
 以及调用了`beforeCreated`钩子和`created`钩子。
 
-![this._init](./init.png)
+![_init](./init.png)
 
 ### initLifecycle
 
@@ -39,4 +39,20 @@
 由于是使用`vm.$on`或者`vm.$once`添加事件，不过有个疑问就是为什么`vm`有这些方法，是在哪里添加的？
 
 ![initEvents](./initEvents.png)
+
+
+### initRender
+
+额，在这个函数内，做了非常多的事情，当然，最重要的就是我们熟知的设置`set`和`get`实现响应式，虽然只是给`$attrs`和`$listeners`设置，总体来说做了下面这些事情：
+
+- vm._vnode = null
+- vm.$solts = resolveSlots()
+- vm.$scopedSlots = emptyObject
+- vm._c = func
+- vm.$createElement = func
+- vm.$attrs
+- vm.$listeners
+
+![initRender](./initRender.png)
+
 

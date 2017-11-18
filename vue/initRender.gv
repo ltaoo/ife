@@ -1,0 +1,199 @@
+digraph G {
+    label="initRender(vm)"
+
+    setVNode [
+        label="vm._vnode = null"
+    ]
+
+    getParentVnode [
+        label="parentVnode = vm.$vnode = options._parentVnode"
+    ]
+
+    setVNode -> getParentVnode
+
+    getContext [
+        label="renderContext = parentVnode && parentVnode.context"
+    ]
+
+    getParentVnode -> getContext
+
+    setSlots [
+        label="vm.$slots = resolveSlots()"
+    ]
+
+    getContext -> setSlots
+
+    setScopeSlots [
+        label="vm.$scopedSlots = emptyObject"
+    ]
+
+    setSlots -> setScopeSlots
+
+    setCFunc [
+        label="vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)"
+    ]
+
+    setScopeSlots -> setCFunc
+
+    setCreateElementFunc [
+        label="vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)"
+    ]
+
+    setCFunc -> setCreateElementFunc
+
+    getParentData [
+        label="parentData = parentVnode && parentVnode.data"
+    ]
+
+    setCreateElementFunc -> getParentData
+
+    getParentData -> defineReactive [label="not production"]
+
+    defineReactiveOfAttrs [
+        label="defineReactive(vm, '$attrs', parentData && parentData.attrs || emptyObject, null, true)"
+    ]
+    getParentData -> defineReactiveOfAttrs
+
+    defineReactiveOfListeners [
+        label="defineReactive(vm, '$listeners', options._parentListeners || emptyObject, null, true)"
+    ]
+
+    defineReactiveOfAttrs -> defineReactiveOfListeners
+
+    subgraph cluster_resolveSlots {
+        graph [style=dotted]
+        label="resolveSlots(children, context)"
+
+        initSlots [
+            label="const slots = {}"
+        ]
+
+        returnValue [
+            label="return slots"
+        ]
+        initSlots -> returnValue [label="if(!children)"]
+    }
+    subgraph cluster_for {
+        graph[style=dotted]
+        label="for(children)"
+
+        forChildren [
+            label="遍历 children"
+        ]
+        getData [
+            label="data = children[i].data"
+        ]
+
+        initSlots -> forChildren
+        forChildren -> getData
+
+        deleteSolt [
+            label="delete data.attrs.slot"
+        ]
+
+        getData -> deleteSolt [label="data.attrs.slot"]
+
+        getName [
+            label="name = children[i].data.slot"
+        ]
+        deleteSolt -> getName
+        
+    }
+
+    subgraph cluster_defineReactive {
+        graph[style=dotted]
+        label="defineReactive(obj, key, val, customSetter, shallow)"
+
+        getDep [
+            label="dep = new Dep()"
+        ]
+
+        getProperty [
+            label="property=Object.getOwnPropertyDescriptor(obj, key)"
+        ]
+
+        getDep -> getProperty
+        getProperty -> return [label="property.configurable=false"]
+        getGetter [
+            label="getter=property.get"
+        ]
+        getSetter [
+            label="setter=property.set"
+        ]
+        getProperty -> getGetter
+        getGetter -> getSetter
+
+        getChildOb [
+            label="childObj=!shallow && observe(val)"
+            shape=rect
+            color=red
+        ]
+        // 获得观察者
+        getSetter -> getChildOb
+
+        setSetAndGet [
+            label="Object.defineProperty(obj, key, {})"
+        ]
+
+        getChildOb -> setSetAndGet
+        setSetAndGet -> getValue
+        subgraph cluster_reactiveGetter {
+            label="get"
+            getValue [
+                label="value=getter ? getter.call(obj) : val"
+            ]
+            returnGetValue [
+                label="return value"
+            ]
+            getValue -> returnGetValue [label="!Dep.target"]
+            callDepend [
+                label="dep.depend()"
+            ]
+            getValue -> callDepend
+            callChildObDepend [
+                label="childOb.dep.depend"
+            ]
+
+            callDepend -> callChildObDepend [label="childOb is true"]
+
+            dependArray [
+                label="dependArray(value)"
+            ]
+
+            callChildObDepend -> dependArray [label="isArray(value)"]
+        }
+        setSetAndGet -> getSetValue
+        subgraph cluster_reactiveSetter {
+            label="set"
+
+            getSetValue [
+                label="value = getter ? getter.call(obj) : val"
+            ]
+
+            getSetValue -> returnSetValue [label="newVal === value || (newVal !== newVal && value !== value"]
+
+            returnSetValue [
+                label="return"
+            ]
+            callSetter [
+                label="setter.call(obj, newVal)"
+            ]
+            getSetValue -> callSetter [label="setter is true"]
+            setVal [
+                label="val = newVal"
+            ]
+            getSetValue -> setVal [label="setter is false"]
+            notify [
+                label="dep.notify()"
+            ]
+
+            resetChildObj [
+                label="childObj = !shallow && observe(newVal)"
+            ]
+            callSetter -> resetChildObj
+            setVal -> resetChildObj
+
+            resetChildObj -> notify
+        }
+    }
+}
