@@ -1,0 +1,68 @@
+digraph G {
+    label="generate(ast, options)"
+
+    getState [
+        label="state = new CodegenState(options)"
+    ]
+    getCode [
+        label="code = ast ? genElement(ast, state) : `_c('div')`"
+    ]
+    getState -> getCode
+
+    returnValue [
+        label="return { render: `with(this){return ${code}}`, staticRenderFns: state.staticRenderFns }"
+    ]
+
+    getCode -> returnValue
+
+    subgraph cluster_genElement {
+        graph[style=dotted]
+        label="genElement"
+
+        elIsComponent [
+            label="el.component"
+            shape=diamond
+        ]
+
+        setCode [
+            label="code = genComponent(el.component, el, state)"
+        ]
+
+        elIsComponent -> setCode [label="yes"]
+        getData [
+            label="data = el.plain ? undefined : genData(el, state)"
+        ]
+        elIsComponent -> getData [label="no"]
+        getChildren [
+            label="children = el.inlineTemplate ? null : genChildren(el, state, true)"
+        ]
+        getData -> getChildren
+        resetCode [
+            label="code = `_c('${el.tag}'${
+                        data ? `,${data}` : '' // data
+                    }${
+                        children ? `,${children}` : '' // children
+                    })`"
+        ]
+        getChildren -> resetCode
+        setCode -> walk
+        resetCode -> walk
+
+        subgraph cluster_walk {
+            graph[style=dotted]
+            walk [
+                label="for (let i = 0; i < state.transforms.length; i++) {"
+            ]
+
+            resetCode1 [
+                label="code = state.transforms[i](el, code)"
+            ]
+
+            walk -> resetCode1
+        }
+        returnCode [
+            label="return code"
+        ]
+        resetCode1 -> returnCode
+    }
+}

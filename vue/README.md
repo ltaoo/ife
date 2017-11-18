@@ -138,10 +138,36 @@ OK，前面终于完成了初始化，到目前为止都是平台无关的，接
 
 重点还是`compileToFunctions`函数：
 
-#### compileToFunctions
+### compileToFunctions
 
 调用了传进来的`compile`，就是上面那个函数得到了`compiled`变量，再调用`createFunction`并传入了`compile.render`就得到了`render`函数。
 
 ![createCompileToFunctionsFn](./createCompileToFunctionsFn.png)
 
+### baseCompile
 
+噢，虽然知道了`options.render`函数是调用`compileToFunction`得到，而在这个函数里面实际是调用了`createFunction`并传入`compile.render`得到的，与之对应的`compiled.render`又是通过调用`compile`得到的，但最最最内部，实际还是调用的`baseCompile`对`template`解析得到一切。
+
+而这个`baseCompile`是在调用`createCompilerCreator`函数时传入的，所以说，其实是可以定制化核心的那个编译器？
+
+编译器做的事情看起来蛮简单的，
+
+- 1、ast = parse(template, options)
+- 2、optimize(ast, options)
+- 3、code = generate(ast, options)
+
+所以又要拆开来看了
+
+#### parse
+
+太复杂了。。。。就是语法分析生成`AST`那一套，可能由于还要处理自定义指令，模板等所以更复杂？
+
+暂时还是不看了，`optimize`也是比较复杂，最后`generate`稍微简单一些。
+
+#### generate
+
+会根据传入的`ast`判断生成何种类型的节点，组件、原生DOM 亦或者是 if for 之类的处理？
+
+不过最终其实只是拼接成了`_c(componentName)`这种形式，所以我们看到的每一个组件都是这样的，这里得到字符串，然后使用`new Function`得到函数，最后挂载到了`options.render`上。
+
+![generate](./generate.png)

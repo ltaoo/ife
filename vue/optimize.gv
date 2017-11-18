@@ -1,0 +1,3 @@
+digraph G {
+    label="optimize(ast, options)"
+}
