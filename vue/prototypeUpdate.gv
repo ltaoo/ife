@@ -1,0 +1,100 @@
+digraph G {
+    label="Vue.prototype._update(vnode, hydrating)"
+    varVm [
+        label="const vm = this"
+    ]
+    isMounted [
+        label="vm._isMounted"
+        shape=diamond
+    ]
+    varVm -> isMounted
+    callBeforeUpdateHook [
+        label="callHook(vm, 'beforeUpdate')"
+    ]
+
+    isMounted -> callBeforeUpdateHook [label="yes"]
+    varPrevEl [
+        label="const prevEl = vm.$el"
+    ]
+    callBeforeUpdateHook -> varPrevEl
+    varPrevVnode [
+        label="const prevVnode = vm._vnode"
+    ]
+    varPrevEl -> varPrevVnode
+    varInstance [
+        label="const prevActiveInstance = activeInstance"
+    ]
+    varPrevVnode -> varInstance
+
+    resetActiveInstance [
+        label="activeInstance = vm"
+    ]
+    varInstance -> resetActiveInstance
+    setVnode [
+        label="vm._vnode = vnode"
+    ]
+    resetActiveInstance -> setVnode
+    prevVnodeIsTrue [
+        label="prevVnode"
+        shape=diamond
+    ]
+    setVnode -> prevVnodeIsTrue
+
+    patch [
+        label="vm.$el = vm.__patch__(prevVnode, vnode)"
+    ]
+    prevVnodeIsTrue -> patch [label="yes"]
+
+    init [
+        label="vm.$el = vm.__patch__(
+        vm.$el, vnode, hydrating, false /* removeOnly */,
+        vm.$options._parentElm,
+        vm.$options._refElm)"
+    ]
+    prevVnodeIsTrue -> init [label="no, so init"]
+    set [
+        label="vm.$options._parentElm = vm.$options._refElm = null"
+    ]
+    init -> set
+
+    resetActiveInstance1 [
+        label="activeInstance = prevActiveInstance"
+    ]
+    patch -> resetActiveInstance1
+    set -> resetActiveInstance1
+
+    prevEl [
+        label="prevEl"
+        shape=diamond   
+    ]
+
+    resetActiveInstance1 -> prevEl
+    resetVue [
+        label="prevEl.__vue__ = null"
+    ]
+    prevEl -> resetVue [label="yes"]
+
+    el [
+        label="vm.$el"
+        shape=diamond
+    ]
+    prevEl -> el
+    resetVue -> el
+
+    resetElVue [
+        label="vm.$el.__vue__ = vm"
+    ]
+
+    el -> resetElVue [label="yes"]
+
+    parentNeedUpdate [
+        label="vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode"
+        shape=diamond
+    ]
+    el -> parentNeedUpdate
+    resetElVue -> parentNeedUpdate
+    updateParent [
+        label="vm.$parent.$el = vm.$el"
+    ]
+    parentNeedUpdate -> updateParent [label="yes"]
+}

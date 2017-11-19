@@ -264,3 +264,13 @@ vnode = VNode {
 重点是`componentOptions`。
 
 ![Vue.prototype._render](./prototypeRender.png)
+
+### vm._update
+
+更新节点，获取旧节点与新节点，如果是初始化就在调用`patch`时传入不同的参数。如果是更新，就只传入`prevVnode`和`vnode`，如果父节点是`HOC`？就更新父节点的内容（vm.$parent.$el = vm.$el）。
+
+![Vue.prototype._update](./prototypeUpdate.png)
+
+虽然理论上来说，这里就能在页面上看到我们的组件了，但实际上并没有，断点回到了`Watcher.prototype.get`这个方法里面了，一直一直往上最终居然到了`createComponent`这个函数内，并且出来的点是`i(vnode, false, parentElm, refElm)`这个函数的调用。
+
+然后再到`createElm`函数内。
