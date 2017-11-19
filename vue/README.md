@@ -271,6 +271,28 @@ vnode = VNode {
 
 ![Vue.prototype._update](./prototypeUpdate.png)
 
+还没有结束，重点在`patch`函数，该函数内会调用`createElm`，该函数又会调用`createComponent`，然后在函数内会取`vnode.data.hook.init`，然后调用这个`init`函数。
+
+![createElm](./createElm.png)
+![createComponent](./createComponent.png)
+
+所以接下来要断点到`init`函数内看看了。
+
+#### vnode.data.hook.init
+
+位于`/core/vdom/create-component.js`文件内。
+
+`init`钩子会调用`prepatch`钩子，而该钩子又调用`updateChildComponent`函数。
+
+![vnode.data.hook.init](./initHook.png)
+
+#### updateChildComponent
+
+最后调用了`$forceUpdate`，而该方法只是调用了`vm._watcher.update()`方法。
+
+![updateChildComponent](./updateChildComponent.png)
+
+
 虽然理论上来说，这里就能在页面上看到我们的组件了，但实际上并没有，断点回到了`Watcher.prototype.get`这个方法里面了，一直一直往上最终居然到了`createComponent`这个函数内，并且出来的点是`i(vnode, false, parentElm, refElm)`这个函数的调用。
 
 然后再到`createElm`函数内。

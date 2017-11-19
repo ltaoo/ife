@@ -1,0 +1,246 @@
+digraph G {
+    label="patch(oldVnode, vnode, hydrating, removeOnly, parentElm, refElm)"
+
+    vnodeIsUndef [
+        label="isUndef(vnode)"
+        shape=diamond
+    ]
+    oldVnodeIsUndef [
+        label="isDef(oldVnode)"
+        shape=diamond
+    ]
+    vnodeIsUndef -> oldVnodeIsUndef [label="yes"]
+    invoke [
+        label="invokeDestroyHook(oldVnode)"
+    ]
+    oldVnodeIsUndef -> invoke [label="yes"]
+    end [
+        label="return"
+    ]
+    invoke -> end
+    oldVnodeIsUndef -> end
+
+    varInit [
+        label="let isInitialPatch = false"
+    ]
+    vnodeIsUndef -> varInit
+    varQueue [
+        label="const insertedVnodeQueue = []"
+    ]
+    varInit -> varQueue
+
+    oldVnodeIsUndef1 [
+        label="isUndef(oldVnode)"
+        shape=diamond
+    ]
+    varQueue -> oldVnodeIsUndef1
+    resetInit [
+        label="isInitialPatch = true"
+    ]
+    oldVnodeIsUndef1 -> resetInit [label="yes"]
+    createElm0 [
+        label="createElm(vnode, insertedVnodeQueue, parentElm, refElm)"
+    ]
+    resetInit -> createElm0
+    varRealElement [
+        label="const isRealElement = isDef(oldVnode.nodeType)"
+    ]
+    oldVnodeIsUndef1 -> varRealElement [label="no"]
+
+    isRealElement [
+        label="!isRealElement && sameVnode(oldVnode, vnode)"
+        shape=diamond
+    ]
+
+    varRealElement -> isRealElement
+    patchVnode [
+        label="patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)"
+    ]
+    isRealElement -> patchVnode [label="yes"]
+    isRealElement1 [
+        label="isRealElement"
+        shape=diamond
+    ]
+    isRealElement -> isRealElement1 [label="no"]
+    nodeType [
+        label="oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)"
+        shape=diamond
+    ]
+    isRealElement1 -> nodeType [label="yes"]
+    removeAttrs [
+        label="oldVnode.removeAttribute(SSR_ATTR)"
+    ]
+    nodeType -> removeAttrs [label="yes"]
+    setHydrating [
+        label="hydrating = true"
+    ]
+    removeAttrs -> setHydrating
+    hydratingIsTrue [
+        label="isTrue(hydrating)"
+        shape=diamond
+    ]
+    nodeType -> hydratingIsTrue
+    setHydrating -> hydratingIsTrue
+    invokeHydrating [
+        label="hydrate(oldVnode, vnode, insertedVnodeQueue)"
+        shape=diamond
+    ]
+    hydratingIsTrue -> invokeHydrating [label="yes"]
+    invokeInsertHook [
+        label="invokeInsertHook(vnode, insertedVnodeQueue, true)"
+    ]
+    invokeHydrating -> invokeInsertHook
+    returnOldVnode [
+        label="return oldVnode"
+    ]
+    invokeInsertHook -> returnOldVnode
+    notProduction [
+        label="process.env.NODE_ENV !== 'production'"
+        shape=diamond
+    ]
+    invokeHydrating -> notProduction [label="no"]
+    notProduction -> warn [label="yes"]
+
+    resetOldVnode [
+        label="oldVnode = emptyNodeAt(oldVnode)"
+    ]
+    hydratingIsTrue -> resetOldVnode
+    warn -> resetOldVnode
+
+    varOldElm [
+        label="const oldElm = oldVnode.elm"
+    ]
+
+    resetOldVnode -> varOldElm
+    isRealElement1 -> varOldElm
+    varParentElm [
+        label="const parentElm = nodeOps.parentNode(oldElm)"
+    ]
+    varOldElm -> varParentElm
+    createNewNode [
+        label="createElm"
+    ]
+    varParentElm -> createNewNode
+    parentIsDef [
+        label="isDef(vnode.parent)"
+        shape=diamond
+    ]
+    createNewNode -> parentIsDef
+    varAncestor [
+        label="let ancestor = vnode.parent"
+    ]
+    parentIsDef -> varAncestor [label="yes"]
+    varPatchable [
+        label="const patchable = isPatchable(vnode)"
+    ]
+    varAncestor -> varPatchable
+    varPatchable -> while
+    subgraph cluster_while {
+        graph[style=dotted]
+
+        while [
+            label="while (ancestor) {"
+        ]
+
+        while -> for
+        subgraph cluster_for {
+            graph[style=dotted]
+            for [
+                label="for (let i = 0; i < cbs.destroy.length; ++i) {"
+            ]
+            destroy [
+                label="cbs.destroy[i](ancestor)"
+            ]
+            for -> destroy
+        }
+
+        setElm [
+            label="ancestor.elm = vnode.elm"
+        ]
+
+        destroy -> setElm
+        patchable [
+            label="patchable"
+            shape=diamond
+        ]
+        setElm -> patchable
+        patchable -> create [label="yes"]
+        subgraph cluster_for1 {
+            graph[style=dotted]
+            create [
+                label="for (let i = 0; i < cbs.create.length; ++i) {"
+            ]
+            invokeCreate [
+                label="cbs.create[i](emptyNode, ancestor)"
+            ]
+            create -> invokeCreate
+        }
+        varInsert [
+            label="const insert = ancestor.data.hook.insert"
+        ]
+        invokeCreate -> varInsert
+        merged [
+            label="insert.merged"
+            shape=diamond
+        ]
+        varInsert -> merged
+        merged -> for1
+        subgraph cluster_for2 {
+            graph[style=dotted]
+            for1 [
+                label="for (let i = 1; i < insert.fns.length; i++) {"
+            ]
+            invokeFn [
+                label="insert.fns[i]()"
+            ]
+            for1 -> invokeFn
+        }
+
+        registry [
+            label="registerRef(ancestor)"
+        ]
+        patchable -> registry [label="no"]
+
+        resetAncestor [
+            label="ancestor = ancestor.parent"
+        ]
+
+        merged -> resetAncestor
+        registry -> resetAncestor
+        invokeFn -> resetAncestor
+    }
+
+    parentElmIsDef0 [
+        label="isDef(parentElm)"
+        shape=diamond
+    ]
+
+    resetAncestor -> parentElmIsDef0
+    remove [
+        label="removeVnodes(parentElm, [oldVnode], 0, 0)"
+    ]
+    parentElmIsDef0 -> remove [label="yes"]
+    tagIsDef [
+        label="isDef(oldVnode.tag)"
+        shape=diamond
+    ]
+    parentElmIsDef0 -> tagIsDef [label="no"]
+    invokeDestroyHook0 [
+        label="invokeDestroyHook(oldVnode)"
+    ]
+    tagIsDef -> invokeDestroyHook0 [label="yes"]
+
+    invokeInsertHook0 [
+        label="invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)"
+    ]
+    remove -> invokeInsertHook0
+    invokeDestroyHook0 -> invokeInsertHook0
+    tagIsDef -> invokeInsertHook0 [label="no"]
+    createElm0 -> invokeInsertHook0
+
+    returnElm [
+        label="return vnode.elm"
+    ]
+
+    invokeInsertHook0 -> returnElm
+}

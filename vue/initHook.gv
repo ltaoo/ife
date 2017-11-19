@@ -1,0 +1,46 @@
+digraph G {
+    label="init(vnode, hydrating, parentElm, refElm)"
+
+    componentInstance [
+        label="!vnode.componentInstance || vnode.componentInstance._isDestroyed"
+        shape=diamond
+    ]
+    varChild [
+        label="const child = vnode.componentInstance = createComponentInstanceForVnode()"
+    ]
+    componentInstance -> varChild [label="yes"]
+
+    invokeMount [
+        label="child.$mount(hydrating ? vnode.elm : undefined, hydrating)"
+    ]
+    varChild -> invokeMount
+
+    keepAlive [
+        label="vnode.data.keepAlive"
+        shape=diamond
+    ]
+    componentInstance -> keepAlive [label="no"]
+    varMountdNode [
+        label="const mountedNode = vnode"
+    ]
+    keepAlive -> varMountdNode [label="yes"]
+    invokePrepatch [
+        label="componentVNodeHooks.prepatch(mountedNode, mountedNode)"
+    ]
+    varMountdNode -> invokePrepatch
+    subgraph cluster_prepatch {
+        graph[style=dotted]
+        label="prepatch(oldVnode, vnode)"
+        varOptions [
+            label="const options = vnode.componentOptions"
+        ]
+        varChild1 [
+            label="const child = vnode.componentInstance = oldVnode.componentInstance"
+        ]
+        varOptions -> varChild1
+        invokeUpdate [
+            label="updateChildComponent()"
+        ]
+        varChild1 -> invokeUpdate
+    }
+}
