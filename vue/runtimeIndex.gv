@@ -1,0 +1,94 @@
+digraph G {
+    label="vue/platforms/web/runtime/index.js"
+
+    importVue [
+        label="import Vue from 'core/index'"
+    ]
+    importConfig [
+        label="import config from 'core/config'"
+    ]
+    importVue -> importConfig
+    importUtil [
+        label="import { extend, noop } from 'shared/util'"
+    ]
+    importConfig -> importUtil
+    importMount [
+        label="import { mountComponent } from 'core/instance/lifecycle'"
+    ]
+    importUtil -> importMount
+    importTools [
+        label="import { devtools, inBrowser, isChrome } from 'core/util/index'"
+    ]
+    importMount -> importTools
+    importWeb [
+        label="import {...} from 'web/util/index'"
+    ]
+    importTools -> importWeb
+    importPatch [
+        label="import { patch } from './patch'"
+    ]
+    importWeb -> importPatch
+    importDirective [
+        label="import platformDirectives from './directives/index'"
+    ]
+    importPatch -> importDirective
+    importComponent [
+        label="import platformComponents from './components/index'"
+    ]
+    importDirective -> importComponent
+    importComponent -> setMustUseProp
+    subgraph cluster_install {
+        graph[style=dotted]
+        label="install platform specific utils"
+        setMustUseProp [
+            label="Vue.config.mustUseProp = mustUseProp"
+        ]
+        set1 [
+            label="Vue.config.isReservedTag = isReservedTag"
+        ]
+        setMustUseProp -> set1
+        set2 [
+            label="Vue.config.isReservedAttr = isReservedAttr"
+        ]
+        set1 -> set2
+        set3 [
+            label="Vue.config.getTagNamespace = getTagNamespace"
+        ]
+        set2 -> set3
+        set4 [
+            label="Vue.config.isUnknownElement = isUnknownElement"
+        ]
+        set3 -> set4
+    }
+    set4 -> extend1
+    subgraph cluster_install1 {
+        graph[style=dotted]
+        label="install platform runtime directives & components"
+        extend1 [
+            label="extend(Vue.options.directives, platformDirectives)"
+        ]
+        extend2 [
+            label="extend(Vue.options.components, platformComponents)"
+        ]
+        extend1 -> extend2
+    }
+
+    setPatch [
+        label="Vue.prototype.__patch__ = inBrowser ? patch : noop"
+    ]
+    extend2 -> setPatch
+
+    setMount [
+        label="Vue.prototype.$mount = function () {}"
+    ]
+    setPatch -> setMount
+    invokeNextTick [
+        label="Vue.nextTick(function () {})"
+    ]
+    setMount -> invokeNextTick
+
+    export [
+        label="export default Vue"
+    ]
+    invokeNextTick -> export
+}

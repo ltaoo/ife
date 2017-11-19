@@ -1,0 +1,48 @@
+digraph G {
+    label="createComponent(vnode, insertedVnodeQueue, parentElm, refElm)"
+    varI [
+        label="let i = vnode.data"
+    ]
+    iIsDef [
+        label="isDef(i)"
+        shape=diamond
+    ]
+    varI -> iIsDef
+    varIsReactived [
+        label="const isReactivated = isDef(vnode.componentInstance) && i.keepAlive"
+    ]
+    iIsDef -> varIsReactived [label="yes"]
+    hookAndInit [
+        label="isDef(i = i.hook) && isDef(i = i.init)"
+        shape=diamond
+    ]
+    varIsReactived -> hookAndInit
+    callI [
+        label="i(vnode, false /* hydrating */, parentElm, refElm)"
+    ]
+    hookAndInit -> callI [label="yes"]
+    componentInstanceIsDef [
+        label="isDef(vnode.componentInstance)"
+        shape=diamond
+    ]
+    hookAndInit -> componentInstanceIsDef
+    callI -> componentInstanceIsDef
+    initComponent [
+        label="initComponent(vnode, insertedVnodeQueue)"
+    ]
+    componentInstanceIsDef -> initComponent
+    isReactivatedIsTrue [
+        label="isTrue(isReactivated)"
+        shape=diamond
+    ]
+    initComponent -> isReactivatedIsTrue
+    reactivateComponent [
+        label="reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)"
+    ]
+    isReactivatedIsTrue -> reactivateComponent [label="yes"]
+    returnTrue [
+        label="return true"
+    ]
+    reactivateComponent -> returnTrue
+    isReactivatedIsTrue -> returnTrue
+}

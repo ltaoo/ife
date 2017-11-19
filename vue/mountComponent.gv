@@ -1,0 +1,69 @@
+digraph G {
+    label="mountComponent(vm, el, hydrating)"
+
+    setEl [
+        label="vm.$el = el"
+    ]
+
+    renderExist [
+        label="vm.$options.render"
+        shape=diamond
+    ]
+
+    setEl -> renderExist
+    setRender [
+        label="vm.$options.render = createEmptyVNode"
+    ]
+    renderExist -> setRender [label="no"]
+
+    callBeforeMountedHook [
+        label="callHook(vm, 'beforeMounted')"
+    ]
+    setRender -> callBeforeMountedHook
+    renderExist -> callBeforeMountedHook
+
+    varUpdateComponent [
+        label="let updateComponent"
+    ]
+
+    callBeforeMountedHook -> varUpdateComponent
+    isProduction [
+        label="process.env.NODE_ENV !== 'production' && config.performance && mark"
+        shape=diamond
+    ]
+
+    varUpdateComponent -> isProduction
+
+    resetComponent [
+        label="updateComponent = () => vm._update(vm._render(), hydrating)"
+    ]
+    isProduction -> resetComponent [label="no"]
+    initWatcher [
+        label="vm._watcher = new Watcher(vm, updateComponent, noop)"
+    ]
+    resetComponent -> initWatcher
+    setHydrating [
+        label="hydrating = false"
+    ]
+    initWatcher -> setHydrating
+
+    vnodeIsNull [
+        label="vm.$vnode == null"
+        shape=diamond
+    ]
+
+    setHydrating -> vnodeIsNull
+    setMounted [
+        label="vm._isMounted = true"
+    ]
+    vnodeIsNull -> setMounted
+    callMountedHook [
+        label="callHook(vm, 'mounted')"
+    ]
+    setMounted -> callMountedHook
+    returnVm [
+        label="return vm"
+    ]
+    callMountedHook -> returnVm
+
+}

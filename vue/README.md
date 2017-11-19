@@ -171,3 +171,96 @@ OK，前面终于完成了初始化，到目前为止都是平台无关的，接
 不过最终其实只是拼接成了`_c(componentName)`这种形式，所以我们看到的每一个组件都是这样的，这里得到字符串，然后使用`new Function`得到函数，最后挂载到了`options.render`上。
 
 ![generate](./generate.png)
+
+## mountComponent
+
+有趣的是，貌似是先在`runtime/index.js`里面声明了`$mount`方法，然后又在`entry-runtime-with-compiler.js`保存了一下，然后覆盖。
+
+这就导致了，完成编译后，会调用`runtime/index.js`的`mount`方法，其实就是调用`mountComponent`方法。
+
+- vm.$el = el
+- vm._watcher = new Watcher()
+- vm._isMounted = true
+
+![mountComponent](./mountComponent.png)
+
+由于存在两个组件，所以会触发两次`mountComponent`，在第二次断点的时候，会从`new Watcher()`到`updateComponent`这个函数里面来，所以要先看看`new Watcher()`到底做了啥。
+
+最后有这么一段代码：
+
+```javascript
+this.value = this.lazy ? undefined : this.get()
+```
+
+意思就是说，在实例化`watcher`的时候，如果不是`lazy`，就会立刻去获取值放到`watcher.value`上。而`this.get()`重点是这段：
+
+```javascript
+value = this.getter.call(vm, vm)
+```
+
+噢，又到了`this.getter`这个函数，而这个函数却是实例化`watcher`时传入的第二个参数！实际上就是我们在`mountComponent`中声明的`updateComponent`函数！
+
+欧克欧克，终于又连起来了。
+
+所以接下来就是调用
+
+```javascript
+vm._update(vm._render(), hydrating)
+```
+
+### vm._render
+
+来到了core/instance/render.js 这个文件。
+
+最核心的就是调用`render`方法，得到`vnode`，其他的就是添加了一些属性。
+
+- vm.$vnode = _parentVnode
+
+但是，`render`函数是由模板解析得到的，所以无法跟踪查看`render`函数到底做了什么，但是我们可以查看下`vnode`到底是什么
+
+```javascript
+vnode = VNode {
+    elm: undefined,
+    functionalContext: undefined,
+    functionalOptions: undefined,
+    functionalScopeId: undefined,
+    isAsyncPlaceholder: false,
+    isCloned: false,
+    isComment: false,
+    isOnce: false,
+    isRootInsert: true,
+    isStatic: false,
+    key: undefined,
+    ns: undefined,
+    parent: undefined,
+    raw: false,
+    tag: "vue-component-1-app",
+    text: undefined,
+    child: undefined,
+    asyncFactory: undefined,
+    asyncMeta: undefined,
+    children: undefined,
+    componentInstance: undefined,
+    data: {
+        hook: {
+            destroy: ƒ destroy(vnode),
+            init: ƒ init(vnode, hydrating, parentElm, refElm),
+            insert: ƒ insert(vnode),
+            prepatch: ƒ prepatch(oldVnode, vnode),
+        },
+        on: undefined,
+    },
+    context: VueInstance,
+    componentOptions: {
+        Ctor: ƒ VueComponent(options),
+        children: undefined,
+        listeners: undefined,
+        propsData: undefined,
+        tag: "App",
+    },
+}
+```
+
+重点是`componentOptions`。
+
+![Vue.prototype._render](./prototypeRender.png)
