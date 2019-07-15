@@ -20,6 +20,7 @@
   "homepage": "https://github.com/ltaoo/ife/#readme",
   "dependencies": {
     "bootstrap-table": "^1.11.2",
+    "js-yaml": "3.13.1",
     "promise": "^7.1.1",
     "three.js": "^0.77.1"
   },
