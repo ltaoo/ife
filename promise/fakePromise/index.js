@@ -9,6 +9,7 @@ function Promise(fn) {
     this._deferredState = 0; // 延迟状态
     this._state = 0; // 状态
     this._value = null; // 值
+    // console.trace('hello');
     if (fn === noop) return;
     doResolve(fn, this);
 }
@@ -153,3 +154,5 @@ function getThen(obj) {
 function getCatch(obj) {
     return obj.catch;
 }
+
+module.exports = Promise;

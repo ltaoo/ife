@@ -1,12 +1,12 @@
-var Promise = require('./fakePromise/index.js');
+var FakePromise = require('./fakePromise/index.js');
 
-function fetch() {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve('hello world');
-        }, 3000);
-    });
-}
+const instance = new FakePromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('value');
+    }, 1000);
+}).then((res) => {
+    return res;
+}).then((res) => {
+    console.log(res);
+})
 
-fetch()
-    // .then(res => console.log(res));

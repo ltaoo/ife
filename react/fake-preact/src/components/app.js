@@ -17,6 +17,7 @@ export default class App extends Component {
 	}
 
 	handleClick() {
+		debugger;
 		this.setState({
 			name: 'wuya',
 		});

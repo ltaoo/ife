@@ -5,6 +5,11 @@
     <title>seajs 示例</title>
 </head>
 <body>
-    <script src="./sea.js" data-main="./main"></script>
+    <script src="./sea2.js"></script>
+    <script>
+        seajs.use('./util', function (main) {
+            console.log(main) 
+        })
+    </script>
 </body>
 </html>

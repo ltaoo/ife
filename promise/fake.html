@@ -16,9 +16,11 @@
              */
             function fetch() {
                 return new Promise((resolve, reject) => {
+                    console.trace('hello');
                     setTimeout(() => {
                         const randomNumber = Math.random();
                         if (randomNumber < 0.5) {
+                            console.trace();
                             resolve(randomNumber);
                         } else {
                             reject(randomNumber);
